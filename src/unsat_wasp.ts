@@ -4,10 +4,11 @@ import { spawnSync, SpawnSyncReturns } from "child_process";
 export default class WaspCaller{
 
     sysComm :string;
-    constructor(){
+    constructor(pathToWasp:string ="/resources/wasp" ){
         //for now it is linux based
-        this.sysComm = "./resources/wasp";
+        this.sysComm = "./".concat(pathToWasp);
     }   
+
 
     exec_command(command:string , args: string[], input:string, std_out:boolean ): string {
         let execProcess: SpawnSyncReturns<string>;
@@ -61,22 +62,26 @@ export default class WaspCaller{
 
     compute_muses(grounded: string, d_predicates:string[], number_of: number= 0):string{
         let command:string;
+        
         command =  this.sysComm;
         let mus = "--mus=".concat(d_predicates.join(";"));
         let output ;
         try {
             output = this.exec_command(command, [ mus,  "-n ".concat(number_of.toString()) ], grounded, true);    
         } catch (error) {
-            throw error
+            throw error;
         }
-        
+        if(output.length === 0){
+            throw new Error( "WASP was not able to obtain muses because of unexpected format of ground program" )
+        }
+        console.log(output);
         return output;
     }
 
     get_muses(grounded: string, d_predicates:string[], number_of: number= 0):Array<string[]>{
         let musesObtained;
         try{musesObtained = this.compute_muses(grounded, d_predicates, number_of);}
-        catch(e){throw e}
+        catch(e){throw e;}
         return this.parse_result(musesObtained);
     }
 
