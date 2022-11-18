@@ -2,7 +2,7 @@ import { describe, it } from "mocha";
 import { expect } from 'chai';
 import { readFileSync } from 'fs';
 
-import { DebugGrounder, DebugAtom } from '../../src/ground/debug_grounder';
+import { DebugGrounder, DebugAtom, DebugGrounderError } from '../../src/dbg-ground/debug_grounder';
 
 interface DebugProgramTestCase
 {
@@ -11,14 +11,17 @@ interface DebugProgramTestCase
     debug_atoms_map: Map<string, DebugAtom>;
 }
 let debug_program_test_cases: DebugProgramTestCase[] =
-    [ { input_encodings: ['test/ground/test_01.lp'],
-        expected_ground: 'test/ground/test_01.smodels',
+    [ { input_encodings: ['test/dbg-ground/test_01.lp'],
+        expected_ground: 'test/dbg-ground/test_01.smodels',
         debug_atoms_map: new Map<string, DebugAtom>( [
             ['_debug1', new DebugAtom('_debug1', 0, [], 'b :- a.')],
             ['_debug2', new DebugAtom('_debug2', 0, [], 'c :- not a.')],
             ['_debug3', new DebugAtom('_debug3', 0, [], ':- c.')] ] ) },
-      { input_encodings: ['test/ground/col_test.lp', 'test/ground/col_test.in'],
-        expected_ground: 'test/ground/col_test.smodels',
+      { input_encodings: ['test/dbg-ground/test_02.lp'],
+        expected_ground: 'test/dbg-ground/test_02.smodels',
+        debug_atoms_map: new Map<string, DebugAtom>() },
+      { input_encodings: ['test/dbg-ground/col_test.lp', 'test/dbg-ground/col_test.in'],
+        expected_ground: 'test/dbg-ground/col_test.smodels',
         debug_atoms_map: new Map<string, DebugAtom>( [
         ['_debug1', new DebugAtom('_debug1', 1, ['X'], 'node(X) :- arc(X, _).')],
         ['_debug2', new DebugAtom('_debug2', 1, ['X'], 'node(X) :- arc(_, X).')],
@@ -72,6 +75,20 @@ describe('building the debugging ASP program', function()
                 expect(val).to.eql(expected_val);
             }
         });
+    });
+
+    it('manages not existing file error', function()
+    {
+        let dbgGrounder: DebugGrounder = DebugGrounder.createDefault('not/existing/file.lp');
+        let ground = function() { dbgGrounder.ground(); }
+        expect(ground).to.throw(DebugGrounderError);
+    });
+
+    it('manages invalid encoding error', function()
+    {
+        let dbgGrounder: DebugGrounder = DebugGrounder.createDefault('test/dbg-ground/invalid_test.lp');
+        let ground = function() { dbgGrounder.ground(); }
+        expect(ground).to.throw(DebugGrounderError);
     });
     
 });

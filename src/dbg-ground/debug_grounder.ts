@@ -1,5 +1,7 @@
-const GRINGO_WRAPPER = './src/ground/gringo-wrapper/bin/gringo-wrapper';
-const GRINGO_WRAPPER_OPTIONS = '-go="-o smodels"'
+import { spawnSync, SpawnSyncReturns } from "child_process";
+
+const GRINGO_WRAPPER = './src/dbg-ground/gringo-wrapper/bin/gringo-wrapper';
+const GRINGO_WRAPPER_OPTIONS = ['-go="-o smodels"']
 
 export class DebugAtom
 {
@@ -16,6 +18,11 @@ export class DebugAtom
         this.variables = vars;
         this.nonground_rule = rl;
     }
+}
+
+export class DebugGrounderError extends Error
+{
+    public constructor(message?: string) {super(message);}
 }
 
 export abstract class DebugGrounder
@@ -49,26 +56,48 @@ class GringoWrapperDebugGrounder extends DebugGrounder
 
     public ground(): string
     {
-		const exec_gw: any = require('child_process').execSync;
-		const gw_output: string = 
-            exec_gw( GRINGO_WRAPPER + ' ' + GRINGO_WRAPPER_OPTIONS + ' ' + this.encodings.join(' '), {encoding: 'utf-8'});
-        return this.extractDebugAtomsMap(gw_output);
+        let gw_proc: SpawnSyncReturns<string>;
+        try
+        {
+            let gw_args: string[] = [];
+            let gw_output: SpawnSyncReturns<string>;
+        
+            GRINGO_WRAPPER_OPTIONS.forEach( function(opt: string) {gw_args.push(opt)} );
+            this.encodings.forEach( function(enc: string) {gw_args.push(enc)} );
+            
+            gw_proc = spawnSync( GRINGO_WRAPPER, gw_args, {encoding: 'utf-8'});
+        }
+        catch(err)
+            { throw new DebugGrounderError(err); }
+        
+        if ( !gw_proc.stdout )
+            throw new DebugGrounderError('Invalid gringo-wrapper exec.');
+        
+        if ( gw_proc.stderr && gw_proc.stderr.match(/not\sfound|error/).length > 0 )
+            throw new DebugGrounderError(gw_proc.stderr);
+
+        return this.extractDebugAtomsMap(gw_proc.stdout);
     }
 
     private extractDebugAtomsMap( gw_output: string ): string
     {
         let ground_prog_rules: string[] = [];
         let b_minus_found: boolean = false;
+        let b_minus_index: number;
         let ground_prog_done: boolean = false;
         this.debugAtomsMap.clear();
 
+        let i: number = 0;
         for ( var line of gw_output.split(/\n/) )
         {
             let rule_fields: string[] = line.split(' ');
             let code: string = rule_fields[0];
 
             if ( code === 'B-' )
+            {
                 b_minus_found = true;
+                b_minus_index = i;
+            }
             if ( b_minus_found && code === '10' )
             {
                 const debug_predname: string = rule_fields[1];
@@ -83,17 +112,14 @@ class GringoWrapperDebugGrounder extends DebugGrounder
                 this.debugAtomsMap.set
                     (debug_predname, new DebugAtom(debug_predname, debug_predarity, variables, nonground_rule));
                 
-                if ( !ground_prog_done )
-                {
-                    ground_prog_rules.pop();
-                    ground_prog_done = true;
-                }
+                ground_prog_done = true;
             }
             
             if ( !ground_prog_done ) ground_prog_rules.push(line);
+            ++i;
         }
 
-        return ground_prog_rules.join("\n");
+        return ground_prog_rules.slice(0, b_minus_index+4).join("\n");
     }
     
 }
