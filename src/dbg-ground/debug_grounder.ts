@@ -18,6 +18,11 @@ export class DebugAtom
         this.variables = vars;
         this.nonground_rule = rl;
     }
+
+    public getPredicateName(): string  { return this.predicateName; }
+    public getPredicateArity(): number { return this.predicateArity; }
+    public getVariables(): string[]    { return this.variables; }
+    public getNonGroundRule(): string  { return this.nonground_rule; }
 }
 
 export class DebugGrounderError extends Error
