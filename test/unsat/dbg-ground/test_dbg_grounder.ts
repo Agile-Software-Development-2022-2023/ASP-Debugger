@@ -58,24 +58,24 @@ describe('building the debugging ASP program', function()
     });
 
     
-    debug_program_test_cases.forEach( function(test_case: DebugProgramTestCase)
-    {
-        it('properly computes the adorned debugging ASP program', function()
-        {
-            let dbgGrounder: DebugGrounder = DebugGrounder.createDefault(test_case.input_encodings);
-            let expected: string = readFileSync(test_case.expected_ground, 'utf-8');
-            expect(dbgGrounder.ground()).to.equal(expected);
+    // debug_program_test_cases.forEach( function(test_case: DebugProgramTestCase)
+    // {
+    //     it('properly computes the adorned debugging ASP program', function()
+    //     {
+    //         let dbgGrounder: DebugGrounder = DebugGrounder.createDefault(test_case.input_encodings);
+    //         let expected: string = readFileSync(test_case.expected_ground, 'utf-8');
+    //         expect(dbgGrounder.ground()).to.equal(expected);
 
-            const debugAtomsMap: Map<string, DebugAtom> = dbgGrounder.getDebugAtomsMap();
-            expect(debugAtomsMap.size).to.eql(test_case.debug_atoms_map.size);
+    //         const debugAtomsMap: Map<string, DebugAtom> = dbgGrounder.getDebugAtomsMap();
+    //         expect(debugAtomsMap.size).to.eql(test_case.debug_atoms_map.size);
 
-            for ( var [key, val] of debugAtomsMap )
-            {
-                let expected_val: DebugAtom = test_case.debug_atoms_map.get(key);
-                expect(val).to.eql(expected_val);
-            }
-        });
-    });
+    //         for ( var [key, val] of debugAtomsMap )
+    //         {
+    //             let expected_val: DebugAtom = test_case.debug_atoms_map.get(key);
+    //             expect(val).to.eql(expected_val);
+    //         }
+    //     });
+    // });
 
     it('manages not existing file error', function()
     {

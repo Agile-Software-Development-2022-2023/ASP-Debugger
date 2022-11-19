@@ -32,7 +32,7 @@ export default class WaspCaller{
         let re = new RegExp(/\[MUS\s\#\d+\]\:\s+(.+)/);
         for(let i:number = 0; i< muses_lines.length;++i) {
             let el:string = muses_lines[i];
-            let arr = new Array<string>;1
+            let arr = new Array<string>;
             if(re.test(el)){
                 //adding a space in order to recognize and add the last token 
                 //assuming that the division happen by a space
@@ -81,7 +81,6 @@ export default class WaspCaller{
         catch(e){throw e;}
         return this.parse_result(musesObtained);
     }
-
 }
 
 
