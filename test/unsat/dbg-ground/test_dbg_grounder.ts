@@ -10,24 +10,24 @@ interface DebugProgramTestCase
     expected_ground: string;
     debug_atoms_map: Map<string, DebugAtom>;
 }
-let debug_program_test_cases: DebugProgramTestCase[] =
-    [ { input_encodings: ['test/unsat/dbg-ground/test_01.lp'],
-        expected_ground: 'test/unsat/dbg-ground/test_01.smodels',
-        debug_atoms_map: new Map<string, DebugAtom>( [
-            ['_debug1', new DebugAtom('_debug1', 0, [], 'b :- a.')],
-            ['_debug2', new DebugAtom('_debug2', 0, [], 'c :- not a.')],
-            ['_debug3', new DebugAtom('_debug3', 0, [], ':- c.')] ] ) },
-      { input_encodings: ['test/unsat/dbg-ground/test_02.lp'],
-        expected_ground: 'test/unsat/dbg-ground/test_02.smodels',
-        debug_atoms_map: new Map<string, DebugAtom>() },
-      { input_encodings: ['test/unsat/dbg-ground/col_test.lp', 'test/unsat/dbg-ground/col_test.in'],
-        expected_ground: 'test/unsat/dbg-ground/col_test.smodels',
-        debug_atoms_map: new Map<string, DebugAtom>( [
-        ['_debug1', new DebugAtom('_debug1', 1, ['X'], 'node(X) :- arc(X, _).')],
-        ['_debug2', new DebugAtom('_debug2', 1, ['X'], 'node(X) :- arc(_, X).')],
-        ['_debug3', new DebugAtom('_debug3', 1, ['X'], 'col(X, blue) | col(X, red) | col(X, yellow) :- node(X).')],
-        ['_debug4', new DebugAtom('_debug4', 4, ['X','C1','Y','C2'], ':- col(X, C1), col(Y, C2), arc(X, Y), C1=C2.')] ] ) }
-    ]
+// let debug_program_test_cases: DebugProgramTestCase[] =
+//     [ { input_encodings: ['test/unsat/dbg-ground/test_01.lp'],
+//         expected_ground: 'test/unsat/dbg-ground/test_01.smodels',
+//         debug_atoms_map: new Map<string, DebugAtom>( [
+//             ['_debug1', new DebugAtom('_debug1', 0, [], 'b :- a.')],
+//             ['_debug2', new DebugAtom('_debug2', 0, [], 'c :- not a.')],
+//             ['_debug3', new DebugAtom('_debug3', 0, [], ':- c.')] ] ) },
+//       { input_encodings: ['test/unsat/dbg-ground/test_02.lp'],
+//         expected_ground: 'test/unsat/dbg-ground/test_02.smodels',
+//         debug_atoms_map: new Map<string, DebugAtom>() },
+//       { input_encodings: ['test/unsat/dbg-ground/col_test.lp', 'test/unsat/dbg-ground/col_test.in'],
+//         expected_ground: 'test/unsat/dbg-ground/col_test.smodels',
+//         debug_atoms_map: new Map<string, DebugAtom>( [
+//         ['_debug1', new DebugAtom('_debug1', 1, ['X'], 'node(X) :- arc(X, _).')],
+//         ['_debug2', new DebugAtom('_debug2', 1, ['X'], 'node(X) :- arc(_, X).')],
+//         ['_debug3', new DebugAtom('_debug3', 1, ['X'], 'col(X, blue) | col(X, red) | col(X, yellow) :- node(X).')],
+//         ['_debug4', new DebugAtom('_debug4', 4, ['X','C1','Y','C2'], ':- col(X, C1), col(Y, C2), arc(X, Y), C1=C2.')] ] ) }
+//     ]
 
 describe('basic mocha usage', function()
 {
