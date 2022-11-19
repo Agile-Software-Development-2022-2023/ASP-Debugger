@@ -4,7 +4,7 @@ import { spawnSync, SpawnSyncReturns } from "child_process";
 export default class WaspCaller{
 
     sysComm :string;
-    constructor(pathToWasp:string ="/resources/wasp" ){
+    constructor(pathToWasp:string ="/bin/wasp" ){
         //for now it is linux based
         this.sysComm = "./".concat(pathToWasp);
     }   
@@ -16,8 +16,6 @@ export default class WaspCaller{
             execProcess = spawnSync(command, args,  { input : input , encoding: 'utf-8'});
         }
         catch(err){
-            console.log("output",err)
-            console.log("sdterr",err.stderr.toString())
             throw err
         }  
         if(std_out== true){
@@ -74,7 +72,6 @@ export default class WaspCaller{
         if(output.length === 0){
             throw new Error( "WASP was not able to obtain muses because of unexpected format of ground program" )
         }
-        console.log(output);
         return output;
     }
 
