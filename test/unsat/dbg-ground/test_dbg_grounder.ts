@@ -1,8 +1,12 @@
 import { describe, it } from "mocha";
 import { expect } from 'chai';
 import { readFileSync } from 'fs';
+import { spawnSync, SpawnSyncReturns } from "child_process";
 
 import { DebugGrounder, DebugAtom, DebugGrounderError } from '../../../src/dbg-ground/debug_grounder';
+
+const ASP_SOLVER: string = './bin/wasp';
+const ASP_SOLVER_LIMIT: string = '-n 0';
 
 interface DebugProgramTestCase
 {
@@ -10,24 +14,24 @@ interface DebugProgramTestCase
     expected_ground: string;
     debug_atoms_map: Map<string, DebugAtom>;
 }
-// let debug_program_test_cases: DebugProgramTestCase[] =
-//     [ { input_encodings: ['test/unsat/dbg-ground/test_01.lp'],
-//         expected_ground: 'test/unsat/dbg-ground/test_01.smodels',
-//         debug_atoms_map: new Map<string, DebugAtom>( [
-//             ['_debug1', new DebugAtom('_debug1', 0, [], 'b :- a.')],
-//             ['_debug2', new DebugAtom('_debug2', 0, [], 'c :- not a.')],
-//             ['_debug3', new DebugAtom('_debug3', 0, [], ':- c.')] ] ) },
-//       { input_encodings: ['test/unsat/dbg-ground/test_02.lp'],
-//         expected_ground: 'test/unsat/dbg-ground/test_02.smodels',
-//         debug_atoms_map: new Map<string, DebugAtom>() },
-//       { input_encodings: ['test/unsat/dbg-ground/col_test.lp', 'test/unsat/dbg-ground/col_test.in'],
-//         expected_ground: 'test/unsat/dbg-ground/col_test.smodels',
-//         debug_atoms_map: new Map<string, DebugAtom>( [
-//         ['_debug1', new DebugAtom('_debug1', 1, ['X'], 'node(X) :- arc(X, _).')],
-//         ['_debug2', new DebugAtom('_debug2', 1, ['X'], 'node(X) :- arc(_, X).')],
-//         ['_debug3', new DebugAtom('_debug3', 1, ['X'], 'col(X, blue) | col(X, red) | col(X, yellow) :- node(X).')],
-//         ['_debug4', new DebugAtom('_debug4', 4, ['X','C1','Y','C2'], ':- col(X, C1), col(Y, C2), arc(X, Y), C1=C2.')] ] ) }
-//     ]
+let debug_program_test_cases: DebugProgramTestCase[] =
+    [ { input_encodings: ['test/unsat/dbg-ground/test_01.lp'],
+        expected_ground: 'test/unsat/dbg-ground/test_01.smodels',
+        debug_atoms_map: new Map<string, DebugAtom>( [
+            ['_debug1', new DebugAtom('_debug1', 0, [], 'b :- a.')],
+            ['_debug2', new DebugAtom('_debug2', 0, [], 'c :- not a.')],
+            ['_debug3', new DebugAtom('_debug3', 0, [], ':- c.')] ] ) },
+      { input_encodings: ['test/unsat/dbg-ground/test_02.lp'],
+        expected_ground: 'test/unsat/dbg-ground/test_02.smodels',
+        debug_atoms_map: new Map<string, DebugAtom>() },
+      { input_encodings: ['test/unsat/dbg-ground/col_test.lp', 'test/unsat/dbg-ground/col_test.in'],
+        expected_ground: 'test/unsat/dbg-ground/col_test.smodels',
+        debug_atoms_map: new Map<string, DebugAtom>( [
+        ['_debug1', new DebugAtom('_debug1', 1, ['X'], 'node(X) :- arc(X, _).')],
+        ['_debug2', new DebugAtom('_debug2', 1, ['X'], 'node(X) :- arc(_, X).')],
+        ['_debug3', new DebugAtom('_debug3', 1, ['X'], 'col(X, blue) | col(X, red) | col(X, yellow) :- node(X).')],
+        ['_debug4', new DebugAtom('_debug4', 4, ['X','C1','Y','C2'], ':- col(X, C1), col(Y, C2), arc(X, Y), C1=C2.')] ] ) }
+    ]
 
 describe('basic mocha usage', function()
 {
@@ -58,24 +62,24 @@ describe('building the debugging ASP program', function()
     });
 
     
-    // debug_program_test_cases.forEach( function(test_case: DebugProgramTestCase)
-    // {
-    //     it('properly computes the adorned debugging ASP program', function()
-    //     {
-    //         let dbgGrounder: DebugGrounder = DebugGrounder.createDefault(test_case.input_encodings);
-    //         let expected: string = readFileSync(test_case.expected_ground, 'utf-8');
-    //         expect(dbgGrounder.ground()).to.equal(expected);
+    debug_program_test_cases.forEach( function(test_case: DebugProgramTestCase)
+    {
+        it('properly computes the adorned debugging ASP program', function()
+        {
+            let dbgGrounder: DebugGrounder = DebugGrounder.createDefault(test_case.input_encodings);
+            let expected: string = readFileSync(test_case.expected_ground, 'utf-8');
+            expect(check_ground(dbgGrounder.ground(), expected)).to.equal(true);
 
-    //         const debugAtomsMap: Map<string, DebugAtom> = dbgGrounder.getDebugAtomsMap();
-    //         expect(debugAtomsMap.size).to.eql(test_case.debug_atoms_map.size);
+            const debugAtomsMap: Map<string, DebugAtom> = dbgGrounder.getDebugAtomsMap();
+            expect(debugAtomsMap.size).to.eql(test_case.debug_atoms_map.size);
 
-    //         for ( var [key, val] of debugAtomsMap )
-    //         {
-    //             let expected_val: DebugAtom = test_case.debug_atoms_map.get(key);
-    //             expect(val).to.eql(expected_val);
-    //         }
-    //     });
-    // });
+            for ( var [key, val] of debugAtomsMap )
+            {
+                let expected_val: DebugAtom = test_case.debug_atoms_map.get(key);
+                expect(val).to.eql(expected_val);
+            }
+        });
+    });
 
     it('manages not existing file error', function()
     {
@@ -92,3 +96,20 @@ describe('building the debugging ASP program', function()
     });
     
 });
+
+
+function check_ground(ground_a: string, ground_b: string): boolean
+{
+    let solve_output_a: SpawnSyncReturns<string>;
+    let solve_output_b: SpawnSyncReturns<string>;
+    try
+    {
+        solve_output_a = spawnSync(ASP_SOLVER, [ASP_SOLVER_LIMIT], { input : ground_a , encoding: 'utf-8'});
+        solve_output_b = spawnSync(ASP_SOLVER, [ASP_SOLVER_LIMIT], { input : ground_b , encoding: 'utf-8'});
+    }
+    catch (err) { return err; }
+    if ( !solve_output_a.stdout || !solve_output_b.stdout )
+        return false;
+    return solve_output_a.stdout.split(/\n/).sort().join() === 
+           solve_output_b.stdout.split(/\n/).sort().join();
+};
