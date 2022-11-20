@@ -1,4 +1,4 @@
-import WaspCaller from "../../src/unsat_wasp";
+import { WaspCaller } from "../../src/unsat_wasp";
 import  {readFileSync} from 'fs';
 import assert from 'assert';
 // Create a test suite for wasp call

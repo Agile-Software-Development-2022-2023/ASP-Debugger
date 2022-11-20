@@ -1,7 +1,7 @@
 import { spawnSync, SpawnSyncReturns } from "child_process";
 
 
-export default class WaspCaller{
+export class WaspCaller{
 
     sysComm :string;
     constructor(pathToWasp:string ="/bin/wasp" ){

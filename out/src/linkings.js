@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const utils_1 = __importDefault(require("./utils"));
+const utils_1 = require("./utils");
 const fs_1 = __importDefault(require("fs"));
 class Linker {
     //Creates or updates a given linkings file by linking the given files (at least 2)
@@ -12,7 +12,7 @@ class Linker {
         let linkings = { "poolId": 0, "reverseLinkings": {} };
         try {
             if (fs_1.default.existsSync(path_to_linkings)) {
-                linkings = utils_1.default.readJSON(path_to_linkings);
+                linkings = utils_1.Util.readJSON(path_to_linkings);
             }
         }
         catch (error) {
@@ -63,8 +63,8 @@ class Linker {
                 delete reverseLinkings[pool];
             }
         }
-        utils_1.default.writeJSON(linkings, path_to_linkings);
+        utils_1.Util.writeJSON(linkings, path_to_linkings);
     }
 }
-exports.default = Linker;
+exports.Linker = Linker;
 //# sourceMappingURL=linkings.js.map

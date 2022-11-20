@@ -54,7 +54,7 @@ export abstract class DebugGrounder
     { return new GringoWrapperDebugGrounder(encoding_paths); }
 }
 
-class GringoWrapperDebugGrounder extends DebugGrounder
+export class GringoWrapperDebugGrounder extends DebugGrounder
 {
     public constructor(encoding_paths: string | string[])
     { super(encoding_paths); }

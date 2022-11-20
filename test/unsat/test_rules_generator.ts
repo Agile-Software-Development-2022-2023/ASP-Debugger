@@ -2,7 +2,7 @@ import { describe, it } from "mocha";
 import {expect } from "chai";
 import { readFileSync } from "fs";
 import { RulesGenerator } from "../../src/rules_generator";
-import WaspCaller from "../../src/unsat_wasp";
+import { WaspCaller } from "../../src/unsat_wasp";
 import { DebugGrounder, DebugAtom } from "../../src/dbg-ground/debug_grounder";
 import assert from "assert";
 

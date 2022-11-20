@@ -86,4 +86,5 @@ class GringoWrapperDebugGrounder extends DebugGrounder {
         return ground_prog_rules.slice(0, b_minus_index + 4).join("\n");
     }
 }
+exports.GringoWrapperDebugGrounder = GringoWrapperDebugGrounder;
 //# sourceMappingURL=debug_grounder.js.map

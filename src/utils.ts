@@ -1,6 +1,6 @@
 import fs from 'fs';
 
-export default class Util {
+export class Util {
 
     //Reads a json given a specified path
     //Returns the parsed object or throws an error if there was a problem

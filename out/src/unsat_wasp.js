@@ -80,7 +80,7 @@ class WaspCaller {
         return this.parse_result(musesObtained);
     }
 }
-exports.default = WaspCaller;
+exports.WaspCaller = WaspCaller;
 /*import { exec } from 'child_process';
 
 exec('gringo-', (err, stdout, stderr) => {

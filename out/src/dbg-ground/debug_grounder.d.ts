@@ -21,3 +21,8 @@ export declare abstract class DebugGrounder {
     getDebugAtomsMap(): Map<string, DebugAtom>;
     static createDefault(encoding_paths: string | string[]): DebugGrounder;
 }
+export declare class GringoWrapperDebugGrounder extends DebugGrounder {
+    constructor(encoding_paths: string | string[]);
+    ground(): string;
+    private extractDebugAtomsMap;
+}

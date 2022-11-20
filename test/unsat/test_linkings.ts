@@ -1,6 +1,6 @@
 import assert from 'assert';
-import Linker from '../../src/linkings';
-import Util from '../../src/utils';
+import { Linker } from '../../src/linkings';
+import { Util } from '../../src/utils';
 import fs from 'fs';
 
 const linkFiles_test_suite : Object[] = [

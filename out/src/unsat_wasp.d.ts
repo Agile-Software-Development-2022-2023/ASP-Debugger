@@ -1,4 +1,4 @@
-export default class WaspCaller {
+export declare class WaspCaller {
     sysComm: string;
     constructor(pathToWasp?: string);
     exec_command(command: string, args: string[], input: string, std_out: boolean): string;

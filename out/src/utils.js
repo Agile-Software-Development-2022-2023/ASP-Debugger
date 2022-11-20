@@ -31,5 +31,5 @@ class Util {
         }
     }
 }
-exports.default = Util;
+exports.Util = Util;
 //# sourceMappingURL=utils.js.map

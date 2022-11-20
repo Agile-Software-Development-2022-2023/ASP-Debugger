@@ -1,7 +1,7 @@
-import Util from "./utils";
+import { Util } from "./utils";
 import fs from 'fs';
 
-export default class Linker {
+export class Linker {
 
     //Creates or updates a given linkings file by linking the given files (at least 2)
     //Throws an error if there was a problem reading, writing or checking the existance of the given linkings file

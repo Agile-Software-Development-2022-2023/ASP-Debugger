@@ -4,8 +4,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const assert_1 = __importDefault(require("assert"));
-const linkings_1 = __importDefault(require("../../src/linkings"));
-const utils_1 = __importDefault(require("../../src/utils"));
+const linkings_1 = require("../../src/linkings");
+const utils_1 = require("../../src/utils");
 const fs_1 = __importDefault(require("fs"));
 const linkFiles_test_suite = [
     {
@@ -126,10 +126,10 @@ describe('LINKINGS', function () {
             const test_path = "test/.linkings.json";
             try {
                 if (test["initial"]) {
-                    utils_1.default.writeJSON(test["initial"], test_path);
+                    utils_1.Util.writeJSON(test["initial"], test_path);
                 }
-                linkings_1.default.linkFiles(test["files_to_link"], test_path);
-                const output = utils_1.default.readJSON(test_path);
+                linkings_1.Linker.linkFiles(test["files_to_link"], test_path);
+                const output = utils_1.Util.readJSON(test_path);
                 assert_1.default.deepEqual(output, test["expected"]);
             }
             finally {

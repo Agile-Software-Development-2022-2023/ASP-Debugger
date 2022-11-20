@@ -1,6 +1,6 @@
 import assert from "assert";
 import fs from "fs";
-import Util from "../../src/utils";
+import { Util } from "../../src/utils";
 
 describe('UTILS', function() {
     
