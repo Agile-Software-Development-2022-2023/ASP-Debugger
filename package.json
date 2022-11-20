@@ -1,4 +1,5 @@
 {
+  "type": "commonjs",
   "name": "asp-debugger",
   "version": "1.0.0",
   "description": "",

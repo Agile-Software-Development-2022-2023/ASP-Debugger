@@ -27,12 +27,12 @@ export default class WaspCaller{
     // to implement
     parse_result(muses:string): Array<string[]>{
         //PARSE compute muses exec output and return an array of atoms for each muses specified
-        let musMatrix = new  Array<Array<string>>;
+        let musMatrix = new  Array<Array<string>>();
         let muses_lines:string[] = muses.split("\n");
         let re = new RegExp(/\[MUS\s\#\d+\]\:\s+(.+)/);
         for(let i:number = 0; i< muses_lines.length;++i) {
             let el:string = muses_lines[i];
-            let arr = new Array<string>;
+            let arr = new Array<string>();
             if(re.test(el)){
                 //adding a space in order to recognize and add the last token 
                 //assuming that the division happen by a space
