@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const child_process_1 = require("child_process");
+const utils_1 = require("../utils");
 const GRINGO_WRAPPER = './src/dbg-ground/gringo-wrapper/bin/gringo-wrapper';
 const GRINGO_WRAPPER_OPTIONS = ['-go="-o smodels"'];
 class DebugAtom {
@@ -42,8 +43,7 @@ class GringoWrapperDebugGrounder extends DebugGrounder {
             let gw_output;
             GRINGO_WRAPPER_OPTIONS.forEach(function (opt) { gw_args.push(opt); });
             this.encodings.forEach(function (enc) { gw_args.push(enc); });
-            const working_dir = require('path').resolve('./');
-            gw_proc = child_process_1.spawnSync(GRINGO_WRAPPER, gw_args, { encoding: 'utf-8', cwd: working_dir });
+            gw_proc = child_process_1.spawnSync(GRINGO_WRAPPER, gw_args, { encoding: 'utf-8', cwd: utils_1.Util.getRootDir() });
         }
         catch (err) {
             throw new DebugGrounderError(err);

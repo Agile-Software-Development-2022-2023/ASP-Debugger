@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const child_process_1 = require("child_process");
+const utils_1 = require("./utils");
 class WaspCaller {
     constructor(pathToWasp = "/bin/wasp") {
         //for now it is linux based
@@ -9,7 +10,7 @@ class WaspCaller {
     exec_command(command, args, input, std_out) {
         let execProcess;
         try {
-            execProcess = child_process_1.spawnSync(command, args, { input: input, encoding: 'utf-8' });
+            execProcess = child_process_1.spawnSync(command, args, { input: input, encoding: 'utf-8', cwd: utils_1.Util.getRootDir() });
         }
         catch (err) {
             throw err;

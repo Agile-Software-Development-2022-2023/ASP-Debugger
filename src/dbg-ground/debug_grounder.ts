@@ -1,4 +1,5 @@
 import { spawnSync, SpawnSyncReturns } from "child_process";
+import { Util } from '../utils';
 
 const GRINGO_WRAPPER = './src/dbg-ground/gringo-wrapper/bin/gringo-wrapper';
 const GRINGO_WRAPPER_OPTIONS = ['-go="-o smodels"']
@@ -70,8 +71,7 @@ export class GringoWrapperDebugGrounder extends DebugGrounder
             GRINGO_WRAPPER_OPTIONS.forEach( function(opt: string) {gw_args.push(opt)} );
             this.encodings.forEach( function(enc: string) {gw_args.push(enc)} );
             
-            const working_dir = require('path').resolve('./');
-            gw_proc = spawnSync( GRINGO_WRAPPER, gw_args, {encoding: 'utf-8', cwd: working_dir} );
+            gw_proc = spawnSync( GRINGO_WRAPPER, gw_args, {encoding: 'utf-8', cwd: Util.getRootDir()} );
         }
         catch(err)
             { throw new DebugGrounderError(err); }
