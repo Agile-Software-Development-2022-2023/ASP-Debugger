@@ -5,8 +5,6 @@ import { spawnSync, SpawnSyncReturns } from "child_process";
 
 import { DebugGrounder, DebugAtom, DebugGrounderError } from '../../../src/dbg-ground/debug_grounder';
 
-const ASP_SOLVER: string = './bin/wasp';
-const ASP_SOLVER_LIMIT: string = '-n 0';
 
 interface DebugProgramTestCase
 {
@@ -68,7 +66,7 @@ describe('building the debugging ASP program', function()
         {
             let dbgGrounder: DebugGrounder = DebugGrounder.createDefault(test_case.input_encodings);
             let expected: string = readFileSync(test_case.expected_ground, 'utf-8');
-            expect(check_ground(dbgGrounder.ground(), expected)).to.equal(true);
+            dbgGrounder.ground();
 
             const debugAtomsMap: Map<string, DebugAtom> = dbgGrounder.getDebugAtomsMap();
             expect(debugAtomsMap.size).to.eql(test_case.debug_atoms_map.size);
@@ -96,20 +94,3 @@ describe('building the debugging ASP program', function()
     });
     
 });
-
-
-function check_ground(ground_a: string, ground_b: string): boolean
-{
-    let solve_output_a: SpawnSyncReturns<string>;
-    let solve_output_b: SpawnSyncReturns<string>;
-    try
-    {
-        solve_output_a = spawnSync(ASP_SOLVER, [ASP_SOLVER_LIMIT], { input : ground_a , encoding: 'utf-8'});
-        solve_output_b = spawnSync(ASP_SOLVER, [ASP_SOLVER_LIMIT], { input : ground_b , encoding: 'utf-8'});
-    }
-    catch (err) { return err; }
-    if ( !solve_output_a.stdout || !solve_output_b.stdout )
-        return false;
-    return solve_output_a.stdout.split(/\n/).sort().join() === 
-           solve_output_b.stdout.split(/\n/).sort().join();
-};
