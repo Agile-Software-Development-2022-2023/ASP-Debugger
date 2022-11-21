@@ -3,7 +3,7 @@
   "name": "asp-debugger",
   "version": "1.0.0",
   "description": "",
-  "main": "out/src/index.js",
+  "main": "out/index.js",
   "scripts": {
     "test": "ts-mocha ./test --recursive --extension ts"
   },

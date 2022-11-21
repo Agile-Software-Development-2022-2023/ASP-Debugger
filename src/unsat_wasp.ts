@@ -1,5 +1,5 @@
 import { spawnSync, SpawnSyncReturns } from "child_process";
-import { Util } from './utils'; 
+import path from "path";
 
 export class WaspCaller{
 
@@ -13,7 +13,7 @@ export class WaspCaller{
     exec_command(command:string , args: string[], input:string, std_out:boolean ): string {
         let execProcess: SpawnSyncReturns<string>;
         try{
-            execProcess = spawnSync(command, args,  { input : input , encoding: 'utf-8', cwd: Util.getRootDir()});
+            execProcess = spawnSync(command, args,  { input : input , encoding: 'utf-8', cwd: path.resolve(__dirname, "../")});
         }
         catch(err){
             throw err
