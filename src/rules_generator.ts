@@ -108,31 +108,31 @@ export class RulesGenerator{
     }
 }
 
-//Usage example
-let generator = new RulesGenerator();
-//computes ground instances and non ground rules belonging to muses
-let my_debugger = DebugGrounder.createDefault(['/home/andrea/git/ASP-Debugger/test/unsat/problems/3col_unsat.asp']);
-let wasp_caller = new WaspCaller();
+// //Usage example
+// let generator = new RulesGenerator();
+// //computes ground instances and non ground rules belonging to muses
+// let my_debugger = DebugGrounder.createDefault(['/home/andrea/git/ASP-Debugger/test/unsat/problems/3col_unsat.asp']);
+// let wasp_caller = new WaspCaller();
 
-let groundP : string = my_debugger.ground();
-let  my_program : Map<string, DebugAtom> = my_debugger.getDebugAtomsMap();
-let muses : Array<string[]> = wasp_caller.get_muses(groundP, Array.from(my_program.keys()), 3);
-console.log(muses);
-//console.log(muses);
-let ground_rules : Map<string, string[]> = generator.get_ground_rules_from_debug(muses, my_program, 1);
+// let groundP : string = my_debugger.ground();
+// let  my_program : Map<string, DebugAtom> = my_debugger.getDebugAtomsMap();
+// let muses : Array<string[]> = wasp_caller.get_muses(groundP, Array.from(my_program.keys()), 3);
+// console.log(muses);
+// //console.log(muses);
+// let ground_rules : Map<string, string[]> = generator.get_ground_rules_from_debug(muses, my_program, 1);
 
-let non_ground_rules : Array<Set<string>> = generator.get_non_ground_rules_from_debug(muses, my_program);
+// let non_ground_rules : Array<Set<string>> = generator.get_non_ground_rules_from_debug(muses, my_program);
 
-let result : string = '';
-for(let [key, value] of ground_rules){
-    result += value.toString();
-}
-console.log(result);
+// let result : string = '';
+// for(let [key, value] of ground_rules){
+//     result += value.toString();
+// }
+// console.log(result);
 
-let result1 : string = '';
-for(let i = 0; i< non_ground_rules.length; i++){
-    for(let element of non_ground_rules[i]){
-        result1 += element;
-    }
-}
-console.log(result1);
+// let result1 : string = '';
+// for(let i = 0; i< non_ground_rules.length; i++){
+//     for(let element of non_ground_rules[i]){
+//         result1 += element;
+//     }
+// }
+// console.log(result1);
