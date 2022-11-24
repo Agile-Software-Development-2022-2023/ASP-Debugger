@@ -21,16 +21,19 @@ describe('rules_generator_output', function(){
             my_debugger = DebugGrounder.createDefault(file_path);
             let groundP : string = my_debugger.ground();
             let  my_program : Map<string, DebugAtom> = my_debugger.getDebugAtomsMap();
-            let muses : Array<string[]> = wasp_caller.get_muses(groundP, Array.from(my_program.keys()), 1);
-            let ground_rules : Map<string, string[]> = rules_generator.get_ground_rules_from_debug(muses, my_program);
-            let non_ground_rules : Set<string> = rules_generator.get_non_ground_rules_from_debug(muses, my_program);
+            let number_of_muses : number = instance["number_of_muses"];
+            let mus_index_for_ground_rules : number = instance["mus_index_for_ground_rules"]
+            let muses : Array<string[]> = wasp_caller.get_muses(groundP, Array.from(my_program.keys()), number_of_muses);
+            let ground_rules : Map<string, string[]> = rules_generator.get_ground_rules_from_debug(muses, my_program, mus_index_for_ground_rules);
+            let non_ground_rules : Array<Set<string>> = rules_generator.get_non_ground_rules_from_debug(muses, my_program);
             let result : string = '';
             for(let [key, value] of ground_rules){
                 result += value.toString();
             }
             let result1 : string = ''
-            for(let element of non_ground_rules){
-                result1 += element;
+            for(let i = 0; i < non_ground_rules.length; i++){
+                for(let rule of non_ground_rules[i])
+                    result1 += rule;
             }
 
             assert.equal(instance["ground_rules"], result);
