@@ -5,7 +5,7 @@
   "description": "",
   "main": "out/index.js",
   "scripts": {
-    "test": "ts-mocha ./test --recursive --extension ts"
+    "test": "ts-mocha ./test --recursive --extension ts --timeout 10000"
   },
   "keywords": [],
   "author": "",
