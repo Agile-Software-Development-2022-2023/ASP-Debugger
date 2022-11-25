@@ -1,4 +1,5 @@
 import { spawnSync, SpawnSyncReturns } from "child_process";
+import path from "path";
 
 const GRINGO_WRAPPER = './src/dbg-ground/gringo-wrapper/bin/gringo-wrapper';
 const GRINGO_WRAPPER_OPTIONS = ['-go="-o smodels"']
@@ -39,7 +40,7 @@ export abstract class DebugGrounder
     {
         if ( typeof encoding_paths === "string" ) this.encodings = [encoding_paths];
         else this.encodings = encoding_paths;
-        this.debugAtomsMap = new Map<string, DebugAtom>;
+        this.debugAtomsMap = new Map<string, DebugAtom>();
     }
 
     public getEncodings(): string[]
@@ -54,7 +55,7 @@ export abstract class DebugGrounder
     { return new GringoWrapperDebugGrounder(encoding_paths); }
 }
 
-class GringoWrapperDebugGrounder extends DebugGrounder
+export class GringoWrapperDebugGrounder extends DebugGrounder
 {
     public constructor(encoding_paths: string | string[])
     { super(encoding_paths); }
@@ -70,7 +71,7 @@ class GringoWrapperDebugGrounder extends DebugGrounder
             GRINGO_WRAPPER_OPTIONS.forEach( function(opt: string) {gw_args.push(opt)} );
             this.encodings.forEach( function(enc: string) {gw_args.push(enc)} );
             
-            gw_proc = spawnSync( GRINGO_WRAPPER, gw_args, {encoding: 'utf-8'});
+            gw_proc = spawnSync( GRINGO_WRAPPER, gw_args, {encoding: 'utf-8', cwd: path.resolve(__dirname, "../../")} );
         }
         catch(err)
             { throw new DebugGrounderError(err); }
