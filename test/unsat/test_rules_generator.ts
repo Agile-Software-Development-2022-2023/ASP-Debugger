@@ -1,9 +1,9 @@
 import { describe, it } from "mocha";
-import {expect } from "chai";
 import { readFileSync } from "fs";
 import { RulesGenerator } from "../../src/rules_generator";
 import { WaspCaller } from "../../src/unsat_wasp";
 import { DebugGrounder, DebugAtom } from "../../src/dbg-ground/debug_grounder";
+import { MUSesCalculator } from "../../src/muses_facade"
 import assert from "assert";
 
 
@@ -18,14 +18,13 @@ describe('rules_generator_output', function(){
     problems["test"].forEach(function(instance : string[]) {
         it('should test if both ground and non ground rules returned are correct', function(){
             let file_path : string = instance["problem_path"];
-            my_debugger = DebugGrounder.createDefault(file_path);
-            let groundP : string = my_debugger.ground();
-            let  my_program : Map<string, DebugAtom> = my_debugger.getDebugAtomsMap();
             let number_of_muses : number = instance["number_of_muses"];
             let mus_index_for_ground_rules : number = instance["mus_index_for_ground_rules"]
-            let muses : Array<string[]> = wasp_caller.get_muses(groundP, Array.from(my_program.keys()), number_of_muses);
-            let ground_rules : Map<string, string[]> = rules_generator.get_ground_rules_from_debug(muses, my_program, mus_index_for_ground_rules);
-            let non_ground_rules : Array<Set<string>> = rules_generator.get_non_ground_rules_from_debug(muses, my_program);
+            
+            let musFacade = new MUSesCalculator();
+            musFacade.calculateMUSes([file_path], number_of_muses)
+            let ground_rules : Map<string, string[]> = musFacade.getGroundRulesForMUS(mus_index_for_ground_rules);
+            let non_ground_rules : Array<Set<string>> = musFacade.getNonGroundRulesForMUSes();
             let result : string = '';
             for(let [key, value] of ground_rules){
                 result += value.toString();

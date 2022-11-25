@@ -1,5 +1,4 @@
-import {DebugGrounder, DebugAtom} from './dbg-ground/debug_grounder'
-import { WaspCaller } from './unsat_wasp'
+import { DebugAtom } from './dbg-ground/debug_grounder'
 
 export class RulesGenerator{
 

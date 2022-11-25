@@ -4,7 +4,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs_1 = __importDefault(require("fs"));
-const path_1 = __importDefault(require("path"));
 class Util {
     //Reads a json given a specified path
     //Returns the parsed object or throws an error if there was a problem
@@ -30,13 +29,6 @@ class Util {
         catch (error) {
             throw error;
         }
-    }
-    static getRootDir() {
-        let currentDir = __dirname;
-        while (!fs_1.default.existsSync(path_1.default.join(currentDir, 'package.json'))) {
-            currentDir = path_1.default.join(currentDir, '..');
-        }
-        return currentDir;
     }
 }
 exports.Util = Util;

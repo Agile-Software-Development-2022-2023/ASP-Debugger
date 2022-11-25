@@ -1,7 +1,10 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const child_process_1 = require("child_process");
-const utils_1 = require("./utils");
+const path_1 = __importDefault(require("path"));
 class WaspCaller {
     constructor(pathToWasp = "/bin/wasp") {
         //for now it is linux based
@@ -10,7 +13,7 @@ class WaspCaller {
     exec_command(command, args, input, std_out) {
         let execProcess;
         try {
-            execProcess = child_process_1.spawnSync(command, args, { input: input, encoding: 'utf-8', cwd: utils_1.Util.getRootDir() });
+            execProcess = child_process_1.spawnSync(command, args, { input: input, encoding: 'utf-8', cwd: path_1.default.resolve(__dirname, "../") });
         }
         catch (err) {
             throw err;
