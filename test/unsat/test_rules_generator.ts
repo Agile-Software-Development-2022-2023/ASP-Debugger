@@ -13,7 +13,7 @@ describe('rules_generator_output', function(){
     let wasp_caller : WaspCaller = new WaspCaller();
     let my_debugger : DebugGrounder;
     let rules_generator : RulesGenerator = new RulesGenerator();
-    console.log(problems);
+    //console.log(problems);
 
     problems["test"].forEach(function(instance : string[]) {
         it('should test if both ground and non ground rules returned are correct', function(){
