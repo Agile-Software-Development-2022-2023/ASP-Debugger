@@ -1,9 +1,9 @@
 import { describe, it } from "mocha";
 import { expect } from 'chai';
 import { readFileSync } from 'fs';
-import { spawnSync, SpawnSyncReturns } from "child_process";
 
-import { DebugGrounder, DebugAtom, DebugGrounderError } from '../../../src/dbg-ground/debug_grounder';
+import { DebugGrounder, DebugGrounderError } from '../../../src/dbg-ground/debug_grounder';
+import { DebugAtom } from "../../../src/dbg-ground/asp_core";
 
 
 interface DebugProgramTestCase

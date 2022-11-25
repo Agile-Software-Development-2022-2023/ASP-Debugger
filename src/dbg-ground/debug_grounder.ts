@@ -1,30 +1,11 @@
 import { spawnSync, SpawnSyncReturns } from "child_process";
 import path from "path";
+import { DebugAtom } from "./asp_core";
+import { AspGrounder } from "./grounder";
+import { NonGroundDebugProgramBuilder } from "./pre_ground";
 
 const GRINGO_WRAPPER = './src/dbg-ground/gringo-wrapper/bin/gringo-wrapper';
 const GRINGO_WRAPPER_OPTIONS = ['-go="-o smodels"']
-
-export class DebugAtom
-{
-    private predicateName: string;
-    private predicateArity: number;
-    private variables: string[];
-    private nonground_rule: string;
-
-    public constructor(predName: string, predArity: number, 
-        vars: string[], rl: string)
-    {
-        this.predicateName = predName;
-        this.predicateArity = predArity;
-        this.variables = vars;
-        this.nonground_rule = rl;
-    }
-
-    public getPredicateName(): string  { return this.predicateName; }
-    public getPredicateArity(): number { return this.predicateArity; }
-    public getVariables(): string[]    { return this.variables; }
-    public getNonGroundRule(): string  { return this.nonground_rule; }
-}
 
 export class DebugGrounderError extends Error
 {
@@ -40,7 +21,7 @@ export abstract class DebugGrounder
     {
         if ( typeof encoding_paths === "string" ) this.encodings = [encoding_paths];
         else this.encodings = encoding_paths;
-        this.debugAtomsMap = new Map<string, DebugAtom>();
+        this.debugAtomsMap = new Map<string, DebugAtom>;
     }
 
     public getEncodings(): string[]
@@ -55,7 +36,7 @@ export abstract class DebugGrounder
     { return new GringoWrapperDebugGrounder(encoding_paths); }
 }
 
-export class GringoWrapperDebugGrounder extends DebugGrounder
+class GringoWrapperDebugGrounder extends DebugGrounder
 {
     public constructor(encoding_paths: string | string[])
     { super(encoding_paths); }
@@ -128,4 +109,33 @@ export class GringoWrapperDebugGrounder extends DebugGrounder
         return ground_prog_rules.slice(0, b_minus_index+4).join("\n");
     }
     
+}
+
+class RewritingBasedDebugGrounder extends DebugGrounder
+{
+    public ground(): string
+    {
+        let input_program: string = AspGrounder.loadProgram(this.encodings);
+        
+        //
+        // pre-ground rewriting.
+        //
+        let nongroundDebugProgBuilder: NonGroundDebugProgramBuilder = new NonGroundDebugProgramBuilder(input_program);
+        
+        nongroundDebugProgBuilder.removeComments();
+        nongroundDebugProgBuilder.parseRules();
+        this.debugAtomsMap = nongroundDebugProgBuilder.adornRules();
+
+        //
+        // program grounding.
+        //
+        let ground_prog: string = AspGrounder.getInstance().ground(nongroundDebugProgBuilder.getResult());
+
+        //
+        // apply the post-ground rewriting.
+        //
+        // ground_prog will be properly rewrited to obtain the final debug program...
+
+        return ground_prog;
+    }
 }
