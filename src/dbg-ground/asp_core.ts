@@ -5,7 +5,9 @@ export class AspRule
     private globvars: string[];
 
     public getRule(){
-        return this.head.concat(":-"+this.body);
+        if(!this.isFact())
+            return this.head.concat(":-"+this.body);
+        return this.head;    
     }
     
     public getGlobVars(){
@@ -31,7 +33,7 @@ export class AspRule
     public getBody(){
         return this.body;
     }
-
+    public isFact():boolean{ return this.body.length == 0; }
 
 }
 
@@ -50,7 +52,7 @@ export class DebugAtom
         this.variables = vars;
         this.nonground_rule = rl;
     }
-
+    
     public getPredicateName(): string  { return this.predicateName; }
     public getPredicateArity(): number { return this.predicateArity; }
     public getVariables(): string[]    { return this.variables; }

@@ -14,12 +14,12 @@ export class ASP_REGEX{
     public static VARIABLE_REGEX :string = "(?<=[(,; ])"+ "(_*[A-Z][A-Za-z0-9]*)" + "(?=[),; ])"; 
 	
     private static MULTILINE:string = 'm';
-    public static  FACT_ : RegExp= new RegExp(ASP_REGEX.FACT_REGEX, ASP_REGEX.MULTILINE);
+    public static  FACT_PATTERN: RegExp= new RegExp(ASP_REGEX.FACT_REGEX, ASP_REGEX.MULTILINE);
 
-    public static  VARIABLE_: RegExp = new RegExp(ASP_REGEX.VARIABLE_REGEX);
+    public static  VARIABLE_PATTERN: RegExp = new RegExp(ASP_REGEX.VARIABLE_REGEX);
 
-	public static  COMMENT_: RegExp = new RegExp(" *%.*$", ASP_REGEX.MULTILINE);
+	public static  COMMENT_PATTERN: RegExp = new RegExp(" *%.*$", ASP_REGEX.MULTILINE);
 
-	public static  AGGREGATE_: RegExp = new RegExp("[^\\{\\},]*\\{[^\\{\\}]*?\\}[^\\{\\},]*");
+	public static  AGGREGATE_PATTERN: RegExp = new RegExp("[^\\{\\},]*\\{[^\\{\\}]*?\\}[^\\{\\},]*");
 	
 }
