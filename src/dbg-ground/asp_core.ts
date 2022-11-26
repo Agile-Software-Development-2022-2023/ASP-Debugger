@@ -1,7 +1,38 @@
 export class AspRule
 {
     private body: string;
+    private head: string;
     private globvars: string[];
+
+    public getRule(){
+        return this.head.concat(":-"+this.body);
+    }
+    
+    public getGlobVars(){
+        return this.globvars;
+    }
+
+    public setBody(body: string){
+        this.body = body;
+    }
+
+    public setHead(head: string){
+        this.head = head;
+    }
+
+    public setGlobVars(globvars: string[]){
+        this.globvars = globvars;
+    }
+
+    public getHead(){
+        return this.head;
+    }
+
+    public getBody(){
+        return this.body;
+    }
+
+
 }
 
 export class DebugAtom

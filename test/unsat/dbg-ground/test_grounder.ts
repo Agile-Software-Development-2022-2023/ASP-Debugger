@@ -50,7 +50,7 @@ function check_ground_program(actual_ground: string, expected_ground_file: strin
     catch (err) { return false; }
 }
 
-describe.only('Basic ASP grounder usage', function()
+describe('Basic ASP grounder usage', function()
 {
     let grounder: AspGrounder;
     before( function()
