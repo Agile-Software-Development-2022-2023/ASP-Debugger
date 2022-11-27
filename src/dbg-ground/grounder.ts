@@ -58,12 +58,20 @@ export class TheoreticalAspGrounder extends AspGrounder
     
     public ground(inputProgram: string): string
     {
-        inputProgram = TheoreticalAspGrounder.removeComments(inputProgram);
+        inputProgram = this.removeComments(inputProgram);
+        inputProgram = this.rewriteFacts(inputProgram);
         return this.grounder.ground(inputProgram);
     }
 
-    private static removeComments(input_program: string): string
+    protected removeComments(input_program: string): string
         { return input_program.replace(/%.*$/gm, ''); }
+    
+    protected rewriteFacts(input_program: string): string
+    {
+        return input_program.replace(
+            /((?<=((?<!\.)\.(?!\.)))|^)(([ a-zA-Z0-9(),_\-]|(\.\.))*)(?=((?<!\.)\.(?!\.)))/gm,
+            "$3 :- _df") + "\n_df | -_df.";
+    }
 }
 
 export class AspGrounderFactory

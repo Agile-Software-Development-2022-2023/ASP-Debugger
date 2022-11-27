@@ -120,16 +120,32 @@ class AspGrounderSpy extends AspGrounderGringo
     public getReceivedInputProgram(): string { return this.receivedInputProgram; }
     public isCallReceived(): boolean { return this.callReveiced; }
 }
+class TheoreticalAspGrounderStub extends TheoreticalAspGrounder
+{
+    public removeCommentsActive: boolean = true;
+    public rewriteFactsActive: boolean = true;
+
+    protected removeComments(input_program: string): string
+    {
+        if ( this.removeCommentsActive ) return super.removeComments(input_program);
+        return input_program;
+    }
+    protected rewriteFacts(input_program: string): string
+    {
+        if ( this.rewriteFactsActive ) return super.rewriteFacts(input_program);
+        return input_program;
+    }
+}
 
 describe('Theoretical ASP grounder rewritings [pre-grounding]', function()
 {
-    let theo_grounder: TheoreticalAspGrounder;
+    let theo_grounder: TheoreticalAspGrounderStub;
     let grounder_spy: AspGrounderSpy;
     
     before( function()
     {
         grounder_spy = new AspGrounderSpy();
-        theo_grounder = new TheoreticalAspGrounder( grounder_spy );
+        theo_grounder = new TheoreticalAspGrounderStub( grounder_spy );
     });
 
 
@@ -147,6 +163,9 @@ describe('Theoretical ASP grounder rewritings [pre-grounding]', function()
     {
         it('Ignores comments in the input program', function()
         {
+            theo_grounder.removeCommentsActive = true;
+            theo_grounder.rewriteFactsActive = false;
+
             const run_grounder = () => theo_grounder.ground(test_case.input_program);
             assert.throws(run_grounder, AspGrounderSpyStop);
             
@@ -264,11 +283,14 @@ describe('Theoretical ASP grounder rewritings [pre-grounding]', function()
     {
         it('Rewrites facts to make them disjunctive', function()
         {
+            theo_grounder.removeCommentsActive = false;
+            theo_grounder.rewriteFactsActive = true;
+
             const run_grounder = () => theo_grounder.ground(test_case.input_program);
             assert.throws(run_grounder, AspGrounderSpyStop);
             
             assert.ok( grounder_spy.isCallReceived() );
-            //assert.ok( grounder_spy.getReceivedInputProgram() === test_case.expected );
+            assert.ok( grounder_spy.getReceivedInputProgram() === test_case.expected );
         });
     });
 
