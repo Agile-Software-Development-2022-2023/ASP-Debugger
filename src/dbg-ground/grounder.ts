@@ -9,13 +9,6 @@ export class AspGrounderError extends Error
 
 export abstract class AspGrounder
 {
-    private static instance: AspGrounder = null;
-    public static getInstance(): AspGrounder
-    {
-        if ( this.instance == null )
-            this.instance = new AspGrounderGringo();
-        return this.instance;
-    }
     public static loadProgram(programPaths: string[]): string
     {
         try
@@ -30,7 +23,7 @@ export abstract class AspGrounder
     public abstract ground(inputProgram: string): string;
 }
 
-class AspGrounderGringo extends AspGrounder
+export class AspGrounderGringo extends AspGrounder
 {
     private static GRINGO_COMMAND: string = 'gringo';
     private static GRINGO_OPTIONS: string = '-o smodels';
@@ -54,4 +47,38 @@ class AspGrounderGringo extends AspGrounder
         
         return gringo_proc.stdout;
     }
+}
+
+export class TheoreticalAspGrounder extends AspGrounder
+{
+    private grounder: AspGrounder;
+
+    public constructor( grnd: AspGrounder )
+        { super(); this.grounder = grnd; }
+    
+    public ground(inputProgram: string): string
+    {
+        inputProgram = TheoreticalAspGrounder.removeComments(inputProgram);
+        return this.grounder.ground(inputProgram);
+    }
+
+    private static removeComments(input_program: string): string
+        { return input_program.replace(/%.*$/gm, ''); }
+}
+
+export class AspGrounderFactory
+{
+    private static instance: AspGrounderFactory;
+
+    public static getInstance(): AspGrounderFactory
+    {
+        if ( AspGrounderFactory.instance == null )
+            AspGrounderFactory.instance = new AspGrounderFactory();
+        return AspGrounderFactory.instance;
+    }
+
+    private constructor() {}
+
+    public getDefault(): AspGrounder { return new AspGrounderGringo(); }
+    public getTheoretical(): TheoreticalAspGrounder { return new TheoreticalAspGrounder(new AspGrounderGringo()); }
 }
