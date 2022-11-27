@@ -105,6 +105,17 @@ describe('Basic ASP grounder usage', function()
 
 
 class AspGrounderSpyStop extends Error{}
+class AspGrounderSub extends AspGrounderGringo
+{
+    private ground_program: string;
+
+    public constructor( to_return: string )
+        { super(); this.ground_program = to_return; }
+    public setGroundProgram( to_return: string )
+        { this.ground_program = to_return; }
+    public ground(inputProgram: string): string
+        { return this.ground_program; }
+}
 class AspGrounderSpy extends AspGrounderGringo
 {
     private receivedInputProgram: string;
@@ -298,11 +309,179 @@ describe('Theoretical ASP grounder rewritings [pre-grounding]', function()
 
 describe('Theoretical ASP grounder rewritings [post-grounding]', function()
 {
-    let theo_grounder: TheoreticalAspGrounder;
-    
-    before( function()
+    [
+        {
+        ground_program:
+        "1 2 1 0 3\n" +
+		"1 4 1 0 3\n" +
+		"1 5 2 0 2 4\n" +
+		"1 6 1 0 2\n" +
+		"1 1 2 0 3 7\n" +
+		"8 2 3 7 0 0\n" +
+		"0\n" +
+		"3 _fl\n" +
+		"2 a\n" +
+		"4 b\n" +
+		"5 c\n" +
+		"6 d\n" +
+		"7 -_fl\n" +
+		"0\n" +
+		"B+\n" +
+		"0\n" +
+		"B-\n" +
+		"1\n" +
+		"0\n" +
+		"1",
+        expected:
+        "1 2 0 0\n" +
+		"1 4 0 0\n" +
+		"1 5 2 0 2 4\n" +
+		"1 6 1 0 2\n" +
+		"0\n" +
+		"2 a\n" +
+		"4 b\n" +
+		"5 c\n" +
+		"6 d\n" +
+		"0\n" +
+		"B+\n" +
+		"0\n" +
+		"B-\n" +
+		"1\n" +
+		"0\n" +
+		"1"
+        },
+
+        {
+        ground_program:
+        "1 2 1 0 3\n" +
+		"1 5 1 0 2\n" +
+		"1 1 1 0 5\n" +
+		"1 1 2 0 3 7\n" +
+		"8 2 7 3 0 0\n" +
+		"0\n" +
+		"3 _fl\n" +
+		"2 a\n" +
+		"5 b\n" +
+		"7 -_fl\n" +
+		"0\n" +
+		"B+\n" +
+		"0\n" +
+		"B-\n" +
+		"1\n" +
+		"0\n" +
+		"1\n",
+        expected:
+        "1 2 0 0\n" +
+		"1 5 1 0 2\n" +
+		"1 1 1 0 5\n" +
+		"0\n" +
+		"2 a\n" +
+		"5 b\n" +
+		"0\n" +
+		"B+\n" +
+		"0\n" +
+		"B-\n" +
+		"1\n" +
+		"0\n" +
+		"1\n",
+        },
+
+        {
+        ground_program:
+        "1 2 1 0 3\n" +
+		"1 4 1 0 3\n" +
+		"1 5 2 0 2 4\n" +
+		"1 6 1 0 3\n" +
+		"1 7 1 0 3\n" +
+		"1 8 1 0 3\n" +
+		"1 9 1 0 6\n" +
+		"1 10 1 0 7\n" +
+		"1 11 1 0 8\n" +
+		"1 12 2 0 6 9\n" +
+		"1 13 2 0 7 10\n" +
+		"1 14 2 0 8 11\n" +
+		"1 1 2 0 3 15\n" +
+		"8 2 3 15 0 0\n" +
+		"0\n" +
+		"3 _fl\n" +
+		"2 a\n" +
+		"4 d1\n" +
+		"5 b\n" +
+		"6 n(1)\n" +
+		"7 n(2)\n" +
+		"8 n(3)\n" +
+		"9 d_2_1\n" +
+		"10 d_2_2\n" +
+		"11 d_2_3\n" +
+		"12 pred(1)\n" +
+		"13 pred(2)\n" +
+		"14 pred(3)\n" +
+		"15 -_fl\n" +
+		"0\n" +
+		"B+\n" +
+		"0\n" +
+		"B-\n" +
+		"1\n" +
+		"0\n" +
+		"1",
+        expected:
+        "1 2 0 0\n" +
+		"1 4 0 0\n" +
+		"1 5 2 0 2 4\n" +
+		"1 6 0 0\n" +
+		"1 7 0 0\n" +
+		"1 8 0 0\n" +
+		"1 9 1 0 6\n" +
+		"1 10 1 0 7\n" +
+		"1 11 1 0 8\n" +
+		"1 12 2 0 6 9\n" +
+		"1 13 2 0 7 10\n" +
+		"1 14 2 0 8 11\n" +
+		"0\n" +
+		"2 a\n" +
+		"4 d1\n" +
+		"5 b\n" +
+		"6 n(1)\n" +
+		"7 n(2)\n" +
+		"8 n(3)\n" +
+		"9 d_2_1\n" +
+		"10 d_2_2\n" +
+		"11 d_2_3\n" +
+		"12 pred(1)\n" +
+		"13 pred(2)\n" +
+		"14 pred(3)\n" +
+		"0\n" +
+		"B+\n" +
+		"0\n" +
+		"B-\n" +
+		"1\n" +
+		"0\n" +
+		"1",
+        },
+
+        { // empty program
+        ground_program: "0\n0\nB+\n0\nB-\n1\n0\n1",
+        expected:       "0\n0\nB+\n0\nB-\n1\n0\n1"
+        }
+    ]
+    .forEach( function(test_case)
     {
-        theo_grounder = new TheoreticalAspGrounder( new AspGrounderSpy() );
+        it('Restores original facts and nullifies pre-ground rewritings', function()
+        {
+            let grounder_stub: AspGrounderSub = new AspGrounderSub(test_case.ground_program);
+            let theo_grounder: TheoreticalAspGrounderStub = new TheoreticalAspGrounderStub( grounder_stub );
+
+            theo_grounder.removeCommentsActive = false;
+            theo_grounder.rewriteFactsActive = false;
+
+            let actual: string = theo_grounder.ground('');
+            assert.ok( actual === test_case.expected );
+
+            // check expected output remains the same.
+            grounder_stub.setGroundProgram( test_case.expected );
+            actual = theo_grounder.ground('');
+            assert.ok( actual === test_case.expected );
+        });
     });
 
 });
