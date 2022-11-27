@@ -12,14 +12,25 @@ export class NonGroundDebugProgramBuilder
         this.logic_program = input_program;
     }
     
-    public getInputProgram(): string { return this.logic_program; }
+    public getLogicProgram(): string { return this.logic_program; }
+	public setLogicProgram(input_program: string){ this.logic_program = input_program;}
     public getNonGroundRules(): AspRule[] { return this.nonground_rules; }
     public getResult(): string { return this.nonground_rules.join("\n"); }
 
     /*	public String removeComments(String logicProgram) {
 		return COMMENT_PATTERN.matcher(logicProgram).replaceAll("");
 	}*/
-    public removeComments() {this.logic_program.replace(ASP_REGEX.COMMENT_PATTERN, "");}
+	private replaceAll(program:string, regex: RegExp, sub:string){
+		let origin = program; 
+        let replaced = program.replace(regex, sub);
+		while(origin !== replaced){
+			origin = replaced;
+			replaced = replaced.replace(regex, sub);
+		}
+		return replaced;
+	}
+
+    public removeComments() {this.logic_program = this.replaceAll(this.logic_program, ASP_REGEX.COMMENT_PATTERN, "");}
 
     public getVariables(ruleBody:string): Array<string> {
 		// remove any aggregates from the rule body		
@@ -37,12 +48,12 @@ export class NonGroundDebugProgramBuilder
         this.logic_program.split("(?<!\\.)\\.(?!\\.)").forEach(rule => {
 			if (rule.includes(":-")) {
 				// rule, identified by ':-', thus add ', _debug#' to the rule
+				let splitted = rule.split(":-");
+				let variables:Array<string> = this.getVariables(splitted[1]);
+				this.nonground_rules.push(new AspRule(splitted[0], splitted[1], variables));
+				//debugAtomRuleMap.put(debugConstantPrefix + debugConstantNum, new Rule(rule.replace("\n", "").trim() + ".", variables));
 				
-				List<String> variables = getVariables(rule.split(":-")[1]);
-
-				debugAtomRuleMap.put(debugConstantPrefix + debugConstantNum, new Rule(rule.replace("\n", "").trim() + ".", variables));
-				
-				if (variables.size() > 0) {
+				/*if (variables.length > 0) {
 					debugConstant.append("(");
 					debugConstant.append(variables.get(0));
 					for (int i = 1; i < variables.size(); i ++) {
@@ -50,9 +61,9 @@ export class NonGroundDebugProgramBuilder
 						debugConstant.append(variables.get(i));
 					}
 					debugConstant.append(")");
-				}
+				}*/
 				
-				preprocessedProgram.append(rule);
+				/*preprocessedProgram.append(rule);
 				preprocessedProgram.append(", ");
 				preprocessedProgram.append(debugConstant);
 				preprocessedProgram.append(".");
@@ -72,9 +83,9 @@ export class NonGroundDebugProgramBuilder
 				debugRules.append(".\n");
 				
 				debugConstantNum ++;
-			} else if (rule.contains("|") || (rule.contains("{") && rule.contains("}"))) {
+			} else if (rule.includes("|") || (rule.includes("{") && rule.includes("}"))) {
 				// disjunction or choice rule, thus add ' :- _debug#' to the rule
-				preprocessedProgram.append(rule);
+				/*preprocessedProgram.append(rule);
 				preprocessedProgram.append(" :- ");
 				preprocessedProgram.append(debugConstantPrefix);
 				preprocessedProgram.append(debugConstantNum);
@@ -86,7 +97,11 @@ export class NonGroundDebugProgramBuilder
 				debugRules.append(".\n");
 				
 				debugConstantNum ++;
-			} else {
+
+				//it should not have variables, because it does not have a body.
+				let variables:Array<string> = this.getVariables(rule);
+				this.nonground_rules.push(new AspRule(rule, "", []));
+			} /*else {
 				// fact, thus do not alter it
 				preprocessedProgram.append(rule);
 				

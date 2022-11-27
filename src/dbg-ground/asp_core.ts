@@ -4,6 +4,12 @@ export class AspRule
     private head: string;
     private globvars: string[];
 
+    public constructor(head:string,body:string, globvars:string[]){
+        this.body = body;
+        this.head = head;
+        this.globvars = globvars;
+    }
+
     public getRule(){
         if(!this.isFact())
             return this.head.concat(":-"+this.body);
