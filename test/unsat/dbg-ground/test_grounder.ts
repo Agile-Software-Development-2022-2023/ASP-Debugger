@@ -172,6 +172,92 @@ describe('Theoretical ASP grounder rewritings [pre-grounding]', function()
 		"aBJi91ed :- _df.\n" +
 		"d :- a.\n" +
 		"_df | -_df."
+        },
+
+        {
+        input_program:
+        "  a.\n" +
+        "_b      .\n" +
+        "     aBJi91ed    .\n" +
+        "d :- a.",
+        expected:
+        "  a :- _df.\n" +
+        "_b       :- _df.\n" + 
+		"     aBJi91ed     :- _df.\n" +
+		"d :- a.\n" +
+		"_df | -_df."
+        },
+
+        {
+        input_program:
+        "a.     b.   c.   \n" +
+	    "   d. e.f.g.\n" +
+		"x :- a",
+        expected:
+        "a :- _df.     b :- _df.   c :- _df.   \n" +
+        "   d :- _df. e :- _df.f :- _df.g :- _df.\n" +
+        "x :- a\n" +
+        "_df | -_df."
+        },
+
+        {
+        input_program:
+        "pred(a).\n" +
+		"pred(b,c).\n" +
+		"_pRed1(b).\n" +
+		"_pRed1(b,c,d).\n" +
+		"a(X) :- pred(X).",
+        expected:
+        "pred(a) :- _df.\n" +
+		"pred(b,c) :- _df.\n" +
+		"_pRed1(b) :- _df.\n" +
+		"_pRed1(b,c,d) :- _df.\n" +
+		"a(X) :- pred(X).\n" +
+		"_df | -_df."
+        },
+
+        {
+        input_program:
+        "  pred (a ).\n" +
+		"pred(  b,c    )   .\n" +
+		"   _pRed1   (b)  .\n" +
+		" _pRed1(b ,  c,  d).\n" +
+		"a(X) :- pred(X).",
+        expected:
+        "  pred (a ) :- _df.\n" +
+		"pred(  b,c    )    :- _df.\n" +
+		"   _pRed1   (b)   :- _df.\n" +
+		" _pRed1(b ,  c,  d) :- _df.\n" +
+		"a(X) :- pred(X).\n" +
+		"_df | -_df."
+        },
+
+        {
+        input_program:
+        "  pred(a). pred(b).    pred(c).\n" +
+		" pred(d).     pred1(e).pred2(f,g).\n" +
+		"    pred2  (a,   b ).pred2(  b, d).   pred3(a,b,   c  ).\n" +
+		"a(X) :- pred(X).",
+        expected:
+        "  pred(a) :- _df. pred(b) :- _df.    pred(c) :- _df.\n" +
+		" pred(d) :- _df.     pred1(e) :- _df.pred2(f,g) :- _df.\n" +
+		"    pred2  (a,   b ) :- _df.pred2(  b, d) :- _df.   pred3(a,b,   c  ) :- _df.\n" +
+		"a(X) :- pred(X).\n" +
+		"_df | -_df."
+        },
+
+        {
+        input_program:
+        "pred(1..10). pred2 ( 1 ..   5).pred3(  5     ..4).\n" +
+		"pred4(0..2).\n" +
+		" pred5 ( 1 ..   9, 10, a).\n" +
+		"a(X) :- pred(X).",
+        expected:
+        "pred(1..10) :- _df. pred2 ( 1 ..   5) :- _df.pred3(  5     ..4) :- _df.\n" +
+		"pred4(0..2) :- _df.\n" +
+		" pred5 ( 1 ..   9, 10, a) :- _df.\n" +
+		"a(X) :- pred(X).\n" +
+		"_df | -_df."
         }
     ]
     .forEach( function(test_case)
