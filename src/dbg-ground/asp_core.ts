@@ -47,6 +47,10 @@ export class DebugAtom
         this.nonground_rule = rl;
     }
     
+    public equals(other) {
+        return other.predicateArity == this.predicateArity && other.variables === this.variables && this.nonground_rule === other.nonground_rule && this.predicateName === other.predicateName;
+     };
+
     public getPredicateName(): string  { return this.predicateName; }
     public getPredicateArity(): number { return this.predicateArity; }
     public getVariables(): string[]    { return this.variables; }

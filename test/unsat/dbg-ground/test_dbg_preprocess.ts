@@ -1,6 +1,7 @@
 import assert from "assert";
 import { readFileSync } from "fs";
 import { brotliDecompressSync } from "zlib";
+import { DebugAtom } from "../../../src/dbg-ground/asp_core";
 import { NonGroundDebugProgramBuilder } from "../../../src/dbg-ground/pre_ground"
 
 describe.only('Check Preprocessing phase works properly before grounding the program', function()
@@ -33,6 +34,22 @@ describe.only('Check Preprocessing phase works properly before grounding the pro
             preproc.setLogicProgram(program);
             let computed = preproc.getAdornedProgram();
             assert.deepEqual(computed, adorned);
+        });
+    })
+    it('checks that after processing an ASP program, the debug map corresponds to the expected one', function(){
+        let values =  JSON.parse(readFileSync("./test/unsat/dbg-ground/preproc.json").toString());
+        values["test_success"].forEach(function(item: string[]) {
+            let program:string = item["program"];
+            let atoms = item["map"];
+            preproc.clearMap();
+            preproc.setLogicProgram(program);
+            preproc.getAdornedProgram();
+            let obtainedMap: Map<string, DebugAtom> = preproc.getDebugAtomsMap();
+            obtainedMap.forEach((value:DebugAtom, key:string)=>{
+                let map:any = atoms[key];
+                let atom:DebugAtom = new DebugAtom(map["predicateName"],map["predicateArity"],map["variables"],map["nonground_rule"]);
+                assert.deepEqual(atom, value);
+            });
         });
     })
     

@@ -94,8 +94,6 @@ export class NonGroundDebugProgramBuilder
 		//return am array of unique variables  
 		return variables.filter((value, index, array) => array.indexOf(value) === index);
 	}
-
-	public getDebugAtoms(): Map<string, AspRule[]> {return null;}
 	public clearMap():void{
 		this.debugAtomsMap = new Map<string,DebugAtom>();
 	}
