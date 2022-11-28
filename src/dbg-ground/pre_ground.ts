@@ -17,6 +17,40 @@ export class NonGroundDebugProgramBuilder
     public getLogicProgram(): string { return this.logic_program; }
 	public setLogicProgram(input_program: string){ this.logic_program = input_program;}
 
+	private splitRules(program:string):Array<string>{
+		let rules:Array<string> = [];
+		let queue: Array<string> = [];
+		let start:number = 0;
+		for(let i : number = 0; i<program.length;++i){
+			if(program[i] == '"' || program[i] == "'" || program[i] == "\\" ){
+				if(queue[queue.length-1] != program[i])
+					queue.push(program[i]);
+				else 
+					queue.pop();	
+			}else if(program[i] == '.' && queue.length <= 0){
+				rules.push(program.substring(start, i));
+				start=i+1;
+
+			}
+		}
+		return rules;
+	}
+
+	private splitByIf(rule:string):Array<string>{
+		let queue: Array<string> = [];
+		for(let i : number = 1; i<rule.length;++i){
+			if(rule[i] == '"' || rule[i] == "'" || rule[i] == "\\" ){
+				if(queue[queue.length-1] != rule[i])
+					queue.push(rule[i]);
+				else 
+					queue.pop();	
+			}else if(rule[i] == '-' && rule[i-1] == ":" && queue.length <= 0){
+				return [rule.substring(0, i-1), rule.substring(i+1, rule.length)];
+			}
+		}
+		return [rule,""];
+	}
+
 	private replaceAll(program:string, regex: RegExp, sub:string){
 		let origin = program; 
         let replaced = program.replace(regex, sub);
@@ -29,11 +63,32 @@ export class NonGroundDebugProgramBuilder
 
     public removeComments() {this.logic_program = this.replaceAll(this.logic_program, ASP_REGEX.COMMENT_PATTERN, "");}
 
+	//it should ignore the strings
     public getVariables(ruleBody:string): Array<string> {
 		// remove any aggregates from the rule body		
-        ruleBody = ruleBody.replace(new RegExp(ASP_REGEX.AGGREGATE_PATTERN,"g"), "");
+		//first remove strings
+		let queue: Array<string> = [];
+		let sanitizedRule:string = ruleBody;
+		let start = 0 ;
+		let end = 0;
+		for(let i : number = 0; i<ruleBody.length;++i){
+			if((ruleBody[i] == '"' || ruleBody[i] == "'" || ruleBody[i] == "\\" )){
+				if(queue.length == 0)
+					start = i;
+				else if(queue.length == 1){
+					end = i;
+					sanitizedRule = sanitizedRule.replace(ruleBody.substring(start, end+1), "stringa");
+				}
+				if(queue[queue.length-1] != ruleBody[i])
+					queue.push(ruleBody[i]);
+				else 
+					queue.pop();	
+			}
+		}
+
+        sanitizedRule = sanitizedRule.replace(new RegExp(ASP_REGEX.AGGREGATE_PATTERN,"g"), "");
 		let variables = new Array<string>();	
-		variables = ruleBody.match(new RegExp(ASP_REGEX.VARIABLE_PATTERN,"g"));
+		variables = sanitizedRule.match(new RegExp(ASP_REGEX.VARIABLE_PATTERN,"g"));
 		if(variables === null)
 			variables = [];
 		//return am array of unique variables  
@@ -44,6 +99,37 @@ export class NonGroundDebugProgramBuilder
 	public clearMap():void{
 		this.debugAtomsMap = new Map<string,DebugAtom>();
 	}
+
+	private containsCouple(rule:string, couple:string = ":-"):boolean {
+		let queue: Array<string> = [];
+		for(let i : number = 1; i<rule.length;++i){
+			if(rule[i] == '"' || rule[i] == "'" || rule[i] == "\\" ){
+				if(queue[queue.length-1] != rule[i])
+					queue.push(rule[i]);
+				else 
+					queue.pop();	
+			}else if(rule[i] == couple[1] && rule[i-1] == couple[0] && queue.length <= 0){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private containsCharacterOutSideString(rule:string, del:string):boolean {
+		let queue: Array<string> = [];
+		for(let i : number = 0; i<rule.length;++i){
+			if(rule[i] == '"' || rule[i] == "'" || rule[i] == "\\" ){
+				if(queue[queue.length-1] != rule[i])
+					queue.push(rule[i]);
+				else 
+					queue.pop();	
+			}else if(rule[i] == del && queue.length <= 0){
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public getAdornedProgram(debugConstantPrefix:string  = "_debug"): string {
 		let debugConstantNum: number = 1;
 		let adornedProgram:string = "";
@@ -51,14 +137,15 @@ export class NonGroundDebugProgramBuilder
 		let aggregateTerm2 : RegExp = new RegExp(ASP_REGEX.AGGREGATE_PATTERN+ "(?!,)");
 		let debugRules : string = "";
 		// split the program into rules. The regex matches only a single '.'
-		this.logic_program.split(/(?<!\.)\.(?!\.)/).forEach(rule=>{
-			if (rule.includes(":-")) {
+		//this.logic_program.split(/(?<!\.)\.(?!\.)/).forEach(rule=>{
+		this.splitRules(this.logic_program).forEach(rule =>{	
+			if (this.containsCouple(rule, ":-")) {
 				// rule with the body should be adorned adding a the debug atoms with their globalVars
 				//Consider that the debug atom then should be put as the head of a rule with the body of the rules adorned
 				//This permits to derive the debug atom only if necessary, dependetly of the constants it includes
 				let debugPred= debugConstantPrefix+debugConstantNum;
 				
-				let variables:Array<string> = this.getVariables(rule.split(":-")[1]);
+				let variables:Array<string> = this.getVariables(this.splitByIf(rule)[1]);
 
 				this.debugAtomsMap.set(debugPred, new DebugAtom(debugPred, variables.length , variables, rule.replace("\n", "").trim() + "."));
 				
@@ -73,9 +160,9 @@ export class NonGroundDebugProgramBuilder
 				}
 				
 				adornedProgram = adornedProgram.concat(rule);
-				adornedProgram.concat(", ");
-				adornedProgram.concat(debugPred);
-				adornedProgram.concat(".");
+				adornedProgram = adornedProgram.concat(", ");
+				adornedProgram = adornedProgram.concat(debugPred);
+				adornedProgram = adornedProgram.concat(".");
 				
 
 				/*Construct a rule of the form debug(1,2,3):- pred1(1), pred2(2),pred3(3).
@@ -84,7 +171,7 @@ export class NonGroundDebugProgramBuilder
 				
 				if (variables.length > 0) {
 					debugRules = debugRules.concat(" :- ");
-					let body: string = rule.split(":-")[1];
+					let body: string = this.splitByIf(rule)[1];
 					body = this.replaceAll(body, aggregateTerm1, "");
 					body= this.replaceAll(body, aggregateTerm2, "");
 					body= this.replaceAll(body, ASP_REGEX.AGGREGATE_PATTERN, "");
@@ -92,11 +179,11 @@ export class NonGroundDebugProgramBuilder
 					debugRules = debugRules.concat(body);
 				}
 				//in order to start the new rule
-				debugRules.concat(".\n");			
+				debugRules = debugRules.concat(".\n");			
 				debugConstantNum ++;
 
 			//this includes rules without the body, such a rule should be adorned with the creation of the body including the debug atom
-			} else if(rule.includes("|") || (rule.includes("{") && rule.includes("}"))) {
+			} else if(this.containsCharacterOutSideString(rule, "|") || (this.containsCharacterOutSideString(rule,"{") && this.containsCharacterOutSideString(rule,"}"))) {
 				// disjunction or choice rule, thus add ' :- _debug#' to the rule
 				let debugPred:string= debugConstantPrefix+debugConstantNum;
 				adornedProgram = adornedProgram.concat(rule);
