@@ -1,19 +1,15 @@
 export class AspRule
 {
     private body: string;
-    private head: string;
     private globvars: string[];
 
-    public constructor(head:string,body:string, globvars:string[]){
+    public constructor(body:string, globvars:string[] = []){
         this.body = body;
-        this.head = head;
         this.globvars = globvars;
     }
 
     public getRule(){
-        if(!this.isFact())
-            return this.head.concat(":-"+this.body);
-        return this.head;    
+        return this.body;    
     }
     
     public getGlobVars(){
@@ -24,16 +20,8 @@ export class AspRule
         this.body = body;
     }
 
-    public setHead(head: string){
-        this.head = head;
-    }
-
     public setGlobVars(globvars: string[]){
         this.globvars = globvars;
-    }
-
-    public getHead(){
-        return this.head;
     }
 
     public getBody(){

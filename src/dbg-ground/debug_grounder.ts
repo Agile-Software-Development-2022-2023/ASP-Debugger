@@ -1,7 +1,7 @@
 import { spawnSync, SpawnSyncReturns } from "child_process";
 import path from "path";
 import { DebugAtom } from "./asp_core";
-import { AspGrounder } from "./grounder";
+import { AspGrounder, AspGrounderFactory } from "./grounder";
 import { NonGroundDebugProgramBuilder } from "./pre_ground";
 
 const GRINGO_WRAPPER = './src/dbg-ground/gringo-wrapper/bin/gringo-wrapper';
@@ -123,13 +123,13 @@ class RewritingBasedDebugGrounder extends DebugGrounder
         let nongroundDebugProgBuilder: NonGroundDebugProgramBuilder = new NonGroundDebugProgramBuilder(input_program);
         
         nongroundDebugProgBuilder.removeComments();
-        nongroundDebugProgBuilder.parseRules();
-        this.debugAtomsMap = nongroundDebugProgBuilder.adornRules();
+       
+        this.debugAtomsMap = nongroundDebugProgBuilder.getDebugAtomsMap();
 
         //
         // program grounding.
         //
-        let ground_prog: string = AspGrounder.getInstance().ground(nongroundDebugProgBuilder.getResult());
+        let ground_prog: string = AspGrounderFactory.getInstance().getTheoretical().ground(nongroundDebugProgBuilder.getAdornedProgram());
 
         //
         // apply the post-ground rewriting.
