@@ -319,12 +319,12 @@ describe('Theoretical ASP grounder rewritings [post-grounding]', function()
 		"1 1 2 0 3 7\n" +
 		"8 2 3 7 0 0\n" +
 		"0\n" +
-		"3 _fl\n" +
+		"3 _df\n" +
 		"2 a\n" +
 		"4 b\n" +
 		"5 c\n" +
 		"6 d\n" +
-		"7 -_fl\n" +
+		"7 -_df\n" +
 		"0\n" +
 		"B+\n" +
 		"0\n" +
@@ -359,10 +359,10 @@ describe('Theoretical ASP grounder rewritings [post-grounding]', function()
 		"1 1 2 0 3 7\n" +
 		"8 2 7 3 0 0\n" +
 		"0\n" +
-		"3 _fl\n" +
+		"3 _df\n" +
 		"2 a\n" +
 		"5 b\n" +
-		"7 -_fl\n" +
+		"7 -_df\n" +
 		"0\n" +
 		"B+\n" +
 		"0\n" +
@@ -403,7 +403,7 @@ describe('Theoretical ASP grounder rewritings [post-grounding]', function()
 		"1 1 2 0 3 15\n" +
 		"8 2 3 15 0 0\n" +
 		"0\n" +
-		"3 _fl\n" +
+		"3 _df\n" +
 		"2 a\n" +
 		"4 d1\n" +
 		"5 b\n" +
@@ -416,7 +416,7 @@ describe('Theoretical ASP grounder rewritings [post-grounding]', function()
 		"12 pred(1)\n" +
 		"13 pred(2)\n" +
 		"14 pred(3)\n" +
-		"15 -_fl\n" +
+		"15 -_df\n" +
 		"0\n" +
 		"B+\n" +
 		"0\n" +

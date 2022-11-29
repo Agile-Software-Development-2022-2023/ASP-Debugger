@@ -60,7 +60,7 @@ export class TheoreticalAspGrounder extends AspGrounder
     {
         inputProgram = this.removeComments(inputProgram);
         inputProgram = this.rewriteFacts(inputProgram);
-        return this.grounder.ground(inputProgram);
+        return this.nullifyFactRewritings( this.grounder.ground(inputProgram) );
     }
 
     protected removeComments(input_program: string): string
@@ -72,6 +72,47 @@ export class TheoreticalAspGrounder extends AspGrounder
             /((?<=((?<!\.)\.(?!\.)))|^)(([ a-zA-Z0-9(),_\-]|(\.\.))*)(?=((?<!\.)\.(?!\.)))/gm,
             "$3 :- _df") + "\n_df | -_df.";
     }
+
+    protected nullifyFactRewritings(ground_program: string): string
+    {
+        try
+        {
+            let sections: string[] = ground_program.split(/^0\n/gm);
+            let rules:    string   = sections[0];
+            let symbols:  string   = sections[1];
+            
+            //
+            // rewrite symbol table
+            //
+            const posDisjFactRegexp  : RegExp = new RegExp('^(\\d+) _df\\n' , 'gm');
+            const negDisjFactRegexp  : RegExp = new RegExp('^(\\d+) -_df\\n', 'gm');
+            const pos_disj_atom_code: string = posDisjFactRegexp.exec(symbols)[1];
+            const neg_disj_atom_code: string = negDisjFactRegexp.exec(symbols)[1];
+            symbols = symbols.replace(posDisjFactRegexp, '');
+            symbols = symbols.replace(negDisjFactRegexp, '');
+
+            //
+            // rewrite rules
+            //
+            const disjFactRuleRegexp  : RegExp = new RegExp('^1 (\\d+) 1 0 ' + pos_disj_atom_code, 'gm');
+            const constraintRuleRegexp: RegExp = 
+                new RegExp('^1 1 2 0 (' + pos_disj_atom_code + ' ' + neg_disj_atom_code + '|'
+                                        + neg_disj_atom_code + ' ' + pos_disj_atom_code + ')\\n', 'gm');
+            const disjuncRuleRegexp   : RegExp = 
+                new RegExp('^8 2 (' + pos_disj_atom_code + ' ' + neg_disj_atom_code + '|'
+                                    + neg_disj_atom_code + ' ' + pos_disj_atom_code + ') 0 0\\n', 'gm');
+            rules = rules.replace(disjFactRuleRegexp, '1 $1 0 0');
+            rules = rules.replace(constraintRuleRegexp, '');
+            rules = rules.replace(disjuncRuleRegexp, '');
+
+            sections[0] = rules;
+            sections[1] = symbols;
+
+            return sections.join("0\n");
+        }
+        catch (err) { return ground_program; }
+    }
+
 }
 
 export class AspGrounderFactory
