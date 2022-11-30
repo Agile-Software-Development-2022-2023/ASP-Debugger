@@ -1,6 +1,7 @@
 import { spawnSync, SpawnSyncReturns } from "child_process";
 import path from "path";
 import { DebugAtom } from "./asp_core";
+import { freezeStrings } from "./asp_utils";
 import { AspGrounder, AspGrounderFactory } from "./grounder";
 import { NonGroundDebugProgramBuilder } from "./pre_ground";
 
@@ -111,7 +112,7 @@ class GringoWrapperDebugGrounder extends DebugGrounder
     
 }
 
-class RewritingBasedDebugGrounder extends DebugGrounder
+export class RewritingBasedDebugGrounder extends DebugGrounder
 {
     public ground(): string
     {
@@ -135,12 +136,26 @@ class RewritingBasedDebugGrounder extends DebugGrounder
         let ground_prog: string = AspGrounderFactory.getInstance().getTheoretical().ground(adorned);
         //get Maps of Debug Atom after the calculatoin of the preprocessed ground program
         this.debugAtomsMap = nongroundDebugProgBuilder.getDebugAtomsMap();
-        
+        let split:Array<string> =  ground_prog.split(/^0\n/); 
+        split[0] = split[0]+"\n"+ this.calculateChoiceRule(split[1],this.debugAtomsMap, nongroundDebugProgBuilder.getDebugPredicate());
         //
         // apply the post-ground rewriting.
         //
         // ground_prog will be properly rewrited to obtain the final debug program...
 
-        return ground_prog;
+        return split.join("0\n");
+    }
+    
+    public calculateChoiceRule(atoms: string, debugAtomsMap: Map<string, DebugAtom>, predicate: string): string {
+        let placeholders: Map<string, string>  = new Map<string, string>;
+        let sanitized : string = freezeStrings(atoms , placeholders);
+        console.log(sanitized);
+        let id_of_debug: Array<string> = sanitized.match(new RegExp(`([0-9]+) ${predicate}.*\n`, "g"));
+        for(let i :number = 0 ; i< id_of_debug.length;++i){
+            id_of_debug[i] = id_of_debug[i].split(" ")[0];
+        }
+        let choice = "3 "+id_of_debug.length+" ";
+        choice = choice.concat(id_of_debug.join(" ")) +" 0 0"; 
+        return choice;     
     }
 }

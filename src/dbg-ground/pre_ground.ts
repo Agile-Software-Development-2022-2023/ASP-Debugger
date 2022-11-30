@@ -8,6 +8,7 @@ export class NonGroundDebugProgramBuilder
     private logic_program: string;
 	private adornedProgram: string;
     private debugAtomsMap: Map<string,DebugAtom>;
+	private debug_predicate:string;
 	//private nonground_rules: AspRule[];
 	private stringPlaceholder: Map<string, string>;
     public constructor(input_program: string)
@@ -16,10 +17,12 @@ export class NonGroundDebugProgramBuilder
 		this.debugAtomsMap = new Map<string,DebugAtom>();
 		this.adornedProgram = "";
 		this.stringPlaceholder = new Map<string, string>();
+		this.debug_predicate = "_debug";
     }
-    
+    public getDebugPredicate():string{return this.debug_predicate; }
+	public setDebugPredicate(pred : string):void{ this.debug_predicate=pred; }
     public getLogicProgram(): string { return this.logic_program; }
-	public setLogicProgram(input_program: string){ this.logic_program = input_program;}
+	public setLogicProgram(input_program: string){ this.logic_program = input_program;this.debug_predicate = "_debug";}
 
 
 	private replaceAll(program:string, regex: RegExp, sub:string){
@@ -64,6 +67,7 @@ export class NonGroundDebugProgramBuilder
 
 	public adornProgram(debugConstantPrefix:string  = "_debug"): void {
 		debugConstantPrefix = make_unique(debugConstantPrefix, this.logic_program);
+		this.debug_predicate = debugConstantPrefix;
 		let debugConstantNum: number = 1;
 		this.adornedProgram = "";
 		//remove aggregate atoms that are not useful for debugging purposes.
@@ -71,13 +75,11 @@ export class NonGroundDebugProgramBuilder
 		let aggregateTerm2 : RegExp = new RegExp(ASP_REGEX.AGGREGATE_PATTERN+ "(?!,)");
 		//manage weak constraints, it permit to deal with weak.
 		this.logic_program = this.replaceAll(this.logic_program, new RegExp("\](?!\.)"), "\]\." );
-		console.log("program " + this.logic_program);
-		console.log("I'm here");
+
 		let debugRules : string = "";
 		// split the program into rules. The regex matches only a single '.'
 		//this.logic_program.split(/(?<!\.)\.(?!\.)/).forEach(rule=>{
 		this.logic_program.split(/(?<!\.)\.(?!\.)/).forEach(rule =>{
-			console.log(rule);	
 			if (rule.includes(":-")) {
 				// rule with the body should be adorned adding a the debug atoms with their globalVars
 				//Consider that the debug atom then should be put as the head of a rule with the body of the rules adorned

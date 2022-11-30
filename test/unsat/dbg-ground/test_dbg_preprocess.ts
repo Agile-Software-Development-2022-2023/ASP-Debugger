@@ -2,6 +2,7 @@ import assert from "assert";
 import { readFileSync } from "fs";
 import { brotliDecompressSync } from "zlib";
 import { DebugAtom } from "../../../src/dbg-ground/asp_core";
+import {RewritingBasedDebugGrounder} from "../../../src/dbg-ground/debug_grounder";
 import { NonGroundDebugProgramBuilder } from "../../../src/dbg-ground/pre_ground"
 
 describe('Check Preprocessing phase works properly before grounding the program', function()
@@ -54,4 +55,21 @@ describe('Check Preprocessing phase works properly before grounding the program'
         });
     })
     
+});
+
+describe('Check pregrounding insertion of muses', function()
+{
+    let grounder: RewritingBasedDebugGrounder = new  RewritingBasedDebugGrounder("") ;
+    it('checks that the method addChoiceRules would add the correct choice with debug atoms', function()
+    {
+        let map: Map<string, DebugAtom> = new Map<string, DebugAtom> ;
+        map.set("_debug1", new DebugAtom("_debug1", 0, [], ":-a."));
+        map.set("_debug2", new DebugAtom("_debug2", 0, [], "d:-b, a, c."));
+        map.set("_debug3", new DebugAtom("_debug3", 2, ["X","Y"], "d1(X,Y):-b1(X), a(Y), c."));
+        map.set("_debug4", new DebugAtom("_debug4", 2, ["X","Y"], "k:l,"));
+        let  choice:string = grounder.calculateChoiceRule("6 _debug1\n5 _debug2\n4 _debug3(1,2)\n8 _debug3(3,3)\n7 _debug4\n12 test(1,2)\n",map, "_debug");
+        let expected:string = "3 5 6 5 4 8 7 0 0";
+        assert.deepEqual(choice, expected);
+    });
+
 });

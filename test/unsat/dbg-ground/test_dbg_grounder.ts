@@ -73,7 +73,7 @@ describe('building the debugging ASP program', function()
 
             for ( var [key, val] of debugAtomsMap )
             {
-                let expected_val: DebugAtom = test_case.debug_atoms_map.get(key);
+                let expected_val: DebugAtom|undefined = test_case.debug_atoms_map.get(key);
                 expect(val).to.eql(expected_val);
             }
         });
