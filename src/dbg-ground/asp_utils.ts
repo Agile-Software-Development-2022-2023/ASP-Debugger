@@ -1,7 +1,7 @@
 const CHARS: string = 'abcdefghijklmnopqrstuvwxyz';
 export function make_unique(pred_name: string, asp_program: string): string
 {
-    while ( asp_program.includes(pred_name) );
+    while ( asp_program.includes(pred_name) )
         pred_name += CHARS.at(Math.floor(Math.random() * CHARS.length));
     return pred_name;
 }

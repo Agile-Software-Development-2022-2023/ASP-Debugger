@@ -123,5 +123,131 @@
             }
           }
     }
-    ]
+    ],
+    "test_specific_adornments":[
+      {
+          "expected": "{a;b;c} :- _debug1.\n     { _d1234_56890__12Asd    ;   e   ;     f   }   :- _debug2.  { pred(_a);  pred1 (  b , d )  ; pred (    c )   }  :- _debug3.\n  1 { g; h   ; i } 3 :- _debug4.\n  1 { pred3  (  a,  b ,    c  )   ; h   ; i } 3 :- _debug5.\n1{h;i;pred(d)}2 :- _debug6.\n  12 { j; kssd12; l; m; pred3 (d, e, f) }   :- _debug7.\n{n;pred1(c,d);o;p}3 :- _debug8.\n_debug1.\n_debug2.\n_debug3.\n_debug4.\n_debug5.\n_debug6.\n_debug7.\n_debug8.\n",
+          "program": "{a;b;c}.\n     { _d1234_56890__12Asd    ;   e   ;     f   }  .  { pred(_a);  pred1 (  b , d )  ; pred (    c )   } .\n  1 { g; h   ; i } 3.\n  1 { pred3  (  a,  b ,    c  )   ; h   ; i } 3.\n1{h;i;pred(d)}2.\n  12 { j; kssd12; l; m; pred3 (d, e, f) }  .\n{n;pred1(c,d);o;p}3.",
+          "map": {
+              "_debug1": {
+                "predicateName": "_debug1",
+                "predicateArity": 0,
+                "variables": [],
+                "nonground_rule": "{a;b;c}."
+              },
+              "_debug2": {
+                "predicateName": "_debug2",
+                "predicateArity": 0,
+                "variables": [],
+                "nonground_rule": "{ _d1234_56890__12Asd    ;   e   ;     f   }."
+              },
+              "_debug3" : {
+                "predicateName": "_debug3",
+                "predicateArity": 0,
+                "variables": [],
+                "nonground_rule": "{ pred(_a);  pred1 (  b , d )  ; pred (    c )   }."
+              },
+              "_debug4" : {
+                "predicateName": "_debug4",
+                "predicateArity": 0,
+                "variables": [],
+                "nonground_rule": "1 { g; h   ; i } 3."
+              },
+              "_debug5" : {
+                "predicateName": "_debug5",
+                "predicateArity": 0,
+                "variables": [],
+                "nonground_rule": "1 { pred3  (  a,  b ,    c  )   ; h   ; i } 3."
+              },
+              "_debug6" : {
+                "predicateName": "_debug6",
+                "predicateArity": 0,
+                "variables": [],
+                "nonground_rule": "1{h;i;pred(d)}2."
+              },
+              "_debug7" : {
+                "predicateName": "_debug7",
+                "predicateArity": 0,
+                "variables": [],
+                "nonground_rule": "12 { j; kssd12; l; m; pred3 (d, e, f) }."
+              },
+              "_debug8" : {
+                "predicateName": "_debug8",
+                "predicateArity": 0,
+                "variables": [],
+                "nonground_rule": "{n;pred1(c,d);o;p}3."
+              }
+            }
+      },
+      {
+         
+          "expected":"h1:- b1(X,Y),b(Z,K), _debug1(X, Y, Z, K). h2:- b2(X,Y), _debug2(X, Y).\n:-text(a), _debug3. \nfact(X,V,B,B,77,constant).\n_debug1(X, Y, Z, K) :-  b1(X,Y),b(Z,K).\n_debug2(X, Y) :-  b2(X,Y).\n_debug3.\n",
+          "program": "h1:- b1(X,Y),b(Z,K). h2:- b2(X,Y).\n:-text(a). \nfact(X,V,B,B,77,constant).",
+          "map": {
+              "_debug1": {
+                "predicateName": "_debug1",
+                "predicateArity": 4,
+                "variables": ["X", "Y", "Z", "K"],
+                "nonground_rule": "h1:- b1(X,Y),b(Z,K)."
+              },
+              "_debug2": {
+                "predicateName": "_debug2",
+                "predicateArity": 2,
+                "variables": [ "X", "Y" ],
+                "nonground_rule": "h2:- b2(X,Y)."
+              },
+              "_debug3" : {
+                  "predicateName": "_debug3",
+                  "predicateArity": 0,
+                  "variables": [],
+                  "nonground_rule": ":-text(a)."
+          }
+          }
+      },
+      {
+         
+          "expected":"h1:- b(Z, U, K), _debug1(Z, U, K). 1{hq(a)}1 :- _debug2.\n_debug1(Z, U, K) :-  b(Z, U, K).\n_debug2.\n",
+          "program": "h1:- b(Z, U, K). 1{hq(a)}1.",
+          "map":{
+              "_debug1": {
+              "predicateName": "_debug1",
+              "predicateArity": 3,
+              "variables": [ "Z", "U", "K" ],
+              "nonground_rule": "h1:- b(Z, U, K)."
+            },
+            "_debug2" :{
+              "predicateName": "_debug2",
+              "predicateArity": 0,
+              "variables": [],
+              "nonground_rule": "1{hq(a)}1."
+            }
+          }
+      },
+      {
+         
+          "expected":"fatto(A, B, C). fatto2(L, Q, V).\nfatto3(A, B, C).",
+          "program": "fatto(A, B, C). fatto2(L, Q, V).\nfatto3(A, B, C).",
+          "map":{}
+          
+      },
+      {
+         
+          "expected":"fatto(L, P ,O).\n {pred(P)} :- _debug1. \n:~pred(X),pred1(Y). [1@1]\n:-pred(X), _debug2(X).\n_debug1.\n_debug2(X) :- pred(X).\n" ,
+          "program": "fatto(L, P ,O).\n {pred(P)}. \n:~pred(X),pred1(Y). [1@1]\n:-pred(X).",
+          "map": {
+              "_debug1" : {
+                "predicateName": "_debug1",
+                "predicateArity": 0,
+                "variables": [],
+                "nonground_rule": "{pred(P)}."
+              },
+              "_debug2" : {
+                "predicateName": "_debug2",
+                "predicateArity": 1,
+                "variables": [ "X" ],
+                "nonground_rule": "[1@1]:-pred(X)."
+              }
+            }
+      }
+      ]
 }

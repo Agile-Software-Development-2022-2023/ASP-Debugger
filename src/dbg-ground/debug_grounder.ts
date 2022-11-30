@@ -122,15 +122,20 @@ class RewritingBasedDebugGrounder extends DebugGrounder
         //
         let nongroundDebugProgBuilder: NonGroundDebugProgramBuilder = new NonGroundDebugProgramBuilder(input_program);
         
+        
+        nongroundDebugProgBuilder.cleanString();
         nongroundDebugProgBuilder.removeComments();
     
         //
         // program grounding.
         //
-        let ground_prog: string = AspGrounderFactory.getInstance().getTheoretical().ground(nongroundDebugProgBuilder.getAdornedProgram());
+        nongroundDebugProgBuilder.adornProgram();
+        nongroundDebugProgBuilder.restorePlaceholderToString();
+        let adorned:string = nongroundDebugProgBuilder.getAdornedProgram();
+        let ground_prog: string = AspGrounderFactory.getInstance().getTheoretical().ground(adorned);
         //get Maps of Debug Atom after the calculatoin of the preprocessed ground program
         this.debugAtomsMap = nongroundDebugProgBuilder.getDebugAtomsMap();
-
+        
         //
         // apply the post-ground rewriting.
         //
