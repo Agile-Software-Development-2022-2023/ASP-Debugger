@@ -9,7 +9,7 @@ describe('Check Preprocessing phase works properly before grounding the program'
     let preproc: NonGroundDebugProgramBuilder = new NonGroundDebugProgramBuilder("") ;
     it('checks that the method getVariables retrieve actually retrieve all the variables in a function', function()
     {
-        let bodies: Array<string> = ["pred(A,B,C,D), #count{X: pred1(X)}", "test(Z,A), test(Z,B), test(Z,C)", "test, proof, proof", "pred(X,C,V,\":-b(A,B,D).\"), pred1(L,O,P)"];
+        let bodies: Array<string> = ["pred(A,B,C,D), #count{X: pred1(X)}", "test(Z,A), test(Z,B), test(Z,C)", "test, proof, proof", "pred(X,C,V), pred1(L,O,P)"];
         let expected: Array<Array<string>> = [["A", "B", "C", "D"], ["Z","A", "B", "C"], [],["X","C","V","L","O","P"]];
         for(let i = 0; i< bodies.length; i++){
             assert.deepEqual(preproc.getVariables(bodies[i]), expected[i]);
@@ -27,23 +27,24 @@ describe('Check Preprocessing phase works properly before grounding the program'
 
     it('checks that an ASP program already processed and without comments is adorned correctly', function(){
         let values =  JSON.parse(readFileSync("./test/unsat/dbg-ground/preproc.json").toString());
-        values["test_success"].forEach(function(item: string[]) {
+        values["test_specific_adornments"].forEach(function(item: string[]) {
             let program:string = item["program"];
             let adorned:string = item["expected"];
             preproc.clearMap();
             preproc.setLogicProgram(program);
+            preproc.adornProgram();
             let computed = preproc.getAdornedProgram();
             assert.deepEqual(computed, adorned);
         });
     })
     it('checks that after processing an ASP program, the debug map corresponds to the expected one', function(){
         let values =  JSON.parse(readFileSync("./test/unsat/dbg-ground/preproc.json").toString());
-        values["test_success"].forEach(function(item: string[]) {
+        values["test_specific_adornments"].forEach(function(item: string[]) {
             let program:string = item["program"];
             let atoms = item["map"];
             preproc.clearMap();
             preproc.setLogicProgram(program);
-            preproc.getAdornedProgram();
+            preproc.adornProgram();
             let obtainedMap: Map<string, DebugAtom> = preproc.getDebugAtomsMap();
             obtainedMap.forEach((value:DebugAtom, key:string)=>{
                 let map:any = atoms[key];

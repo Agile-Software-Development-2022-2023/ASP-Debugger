@@ -38,31 +38,12 @@ export class NonGroundDebugProgramBuilder
     public getVariables(ruleBody:string): Array<string> {
 		// remove any aggregates from the rule body		
 		//first remove strings
-		let queue: Array<string> = [];
-		let sanitizedRule:string = ruleBody;
-		let start = 0 ;
-		let end = 0;
-		for(let i : number = 0; i<ruleBody.length;++i){
-			if((ruleBody[i] == '"' || ruleBody[i] == "'" || ruleBody[i] == "\\" )){
-				if(queue.length == 0)
-					start = i;
-				else if(queue.length == 1){
-					end = i;
-					sanitizedRule = sanitizedRule.replace(ruleBody.substring(start, end+1), "stringa");
-				}
-				if(queue[queue.length-1] != ruleBody[i])
-					queue.push(ruleBody[i]);
-				else 
-					queue.pop();	
-			}
-		}
-
-        sanitizedRule = sanitizedRule.replace(new RegExp(ASP_REGEX.AGGREGATE_PATTERN,"g"), "");
+        ruleBody = ruleBody.replace(new RegExp(ASP_REGEX.AGGREGATE_PATTERN,"g"), "");
 		let variables = new Array<string>();	
-		variables = sanitizedRule.match(new RegExp(ASP_REGEX.VARIABLE_PATTERN,"g"));
+		variables = ruleBody.match(new RegExp(ASP_REGEX.VARIABLE_PATTERN,"g"));
 		if(variables === null)
 			variables = [];
-		//return am array of unique variables  
+		//return an array of unique variables  
 		return variables.filter((value, index, array) => array.indexOf(value) === index);
 	}
 	public clearMap():void{
@@ -85,12 +66,18 @@ export class NonGroundDebugProgramBuilder
 		debugConstantPrefix = make_unique(debugConstantPrefix, this.logic_program);
 		let debugConstantNum: number = 1;
 		this.adornedProgram = "";
+		//remove aggregate atoms that are not useful for debugging purposes.
 		let aggregateTerm1 : RegExp = new RegExp(ASP_REGEX.AGGREGATE_PATTERN+",");
 		let aggregateTerm2 : RegExp = new RegExp(ASP_REGEX.AGGREGATE_PATTERN+ "(?!,)");
+		//manage weak constraints, it permit to deal with weak.
+		this.logic_program = this.replaceAll(this.logic_program, new RegExp("\](?!\.)"), "\]\." );
+		console.log("program " + this.logic_program);
+		console.log("I'm here");
 		let debugRules : string = "";
 		// split the program into rules. The regex matches only a single '.'
 		//this.logic_program.split(/(?<!\.)\.(?!\.)/).forEach(rule=>{
-		this.logic_program.split(/(?<!\.)\.(?!\.)/).forEach(rule =>{	
+		this.logic_program.split(/(?<!\.)\.(?!\.)/).forEach(rule =>{
+			console.log(rule);	
 			if (rule.includes(":-")) {
 				// rule with the body should be adorned adding a the debug atoms with their globalVars
 				//Consider that the debug atom then should be put as the head of a rule with the body of the rules adorned
@@ -135,7 +122,7 @@ export class NonGroundDebugProgramBuilder
 				debugConstantNum ++;
 
 			//this includes rules without the body, such a rule should be adorned with the creation of the body including the debug atom
-			} else if(rule.includes("|") || (rule.includes("{") && rule.includes("}"))) {
+			} else if((rule.includes("|") || (rule.includes("{") && rule.includes("}"))) && !rule.includes(":~")) {
 				// disjunction or choice rule, thus add ' :- _debug#' to the rule
 				let debugPred:string= debugConstantPrefix+debugConstantNum;
 				this.adornedProgram = this.adornedProgram.concat(rule);
@@ -149,19 +136,23 @@ export class NonGroundDebugProgramBuilder
 				debugConstantNum ++;
 			
 			//can be modified if i want to adorn facts too
-			} else {
-				// ignore if a fact, copy as it is
+			} 
+			else {
+				
+				// ignore if a fact or [w@l], copy as it is
 				this.adornedProgram = this.adornedProgram.concat(rule);
 				
 				// only add delimiting . if the rule is not empty
-				if (rule.trim().length > 0) {
+				//note that the weight and the level [w@l] of a weak is managed as follow.
+				
+				if (rule.trim().length > 0 && !rule.includes("@")) {
 					this.adornedProgram = this.adornedProgram.concat(".");
 				}
 			}});
 			if(debugRules.length>0){
 				this.adornedProgram = this.adornedProgram.concat("\n"+debugRules);
 			}
-			this.logic_program = this.adornedProgram;
+			//this.logic_program = this.adornedProgram;
 	}
 	public getDebugAtomsMap(): Map<string,DebugAtom>{return this.debugAtomsMap;}
     //public adornRules(): Map<string, DebugAtom> { return null; }

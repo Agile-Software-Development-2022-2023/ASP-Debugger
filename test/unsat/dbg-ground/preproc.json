@@ -181,8 +181,8 @@
       },
       {
          
-          "expected":"h1:- b1(X,Y),b(Z,K), _debug1(X, Y, Z, K). h2:- b2(X,Y), _debug2(X, Y).\n:-text(a), _debug3. \nfact(X,V,B,B,77,constant).\n_debug1(X, Y, Z, K) :-  b1(X,Y),b(Z,K).\n_debug2(X, Y) :-  b2(X,Y).\n_debug3.\n",
-          "program": "h1:- b1(X,Y),b(Z,K). h2:- b2(X,Y).\n:-text(a). \nfact(X,V,B,B,77,constant).",
+          "expected":"h1:- b1(X,Y),b(Z,K), _debug1(X, Y, Z, K). h2:- b2(X,Y), _debug2(X, Y).\n:-text(a), _debug3. \nfact(X,V,B,B,77,constant). :~preg(X,Y,Z,C,V), #count{X:pred(T)}. [X@Y]\n_debug1(X, Y, Z, K) :-  b1(X,Y),b(Z,K).\n_debug2(X, Y) :-  b2(X,Y).\n_debug3.\n",
+          "program": "h1:- b1(X,Y),b(Z,K). h2:- b2(X,Y).\n:-text(a). \nfact(X,V,B,B,77,constant). :~preg(X,Y,Z,C,V), #count{X:pred(T)}. [X@Y]",
           "map": {
               "_debug1": {
                 "predicateName": "_debug1",
@@ -232,8 +232,8 @@
       },
       {
          
-          "expected":"fatto(L, P ,O).\n {pred(P)} :- _debug1. \n:~pred(X),pred1(Y). [1@1]\n:-pred(X), _debug2(X).\n_debug1.\n_debug2(X) :- pred(X).\n" ,
-          "program": "fatto(L, P ,O).\n {pred(P)}. \n:~pred(X),pred1(Y). [1@1]\n:-pred(X).",
+          "expected":"fatto(L, P ,O). :~preg(X,Y,Z,C,V), #count{X:pred(T)}. [1@1]\n {pred(P)} :- _debug1. :~pred(X),pred1(Y). [1@1]\n:-pred(X), _debug2(X).\n_debug1.\n_debug2(X) :- pred(X).\n" ,
+          "program": "fatto(L, P ,O). :~preg(X,Y,Z,C,V), #count{X:pred(T)}. [1@1]\n {pred(P)}. :~pred(X),pred1(Y). [1@1]\n:-pred(X).",
           "map": {
               "_debug1" : {
                 "predicateName": "_debug1",
@@ -245,7 +245,7 @@
                 "predicateName": "_debug2",
                 "predicateArity": 1,
                 "variables": [ "X" ],
-                "nonground_rule": "[1@1]:-pred(X)."
+                "nonground_rule": ":-pred(X)."
               }
             }
       }
