@@ -52,14 +52,17 @@ export class AspGrounderGringo extends AspGrounder
 export class TheoreticalAspGrounder extends AspGrounder
 {
     private grounder: AspGrounder;
+    private stringsMap: Map<string, string>;
 
     public constructor( grnd: AspGrounder )
         { super(); this.grounder = grnd; }
     
     public ground(inputProgram: string): string
     {
+        inputProgram = this.freezeStrings(inputProgram);
         inputProgram = this.removeComments(inputProgram);
         inputProgram = this.rewriteFacts(inputProgram);
+        inputProgram = this.restoreStrings(inputProgram);
         return this.nullifyFactRewritings( this.grounder.ground(inputProgram) );
     }
 
@@ -69,8 +72,34 @@ export class TheoreticalAspGrounder extends AspGrounder
     protected rewriteFacts(input_program: string): string
     {
         return input_program.replace(
-            /((?<=((?<!\.)\.(?!\.)))|^)(([ a-zA-Z0-9(),_\-]|(\.\.))*)(?=((?<!\.)\.(?!\.)))/gm,
+            /((?<=((?<!\.)\.(?!\.)))|^)(([ a-zA-Z0-9(),_\-#]|(\.\.))*)(?=((?<!\.)\.(?!\.)))/gm,
             "$3 :- _df") + "\n_df | -_df.";
+    }
+
+    protected freezeStrings(input_program: string): string
+    {
+        let match_count: number = 0;
+        this.stringsMap = new Map<string, string>();
+        let __this: TheoreticalAspGrounder = this;
+        return input_program.replace(/\"(.|\n)*?\"/g, function(match: string)
+            {
+                let string_token: string = '#str-' + (match_count++) + '#';
+                __this.stringsMap.set(string_token, match);
+                return string_token;
+            });
+    }
+
+    protected restoreStrings(input_program: string): string
+    {
+        if ( this.stringsMap.size === 0 )
+            return input_program;
+        let __this: TheoreticalAspGrounder = this;
+        return input_program.replace(/#str-\d+#/g, function(match: string)
+        {
+            if ( !__this.stringsMap.has(match) )
+                return '';
+            return __this.stringsMap.get(match);
+        });
     }
 
     protected nullifyFactRewritings(ground_program: string): string

@@ -4,7 +4,7 @@ import { brotliDecompressSync } from "zlib";
 import { DebugAtom } from "../../../src/dbg-ground/asp_core";
 import { NonGroundDebugProgramBuilder } from "../../../src/dbg-ground/pre_ground"
 
-describe.only('Check Preprocessing phase works properly before grounding the program', function()
+describe('Check Preprocessing phase works properly before grounding the program', function()
 {
     let preproc: NonGroundDebugProgramBuilder = new NonGroundDebugProgramBuilder("") ;
     it('checks that the method getVariables retrieve actually retrieve all the variables in a function', function()

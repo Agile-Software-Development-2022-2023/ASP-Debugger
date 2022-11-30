@@ -181,7 +181,7 @@ describe('Theoretical ASP grounder rewritings [pre-grounding]', function()
             assert.throws(run_grounder, AspGrounderSpyStop);
             
             assert.ok( grounder_spy.isCallReceived() );
-            assert.ok( grounder_spy.getReceivedInputProgram() === test_case.expected );
+            assert.strictEqual( grounder_spy.getReceivedInputProgram(), test_case.expected );
         });
     });
 
@@ -288,6 +288,31 @@ describe('Theoretical ASP grounder rewritings [pre-grounding]', function()
 		" pred5 ( 1 ..   9, 10, a) :- _df.\n" +
 		"a(X) :- pred(X).\n" +
 		"_df | -_df."
+        },
+        
+        { // string injection
+        input_program:
+        "pred_1(\"p(1,2). q(X) :- p(X,_).\").\n" +
+        "pred_2(\"p(1,2). 'q(1).'  ''q(2).'' :- p(X,_).\")." +
+        "pred_3(\"%p(1,2). q(X) :- p(X,_).\").\n" +
+        "pred(b,\"%%p.q\").\n" +
+        "_pRed1(b, \"\").\n" +
+        "p._pRed1(\"\",c,f(\"p   q.   \",2)).\n" +
+        "a(X) :- pred(X, \"p(1,2). p(1,2)\").",
+        expected:
+        "pred_1(\"p(1,2). q(X) :- p(X,_).\") :- _df.\n" +
+        "pred_2(\"p(1,2). 'q(1).'  ''q(2).'' :- p(X,_).\") :- _df." +
+        "pred_3(\"%p(1,2). q(X) :- p(X,_).\") :- _df.\n" +
+        "pred(b,\"%%p.q\") :- _df.\n" +
+        "_pRed1(b, \"\") :- _df.\n" +
+        "p :- _df._pRed1(\"\",c,f(\"p   q.   \",2)) :- _df.\n" +
+        "a(X) :- pred(X, \"p(1,2). p(1,2)\").\n" +
+        "_df | -_df."
+        },
+
+        { // empty program
+        input_program: '',
+        expected: "\n_df | -_df."
         }
     ]
     .forEach( function(test_case)
@@ -301,7 +326,7 @@ describe('Theoretical ASP grounder rewritings [pre-grounding]', function()
             assert.throws(run_grounder, AspGrounderSpyStop);
             
             assert.ok( grounder_spy.isCallReceived() );
-            assert.ok( grounder_spy.getReceivedInputProgram() === test_case.expected );
+            assert.strictEqual( grounder_spy.getReceivedInputProgram(), test_case.expected );
         });
     });
 
@@ -475,12 +500,12 @@ describe('Theoretical ASP grounder rewritings [post-grounding]', function()
             theo_grounder.rewriteFactsActive = false;
 
             let actual: string = theo_grounder.ground('');
-            assert.ok( actual === test_case.expected );
+            assert.strictEqual( actual, test_case.expected );
 
             // check expected output remains the same.
             grounder_stub.setGroundProgram( test_case.expected );
             actual = theo_grounder.ground('');
-            assert.ok( actual === test_case.expected );
+            assert.strictEqual( actual, test_case.expected );
         });
     });
 
