@@ -2,7 +2,7 @@ import { spawnSync, SpawnSyncReturns } from "child_process";
 import path from "path";
 import { DebugAtom } from "./asp_core";
 import { AspGrounder, AspGrounderError, AspGrounderFactory } from "./grounder";
-import { AdornedDebugProgramBuilder, calculateChoiceRule } from "./adorner";
+import { addDebugAtomsChoiceRule, AdornedDebugProgramBuilder } from "./adorner";
 
 const GRINGO_WRAPPER = './src/dbg-ground/gringo-wrapper/bin/gringo-wrapper';
 const GRINGO_WRAPPER_OPTIONS = ['-go="-o smodels"']
@@ -141,7 +141,7 @@ export class RewritingBasedDebugGrounder extends DebugGrounder
         //
         // ground_prog will be properly rewrited to obtain the final debug program...
         let split:Array<string> =  ground_prog.split(/^0\n/gm); 
-        split[0] = split[0]+ calculateChoiceRule(split[1],this.debugAtomsMap, nongroundDebugProgBuilder.getDebugPredicate());
+        split[0] = addDebugAtomsChoiceRule(split[0], split[1], nongroundDebugProgBuilder.getDebugPredicate());
 
         return split.join("0\n");
     }

@@ -160,11 +160,10 @@ export class AdornedDebugProgramBuilder
     //public adornRules(): Map<string, DebugAtom> { return null; }
 }
 
-export function calculateChoiceRule(atoms: string, debugAtomsMap: Map<string, DebugAtom>, predicate: string): string {
+export function addDebugAtomsChoiceRule(rules: string, atoms: string, predicate: string): string {
 	let placeholders: Map<string, string>  = new Map<string, string>();
-	let sanitized : string = freezeStrings(atoms , placeholders);
 
-	let id_of_debug: Array<string> = sanitized.match(new RegExp(`^([0-9]+) ${predicate}.*\n`, "gm"));
+	let id_of_debug: Array<string> = atoms.match(new RegExp(`^([0-9]+) ${predicate}.*\n`, "gm"));
 	if ( id_of_debug == null )
 		return '';
 	
@@ -172,6 +171,10 @@ export function calculateChoiceRule(atoms: string, debugAtomsMap: Map<string, De
 		id_of_debug[i] = id_of_debug[i].split(" ")[0];
 	}
 	let choice = "3 "+id_of_debug.length+" ";
-	choice = choice.concat(id_of_debug.join(" ")) +" 0 0\n"; 
-	return choice;     
+	choice = choice.concat(id_of_debug.join(" ")) +" 0 0\n";
+
+	rules = rules.concat(choice);
+	rules = rules.replace(new RegExp("(^|\n)1 (" + id_of_debug.join('|') + ")( |\\d)+\n", "gm"), "$1");
+	
+	return rules;     
 }

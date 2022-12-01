@@ -1,5 +1,5 @@
 color(X,green) | color(X,red) | color( X,blue) :- node(X).
-:- color(X,C), color(Y,C), X != Y, edge(X,Y).
+:- color(X,C), color(X,C), X != Y, edge(X,Y).
 node(1).
 node(2).
 node(3).
