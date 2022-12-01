@@ -1,8 +1,7 @@
-const CHARS: string = 'abcdefghijklmnopqrstuvwxyz';
 export function make_unique(pred_name: string, asp_program: string): string
 {
     while ( asp_program.includes(pred_name) )
-        pred_name += CHARS.at(Math.floor(Math.random() * CHARS.length));
+        pred_name = '_' + pred_name;
     return pred_name;
 }
 
@@ -12,7 +11,7 @@ export function freezeStrings(asp_program: string, stringsMap: Map<string, strin
     stringsMap.clear();
     return asp_program.replace(/\"(.|\n)*?\"/g, function(match: string)
         {
-            let string_token: string = '#str-' + (match_count++) + '#';
+            let string_token: string = '#str-' + (++match_count) + '#';
             stringsMap.set(string_token, match);
             return string_token;
         });
