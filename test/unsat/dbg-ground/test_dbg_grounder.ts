@@ -2,8 +2,9 @@ import { describe, it } from "mocha";
 import { expect } from 'chai';
 import { readFileSync } from 'fs';
 
-import { DebugGrounder, DebugGrounderError } from '../../../src/dbg-ground/debug_grounder';
+import { DebugGrounder } from '../../../src/dbg-ground/dbg_grounder';
 import { DebugAtom } from "../../../src/dbg-ground/asp_core";
+import { AspGrounderError } from "../../../src/dbg-ground/grounder";
 
 
 interface DebugProgramTestCase
@@ -31,7 +32,7 @@ let debug_program_test_cases: DebugProgramTestCase[] =
         ['_debug4', new DebugAtom('_debug4', 4, ['X','C1','Y','C2'], ':- col(X, C1), col(Y, C2), arc(X, Y), C1=C2.')] ] ) }
     ]
 
-describe('basic mocha usage', function()
+describe('Basic mocha usage', function()
 {
     it('asserts true is true and not false', function()
     {
@@ -40,9 +41,9 @@ describe('basic mocha usage', function()
     });
 });
 
-describe('building the debugging ASP program', function()
+describe('Building the debugging ASP program [dbg-integration tests]', function()
 {
-    it('stores a single encoding', function()
+    it('Stores a single encoding', function()
     {
         let encoding_path: string = '/path/to/encoding.asp';
         let dbgGrounder: DebugGrounder = DebugGrounder.createDefault(encoding_path);
@@ -52,7 +53,7 @@ describe('building the debugging ASP program', function()
     [ [], ['path/to/enc.asp'], ['path/to/enc_1.asp', 'path/to/enc_2.asp'] ]
     .forEach( function(encoding_paths: string[])
     {
-        it('stores multiple encodings', function()
+        it('Stores multiple encodings', function()
         {
             let dbgGrounder: DebugGrounder = DebugGrounder.createDefault(encoding_paths);
             expect(dbgGrounder.getEncodings()).to.eql(encoding_paths);
@@ -62,7 +63,7 @@ describe('building the debugging ASP program', function()
     
     debug_program_test_cases.forEach( function(test_case: DebugProgramTestCase)
     {
-        it('properly computes the adorned debugging ASP program', function()
+        it('Properly computes the adorned debugging ASP program', function()
         {
             let dbgGrounder: DebugGrounder = DebugGrounder.createDefault(test_case.input_encodings);
             let expected: string = readFileSync(test_case.expected_ground, 'utf-8');
@@ -79,18 +80,18 @@ describe('building the debugging ASP program', function()
         });
     });
 
-    it('manages not existing file error', function()
+    it('Manages not existing file error', function()
     {
         let dbgGrounder: DebugGrounder = DebugGrounder.createDefault('not/existing/file.lp');
         let ground = function() { dbgGrounder.ground(); }
-        expect(ground).to.throw(DebugGrounderError);
+        expect(ground).to.throw(AspGrounderError);
     });
 
-    it('manages invalid encoding error', function()
+    it('Manages invalid encoding error', function()
     {
         let dbgGrounder: DebugGrounder = DebugGrounder.createDefault('test/unsat/dbg-ground/invalid_test.lp');
         let ground = function() { dbgGrounder.ground(); }
-        expect(ground).to.throw(DebugGrounderError);
+        expect(ground).to.throw(AspGrounderError);
     });
     
 });

@@ -3,7 +3,7 @@ import { freezeStrings, make_unique, restoreStrings } from "./asp_utils";
 import { ASP_REGEX } from "./Useful_regex";
 
 
-export class NonGroundDebugProgramBuilder
+export class AdornedDebugProgramBuilder
 {
     private logic_program: string;
 	private adornedProgram: string;
@@ -158,4 +158,20 @@ export class NonGroundDebugProgramBuilder
 	}
 	public getDebugAtomsMap(): Map<string,DebugAtom>{return this.debugAtomsMap;}
     //public adornRules(): Map<string, DebugAtom> { return null; }
+}
+
+export function calculateChoiceRule(atoms: string, debugAtomsMap: Map<string, DebugAtom>, predicate: string): string {
+	let placeholders: Map<string, string>  = new Map<string, string>();
+	let sanitized : string = freezeStrings(atoms , placeholders);
+
+	let id_of_debug: Array<string> = sanitized.match(new RegExp(`^([0-9]+) ${predicate}.*\n`, "gm"));
+	if ( id_of_debug == null )
+		return '';
+	
+	for(let i :number = 0 ; i< id_of_debug.length;++i){
+		id_of_debug[i] = id_of_debug[i].split(" ")[0];
+	}
+	let choice = "3 "+id_of_debug.length+" ";
+	choice = choice.concat(id_of_debug.join(" ")) +" 0 0\n"; 
+	return choice;     
 }

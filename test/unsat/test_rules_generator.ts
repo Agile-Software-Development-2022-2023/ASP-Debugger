@@ -3,7 +3,8 @@ import {expect } from "chai";
 import { readFileSync } from "fs";
 import { RulesGenerator } from "../../src/rules_generator";
 import { WaspCaller } from "../../src/unsat_wasp";
-import { DebugGrounder, DebugAtom } from "../../src/dbg-ground/debug_grounder";
+import { DebugGrounder } from "../../src/dbg-ground/dbg_grounder";
+import { DebugAtom } from "../../src/dbg-ground/asp_core";
 import assert from "assert";
 
 

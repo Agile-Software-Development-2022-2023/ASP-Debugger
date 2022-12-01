@@ -1,14 +1,13 @@
 import { spawnSync, SpawnSyncReturns } from "child_process";
 import path from "path";
 import { DebugAtom } from "./asp_core";
-import { freezeStrings } from "./asp_utils";
-import { AspGrounder, AspGrounderFactory } from "./grounder";
-import { NonGroundDebugProgramBuilder } from "./pre_ground";
+import { AspGrounder, AspGrounderError, AspGrounderFactory } from "./grounder";
+import { AdornedDebugProgramBuilder, calculateChoiceRule } from "./adorner";
 
 const GRINGO_WRAPPER = './src/dbg-ground/gringo-wrapper/bin/gringo-wrapper';
 const GRINGO_WRAPPER_OPTIONS = ['-go="-o smodels"']
 
-export class DebugGrounderError extends Error
+export class DebugGrounderError extends AspGrounderError
 {
     public constructor(message?: string) {super(message);}
 }
@@ -34,7 +33,7 @@ export abstract class DebugGrounder
     { return this.debugAtomsMap; }
 
     public static createDefault(encoding_paths: string | string[]): DebugGrounder
-    { return new GringoWrapperDebugGrounder(encoding_paths); }
+    { return new RewritingBasedDebugGrounder(encoding_paths); }
 }
 
 class GringoWrapperDebugGrounder extends DebugGrounder
@@ -121,8 +120,7 @@ export class RewritingBasedDebugGrounder extends DebugGrounder
         //
         // pre-ground rewriting.
         //
-        let nongroundDebugProgBuilder: NonGroundDebugProgramBuilder = new NonGroundDebugProgramBuilder(input_program);
-        
+        let nongroundDebugProgBuilder: AdornedDebugProgramBuilder = new AdornedDebugProgramBuilder(input_program);
         
         nongroundDebugProgBuilder.cleanString();
         nongroundDebugProgBuilder.removeComments();
@@ -134,28 +132,17 @@ export class RewritingBasedDebugGrounder extends DebugGrounder
         nongroundDebugProgBuilder.restorePlaceholderToString();
         let adorned:string = nongroundDebugProgBuilder.getAdornedProgram();
         let ground_prog: string = AspGrounderFactory.getInstance().getTheoretical().ground(adorned);
+
         //get Maps of Debug Atom after the calculatoin of the preprocessed ground program
         this.debugAtomsMap = nongroundDebugProgBuilder.getDebugAtomsMap();
-        let split:Array<string> =  ground_prog.split(/^0\n/); 
-        split[0] = split[0]+"\n"+ this.calculateChoiceRule(split[1],this.debugAtomsMap, nongroundDebugProgBuilder.getDebugPredicate());
+
         //
         // apply the post-ground rewriting.
         //
         // ground_prog will be properly rewrited to obtain the final debug program...
+        let split:Array<string> =  ground_prog.split(/^0\n/gm); 
+        split[0] = split[0]+ calculateChoiceRule(split[1],this.debugAtomsMap, nongroundDebugProgBuilder.getDebugPredicate());
 
         return split.join("0\n");
-    }
-    
-    public calculateChoiceRule(atoms: string, debugAtomsMap: Map<string, DebugAtom>, predicate: string): string {
-        let placeholders: Map<string, string>  = new Map<string, string>;
-        let sanitized : string = freezeStrings(atoms , placeholders);
-        console.log(sanitized);
-        let id_of_debug: Array<string> = sanitized.match(new RegExp(`([0-9]+) ${predicate}.*\n`, "g"));
-        for(let i :number = 0 ; i< id_of_debug.length;++i){
-            id_of_debug[i] = id_of_debug[i].split(" ")[0];
-        }
-        let choice = "3 "+id_of_debug.length+" ";
-        choice = choice.concat(id_of_debug.join(" ")) +" 0 0"; 
-        return choice;     
     }
 }
