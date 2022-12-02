@@ -26,7 +26,7 @@ export abstract class AspGrounder
 
 export class AspGrounderGringo extends AspGrounder
 {
-    private static GRINGO_COMMAND: string = './bin/gringo';
+    private static GRINGO_COMMAND: string = 'gringo';
     private static GRINGO_OPTIONS: string = '-o smodels';
 
     public ground(inputProgram: string): string

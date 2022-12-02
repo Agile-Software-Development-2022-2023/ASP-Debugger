@@ -1,6 +1,7 @@
 import { RulesGenerator } from "./rules_generator";
-import { DebugGrounder, DebugAtom } from "./dbg-ground/debug_grounder";
+import { DebugGrounder} from "./dbg-ground/dbg_grounder";
 import { WaspCaller } from "./unsat_wasp";
+import { DebugAtom } from "./dbg-ground/asp_core";
 
 export class MUSesCalculator {
 
