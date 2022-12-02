@@ -4,6 +4,8 @@ import { RulesGenerator } from "../../src/rules_generator";
 import { WaspCaller } from "../../src/unsat_wasp";
 import { DebugGrounder, DebugAtom } from "../../src/dbg-ground/debug_grounder";
 import { MUSesCalculator } from "../../src/muses_facade"
+import { DebugGrounder } from "../../src/dbg-ground/dbg_grounder";
+import { DebugAtom } from "../../src/dbg-ground/asp_core";
 import assert from "assert";
 
 
@@ -13,7 +15,7 @@ describe('rules_generator_output', function(){
     let wasp_caller : WaspCaller = new WaspCaller();
     let my_debugger : DebugGrounder;
     let rules_generator : RulesGenerator = new RulesGenerator();
-    console.log(problems);
+    //console.log(problems);
 
     problems["test"].forEach(function(instance : string[]) {
         it('should test if both ground and non ground rules returned are correct', function(){
@@ -34,7 +36,6 @@ describe('rules_generator_output', function(){
                 for(let rule of non_ground_rules[i])
                     result1 += rule;
             }
-
             assert.equal(instance["ground_rules"], result);
             assert.equal(instance["non_ground_rules"], result1);
         });

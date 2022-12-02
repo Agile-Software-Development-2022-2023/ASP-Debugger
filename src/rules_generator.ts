@@ -1,4 +1,5 @@
 import { DebugAtom } from './dbg-ground/debug_grounder'
+import { DebugAtom } from './dbg-ground/asp_core';
 
 export class RulesGenerator{
 
