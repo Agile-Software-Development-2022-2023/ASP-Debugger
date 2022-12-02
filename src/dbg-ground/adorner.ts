@@ -174,6 +174,9 @@ export function addDebugAtomsChoiceRule(rules: string, atoms: string, predicate:
 	choice = choice.concat(id_of_debug.join(" ")) +" 0 0\n";
 
 	rules = rules.concat(choice);
+
+	//IMPORTANT
+	//remove the rules and facts of debug atoms, because they will not be evaluated in the choice until they could be true in other ruless.
 	rules = rules.replace(new RegExp("(^|\n)1 (" + id_of_debug.join('|') + ")( |\\d)+\n", "gm"), "$1");
 	
 	return rules;     

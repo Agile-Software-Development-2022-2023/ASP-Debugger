@@ -33,7 +33,9 @@ export abstract class DebugGrounder
     { return this.debugAtomsMap; }
 
     public static createDefault(encoding_paths: string | string[]): DebugGrounder
-    { return new RewritingBasedDebugGrounder(encoding_paths); }
+    { return new RewritingBasedDebugGrounder(encoding_paths); 
+      //return new GringoWrapperDebugGrounder(encoding_paths); 
+    }
 }
 
 class GringoWrapperDebugGrounder extends DebugGrounder

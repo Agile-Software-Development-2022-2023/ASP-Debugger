@@ -36,8 +36,7 @@ describe('rules_generator_output', function(){
                 for(let rule of non_ground_rules[i])
                     result1 += rule;
             }
-
-            //assert.equal(instance["ground_rules"], result);
+            assert.equal(instance["ground_rules"], result);
             assert.equal(instance["non_ground_rules"], result1);
         });
     });
