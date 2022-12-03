@@ -1,8 +1,5 @@
 import { describe, it } from "mocha";
 import { readFileSync } from "fs";
-import { RulesGenerator } from "../../src/rules_generator";
-import { WaspCaller } from "../../src/unsat_wasp";
-import { DebugGrounder, DebugAtom } from "../../src/dbg-ground/debug_grounder";
 import { MUSesCalculator } from "../../src/muses_facade"
 import assert from "assert";
 
@@ -10,10 +7,6 @@ import assert from "assert";
 describe('rules_generator_output', function(){
     let input = readFileSync('./test/unsat/programs_unsat_rules.json');
     let problems = JSON.parse(input.toString());
-    let wasp_caller : WaspCaller = new WaspCaller();
-    let my_debugger : DebugGrounder;
-    let rules_generator : RulesGenerator = new RulesGenerator();
-    console.log(problems);
 
     problems["test"].forEach(function(instance : string[]) {
         it('should test if both ground and non ground rules returned are correct', function(){
