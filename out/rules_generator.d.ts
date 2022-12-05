@@ -1,4 +1,4 @@
-import { DebugAtom } from './dbg-ground/debug_grounder';
+import { DebugAtom } from './dbg-ground/asp_core';
 export declare class RulesGenerator {
     constructor();
     get_ground_rules_from_debug(muses: Array<string[]>, debug_atom_rules: Map<string, DebugAtom>, mus_index?: number, debug_predicate_name?: string): Map<string, string[]>;
