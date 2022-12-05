@@ -61,5 +61,13 @@
         "non_ground_rules" : "color(X, \"color(X,red):-node(X).\") | color(X,\"red\") | color(X,\"blue\") :- node(X).:- color(X,C), color(Y,C), X != Y, edge(X,Y).",
         "number_of_muses" : "1",
         "mus_index_for_ground_rules" : "0"
+    },
+
+    {
+        "problem_path" : "test/unsat/problems/hampath.asp",
+        "ground_rules" : "",
+        "non_ground_rules" : "",
+        "number_of_muses" : "0",
+        "mus_index_for_ground_rules" : "0"
     }
 ]}

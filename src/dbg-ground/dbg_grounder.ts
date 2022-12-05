@@ -134,7 +134,7 @@ export class RewritingBasedDebugGrounder extends DebugGrounder
         nongroundDebugProgBuilder.restorePlaceholderToString();
         let adorned:string = nongroundDebugProgBuilder.getAdornedProgram();
         let ground_prog: string = AspGrounderFactory.getInstance().getTheoretical().ground(adorned);
-
+        
         //get Maps of Debug Atom after the calculatoin of the preprocessed ground program
         this.debugAtomsMap = nongroundDebugProgBuilder.getDebugAtomsMap();
 
