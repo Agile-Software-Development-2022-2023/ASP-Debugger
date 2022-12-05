@@ -1,4 +1,5 @@
 import { DebugAtom } from './dbg-ground/asp_core';
+import { MUSesCalculator } from './muses_facade';
 
 export class RulesGenerator{
 
@@ -79,6 +80,15 @@ export class RulesGenerator{
                 
                 //get non-ground rule which will become ground after substitutions
                 let corresponding_ground_rule : string = corresponding_debug_atom.getNonGroundRule();
+                //scroll all the rule and do the replace only where you are not in a string
+                let double_quotes_indexes : Array<number> = new Array<number>();
+                for(let idx = 0; idx < corresponding_ground_rule.length; idx++){
+                    if(idx > 0 && corresponding_ground_rule.at(idx) == '"'){
+                        if(corresponding_ground_rule.at(idx -1) != '\\'){
+                            double_quotes_indexes.push(idx);
+                        }
+                    }
+                }
                 for(let k = 0; k < terms.length; k++){
                     if( k >= corresponding_debug_atom.getVariables().length){
                         throw new Error("The number of variables in atom does not correspond with the number of variables in debug atom");
@@ -86,15 +96,7 @@ export class RulesGenerator{
                     let variable_name: string = '([^a-zA-Z])(' + corresponding_debug_atom.getVariables()[k] + ')([^a-zA-Z])';
                     //let variable_name: string = corresponding_debug_atom.getVariables()[k];
                     let regex_variable_global = new RegExp(variable_name, 'g');
-                    //scroll all the rule and do the replace only where you are not in a string
-                    let double_quotes_indexes : Array<number> = new Array<number>();
-                    for(let idx = 0; idx < corresponding_ground_rule.length; idx++){
-                        if(idx > 0 && corresponding_ground_rule.at(idx) == '"'){
-                            if(corresponding_ground_rule.at(idx -1) != '\\'){
-                                double_quotes_indexes.push(idx);
-                            }
-                        }
-                    }
+
                     let to_replace : string = '$1' + terms[k] + '$3';
                     //no strings in rule
                     if(double_quotes_indexes.length == 0){
@@ -151,7 +153,6 @@ export class RulesGenerator{
     // }
 
     public get_non_ground_rules_from_debug(muses: Array<string[]>, debug_atom_rules : Map<string, DebugAtom>, mus_index_max : number = -1, debug_predicate_name: string = '_debug') : Array<Set<string>>{
-        // create wasp caller
         let non_ground_rules : Array<Set<string>> = new Array<Set<string>>(muses.length);
         //-1 stands for: consider all muses
         if(mus_index_max == -1){
@@ -176,20 +177,18 @@ export class RulesGenerator{
     }
 }
 
-// //Usage example
+//Usage example
 // let generator = new RulesGenerator();
 // //computes ground instances and non ground rules belonging to muses
-// let my_debugger = DebugGrounder.createDefault(['/home/andrea/git/ASP-Debugger/test/unsat/problems/3col_unsat.asp']);
-// let wasp_caller = new WaspCaller();
+// let file_path : string = '/home/andrea/git/ASP-Debugger/test/unsat/problems/3col_unsat_strings.asp';
+// let number_of_muses = 1;
+// let mus_index_for_ground_rules = 0;
+// let musFacade = new MUSesCalculator();
+// musFacade.calculateMUSes([file_path], number_of_muses)
 
-// let groundP : string = my_debugger.ground();
-// let  my_program : Map<string, DebugAtom> = my_debugger.getDebugAtomsMap();
-// let muses : Array<string[]> = wasp_caller.get_muses(groundP, Array.from(my_program.keys()), 3);
-// console.log(muses);
-// //console.log(muses);
-// let ground_rules : Map<string, string[]> = generator.get_ground_rules_from_debug(muses, my_program, 1);
+// let ground_rules : Map<string, string[]> = musFacade.getGroundRulesForMUS(mus_index_for_ground_rules);
+// let non_ground_rules : Array<Set<string>> = musFacade.getNonGroundRulesForMUSes();
 
-// let non_ground_rules : Array<Set<string>> = generator.get_non_ground_rules_from_debug(muses, my_program);
 
 // let result : string = '';
 // for(let [key, value] of ground_rules){

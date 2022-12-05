@@ -55,4 +55,5 @@ export class DebugAtom
     public getPredicateArity(): number { return this.predicateArity; }
     public getVariables(): string[]    { return this.variables; }
     public getNonGroundRule(): string  { return this.nonground_rule; }
+    public setNonGroundRule(nonground_rule: string)   { this.nonground_rule = nonground_rule; }
 }

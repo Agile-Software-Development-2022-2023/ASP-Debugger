@@ -58,7 +58,10 @@ export class AdornedDebugProgramBuilder
 	}
 
 	public restorePlaceholderToString(){
-		this.logic_program = restoreStrings(this.logic_program, this.stringPlaceholder);
+		for(let [key, value] of this.debugAtomsMap){
+			value.setNonGroundRule(restoreStrings(value.getNonGroundRule(), this.stringPlaceholder));
+		}
+		this.adornedProgram = restoreStrings(this.adornedProgram, this.stringPlaceholder);
 	}
 
 	public getAdornedProgram(){
