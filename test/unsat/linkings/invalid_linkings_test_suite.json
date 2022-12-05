@@ -1,0 +1,67 @@
+[
+    {},
+    {
+        "poolId": ""
+    },
+    {
+        "reverseLinkings": ""
+    },
+    {
+        "poolId": "0",
+        "reverseLinkings": ""
+    },
+    {
+        "poolId": "notAnInteger",
+        "reverseLinkings": ""
+    },
+    {
+        "poolId": 0,
+        "reverseLinkings": ""
+    },
+    {
+        "poolId": 0,
+        "reverseLinkings": {},
+        "file1": 0
+    },
+    {
+        "poolId": 0,
+        "reverseLinkings": {},
+        "file1": "randomstring"
+    },
+    {
+        "poolId": 0,
+        "reverseLinkings": {},
+        "file1": "pool_1"
+    },
+    {
+        "poolId": 1,
+        "reverseLinkings": {},
+        "file1": "pool_1"
+    },
+    {
+        "poolId": 1,
+        "reverseLinkings": {"pool_1": "notanarray"},
+        "file1": "pool_1"
+    },
+    {
+        "poolId": 1,
+        "reverseLinkings": {"pool_1": ["onlyoneelement"]},
+        "file1": "pool_1"
+    },
+    {
+        "poolId": 1,
+        "reverseLinkings": {"pool_1": [0, 0]},
+        "file1": "pool_1"
+    },
+    {
+        "poolId": 1,
+        "reverseLinkings": {"pool_1": ["file1", "file2"]},
+        "file1": "pool_1"
+    },
+    {
+        "poolId": 1,
+        "reverseLinkings": {"pool_1": ["file1", "file2"]},
+        "file1": "pool_1",
+        "file2": "pool_2"
+    }
+]

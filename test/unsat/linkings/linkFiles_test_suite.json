@@ -1,9 +1,4 @@
-import assert from 'assert';
-import { Linker } from '../../src/linkings';
-import { Util } from '../../src/utils';
-import fs from 'fs';
-
-const linkFiles_test_suite : Object[] = [
+[
     {
         "testing": "should test if the linkings file is created properly",
         "files_to_link": ["file1", "file2", "file3"],
@@ -116,24 +111,3 @@ const linkFiles_test_suite : Object[] = [
         }
     }
 ]
-
-describe('LINKINGS', function() {
-
-    linkFiles_test_suite.forEach( (test) => {
-        it(test["testing"], function() {
-            const test_path = "test/.linkings.json";
-
-            try {
-                if(test["initial"]) {
-                    Util.writeJSON(test["initial"], test_path);
-                }
-        
-                Linker.linkFiles(test["files_to_link"], test_path);
-                const output = Util.readJSON(test_path);
-                assert.deepEqual(output, test["expected"])
-            } finally {
-                fs.unlinkSync(test_path);
-            }
-        });
-    });
-})

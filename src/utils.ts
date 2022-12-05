@@ -6,10 +6,10 @@ export class Util {
     //Reads a json given a specified path
     //Returns the parsed object or throws an error if there was a problem
     //reading or parsing the file
-    static readJSON(path_to_json : string): Object {
+    static readJSON(path_to_json : string): any {
 
-        let jsonString : string;
-        let jsonObject : Object;
+        let jsonString: string;
+        let jsonObject: any;
     
         try {
             jsonString = fs.readFileSync(path_to_json, 'utf-8');

@@ -21,7 +21,7 @@ export abstract class DebugGrounder
     {
         if ( typeof encoding_paths === "string" ) this.encodings = [encoding_paths];
         else this.encodings = encoding_paths;
-        this.debugAtomsMap = new Map<string, DebugAtom>;
+        this.debugAtomsMap = new Map<string, DebugAtom>();
     }
 
     public getEncodings(): string[]

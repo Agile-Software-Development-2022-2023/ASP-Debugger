@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const rules_generator_1 = require("./rules_generator");
-const debug_grounder_1 = require("./dbg-ground/debug_grounder");
+const dbg_grounder_1 = require("./dbg-ground/dbg_grounder");
 const unsat_wasp_1 = require("./unsat_wasp");
 class MUSesCalculator {
     constructor() {
@@ -12,7 +12,7 @@ class MUSesCalculator {
     //Calculates and returns the musesNum number of muses for the program described in filepaths
     //Returns an error if the muses could not be calculated
     calculateMUSes(filepaths, musesNum) {
-        const grounder = debug_grounder_1.DebugGrounder.createDefault(filepaths);
+        const grounder = dbg_grounder_1.DebugGrounder.createDefault(filepaths);
         const groundProgram = grounder.ground();
         this.program = grounder.getDebugAtomsMap();
         this.muses = this.waspCaller.get_muses(groundProgram, Array.from(this.program.keys()), musesNum);
