@@ -10,7 +10,7 @@ class RulesGenerator {
         // part of a mus
         if (mus_index < muses.length) {
             for (let j = 0; j < muses[mus_index].length; j++) {
-                // console.log(muses[i][j]);
+                //identify debug atoms
                 let regex_text = debug_predicate_name + '\\d+\\(';
                 let regex_identifier = new RegExp(regex_text);
                 let matches = regex_identifier.exec(muses[mus_index][j]);
@@ -23,7 +23,6 @@ class RulesGenerator {
                 // get corresponding debug atom from debug atoms map
                 let corresponding_debug_atom = debug_atom_rules.get(atom_identifier);
                 //console.log("Corresponding rule: " + corresponding_debug_atom.getNonGroundRule())
-                let regexTerms = new RegExp(/,/);
                 let debug_atom = muses[mus_index][j];
                 //remove _debug
                 debug_atom = debug_atom.replace(matches[0], '');
@@ -31,18 +30,90 @@ class RulesGenerator {
                 debug_atom = debug_atom.slice(0, -1);
                 //get all variables in atom
                 //which now is just a list of terms
-                let terms = debug_atom.split(regexTerms);
+                let terms = Array(); //debug_atom.split(regexTerms);
+                //split terms considering strings
+                let inside_string = false;
+                let term_is_string = false;
+                let current_term = '';
+                //iterate over all characters of the debug atom (which is now in the form term_1, ..., term_n)
+                //and find all constants, considering the special case of strings
+                for (let i = 0; i < debug_atom.length; i++) {
+                    //start of a string
+                    if (debug_atom.at(i) == '"' && inside_string == false) {
+                        inside_string = true;
+                        term_is_string = true;
+                        //term += debug_atom.at(i);
+                    }
+                    else if (debug_atom.at(i) == '"' && inside_string == true) {
+                        //string continues with \"
+                        if (i > 0 && debug_atom.at(i - 1) == '\\') {
+                            inside_string = true;
+                            current_term += debug_atom.at(i);
+                        }
+                        else { //string ends becuase " has been found
+                            inside_string = false;
+                            //term += debug_atom.at(i);
+                        }
+                    }
+                    else {
+                        //going to next term
+                        if (inside_string == false && debug_atom.at(i) == ',') {
+                            if (term_is_string) {
+                                current_term = '\"' + current_term + '\"';
+                            }
+                            terms.push(current_term);
+                            current_term = '';
+                            term_is_string = false;
+                        }
+                        else {
+                            //term continues
+                            current_term += debug_atom.at(i);
+                        }
+                    }
+                }
+                //handling last term which will always be valid
+                if (term_is_string) {
+                    current_term = '\"' + current_term + '\"';
+                }
+                terms.push(current_term);
                 //get non-ground rule which will become ground after substitutions
                 let corresponding_ground_rule = corresponding_debug_atom.getNonGroundRule();
+                //scroll all the rule and do the replace only where you are not in a string
+                let double_quotes_indexes = new Array();
+                for (let idx = 0; idx < corresponding_ground_rule.length; idx++) {
+                    if (idx > 0 && corresponding_ground_rule.at(idx) == '"') {
+                        if (corresponding_ground_rule.at(idx - 1) != '\\') {
+                            double_quotes_indexes.push(idx);
+                        }
+                    }
+                }
                 for (let k = 0; k < terms.length; k++) {
                     if (k >= corresponding_debug_atom.getVariables().length) {
                         throw new Error("The number of variables in atom does not correspond with the number of variables in debug atom");
                     }
-                    let variable_name = corresponding_debug_atom.getVariables()[k];
+                    let variable_name = '([^a-zA-Z])(' + corresponding_debug_atom.getVariables()[k] + ')([^a-zA-Z])';
+                    //let variable_name: string = corresponding_debug_atom.getVariables()[k];
                     let regex_variable_global = new RegExp(variable_name, 'g');
+                    let to_replace = '$1' + terms[k] + '$3';
+                    //no strings in rule
+                    if (double_quotes_indexes.length == 0) {
+                        corresponding_ground_rule = corresponding_ground_rule.replace(regex_variable_global, to_replace);
+                    }
+                    else { //pay attention in the substitution because whatever is inside a string should stay as it is
+                        for (let idx = 0; idx < double_quotes_indexes.length; idx++) {
+                            let ground_rule_before_string = corresponding_ground_rule.substring(0, double_quotes_indexes[idx]);
+                            idx++;
+                            if (idx < double_quotes_indexes.length) {
+                                let ground_rule_after_string = corresponding_ground_rule.substring(double_quotes_indexes[idx] + 1, corresponding_ground_rule.length);
+                                ground_rule_before_string = ground_rule_before_string.replace(regex_variable_global, to_replace);
+                                ground_rule_after_string = ground_rule_after_string.replace(regex_variable_global, to_replace);
+                                corresponding_ground_rule = ground_rule_before_string + corresponding_ground_rule.substring(double_quotes_indexes[idx - 1], double_quotes_indexes[idx] + 1) + ground_rule_after_string;
+                            }
+                        }
+                    }
                     // substitute all occurrencies of variable with the associated constant
                     //check that the match is effectively a variable
-                    corresponding_ground_rule = corresponding_ground_rule.replace(regex_variable_global, terms[k]);
+                    //corresponding_ground_rule = corresponding_ground_rule.replace(regex_variable_global, terms[k]);
                 }
                 // let regexSpaces = new RegExp(/\s/g);
                 if (ground_instances_of_mus_rules.get(corresponding_debug_atom.getNonGroundRule()) == null) {
@@ -72,7 +143,6 @@ class RulesGenerator {
     //     return non_ground_rules;
     // }
     get_non_ground_rules_from_debug(muses, debug_atom_rules, mus_index_max = -1, debug_predicate_name = '_debug') {
-        // create wasp caller
         let non_ground_rules = new Array(muses.length);
         //-1 stands for: consider all muses
         if (mus_index_max == -1) {
@@ -96,18 +166,16 @@ class RulesGenerator {
     }
 }
 exports.RulesGenerator = RulesGenerator;
-// //Usage example
+//Usage example
 // let generator = new RulesGenerator();
 // //computes ground instances and non ground rules belonging to muses
-// let my_debugger = DebugGrounder.createDefault(['/home/andrea/git/ASP-Debugger/test/unsat/problems/3col_unsat.asp']);
-// let wasp_caller = new WaspCaller();
-// let groundP : string = my_debugger.ground();
-// let  my_program : Map<string, DebugAtom> = my_debugger.getDebugAtomsMap();
-// let muses : Array<string[]> = wasp_caller.get_muses(groundP, Array.from(my_program.keys()), 3);
-// console.log(muses);
-// //console.log(muses);
-// let ground_rules : Map<string, string[]> = generator.get_ground_rules_from_debug(muses, my_program, 1);
-// let non_ground_rules : Array<Set<string>> = generator.get_non_ground_rules_from_debug(muses, my_program);
+// let file_path : string = '/home/andrea/git/ASP-Debugger/test/unsat/problems/3col_unsat_strings.asp';
+// let number_of_muses = 1;
+// let mus_index_for_ground_rules = 0;
+// let musFacade = new MUSesCalculator();
+// musFacade.calculateMUSes([file_path], number_of_muses)
+// let ground_rules : Map<string, string[]> = musFacade.getGroundRulesForMUS(mus_index_for_ground_rules);
+// let non_ground_rules : Array<Set<string>> = musFacade.getNonGroundRulesForMUSes();
 // let result : string = '';
 // for(let [key, value] of ground_rules){
 //     result += value.toString();

@@ -44,7 +44,10 @@ class AdornedDebugProgramBuilder {
         this.logic_program = asp_utils_1.freezeStrings(this.logic_program, this.stringPlaceholder);
     }
     restorePlaceholderToString() {
-        this.logic_program = asp_utils_1.restoreStrings(this.logic_program, this.stringPlaceholder);
+        for (let [key, value] of this.debugAtomsMap) {
+            value.setNonGroundRule(asp_utils_1.restoreStrings(value.getNonGroundRule(), this.stringPlaceholder));
+        }
+        this.adornedProgram = asp_utils_1.restoreStrings(this.adornedProgram, this.stringPlaceholder);
     }
     getAdornedProgram() {
         return this.adornedProgram;

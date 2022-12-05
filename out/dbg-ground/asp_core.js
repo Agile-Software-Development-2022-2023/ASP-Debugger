@@ -38,6 +38,7 @@ class DebugAtom {
     getPredicateArity() { return this.predicateArity; }
     getVariables() { return this.variables; }
     getNonGroundRule() { return this.nonground_rule; }
+    setNonGroundRule(nonground_rule) { this.nonground_rule = nonground_rule; }
 }
 exports.DebugAtom = DebugAtom;
 //# sourceMappingURL=asp_core.js.map

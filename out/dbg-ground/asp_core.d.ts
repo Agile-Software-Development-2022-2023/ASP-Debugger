@@ -20,4 +20,5 @@ export declare class DebugAtom {
     getPredicateArity(): number;
     getVariables(): string[];
     getNonGroundRule(): string;
+    setNonGroundRule(nonground_rule: string): void;
 }

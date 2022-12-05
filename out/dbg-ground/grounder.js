@@ -76,7 +76,7 @@ class TheoreticalAspGrounder extends AspGrounder {
             //
             // rewrite rules
             //
-            const disjFactRuleRegexp = new RegExp('^1 (\\d+) 1 0 ' + pos_disj_atom_code, 'gm');
+            const disjFactRuleRegexp = new RegExp('^1 (\\d+) 1 0 ' + pos_disj_atom_code + '$', 'gm');
             const constraintRuleRegexp = new RegExp('^1 1 2 0 (' + pos_disj_atom_code + ' ' + neg_disj_atom_code + '|'
                 + neg_disj_atom_code + ' ' + pos_disj_atom_code + ')\\n', 'gm');
             const disjuncRuleRegexp = new RegExp('^8 2 (' + pos_disj_atom_code + ' ' + neg_disj_atom_code + '|'
