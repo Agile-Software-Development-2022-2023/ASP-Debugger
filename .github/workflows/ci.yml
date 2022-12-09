@@ -19,12 +19,14 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-    - name: Use gringo and typescript
+    - name: Use gringo
       uses: awalsh128/cache-apt-pkgs-action@latest
       with:
-        packages: gringo typescript
+        packages: gringo
     - name: Test and Compile
       run: |
+        npm install -g typescript
+
         npm ci
         npm run build --if-present
         npm test
