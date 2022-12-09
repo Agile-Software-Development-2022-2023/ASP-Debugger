@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.RewritingBasedDebugGrounder = exports.DebugGrounder = exports.DebugGrounderError = void 0;
 const child_process_1 = require("child_process");
 const path_1 = __importDefault(require("path"));
 const asp_core_1 = require("./asp_core");
@@ -39,7 +40,7 @@ class GringoWrapperDebugGrounder extends DebugGrounder {
             let gw_output;
             GRINGO_WRAPPER_OPTIONS.forEach(function (opt) { gw_args.push(opt); });
             this.encodings.forEach(function (enc) { gw_args.push(enc); });
-            gw_proc = child_process_1.spawnSync(GRINGO_WRAPPER, gw_args, { encoding: 'utf-8', cwd: path_1.default.resolve(__dirname, "../../") });
+            gw_proc = (0, child_process_1.spawnSync)(GRINGO_WRAPPER, gw_args, { encoding: 'utf-8', cwd: path_1.default.resolve(__dirname, "../../") });
         }
         catch (err) {
             throw new DebugGrounderError(err);
@@ -105,7 +106,7 @@ class RewritingBasedDebugGrounder extends DebugGrounder {
         //
         // ground_prog will be properly rewrited to obtain the final debug program...
         let split = ground_prog.split(/^0\n/gm);
-        split[0] = adorner_1.addDebugAtomsChoiceRule(split[0], split[1], nongroundDebugProgBuilder.getDebugPredicate());
+        split[0] = (0, adorner_1.addDebugAtomsChoiceRule)(split[0], split[1], nongroundDebugProgBuilder.getDebugPredicate());
         return split.join("0\n");
     }
 }

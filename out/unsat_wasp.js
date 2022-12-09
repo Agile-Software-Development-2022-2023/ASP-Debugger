@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.WaspCaller = void 0;
 const child_process_1 = require("child_process");
 const path_1 = __importDefault(require("path"));
 class WaspCaller {
@@ -13,7 +14,7 @@ class WaspCaller {
     exec_command(command, args, input, std_out) {
         let execProcess;
         try {
-            execProcess = child_process_1.spawnSync(command, args, { input: input, encoding: 'utf-8', cwd: path_1.default.resolve(__dirname, "../") });
+            execProcess = (0, child_process_1.spawnSync)(command, args, { input: input, encoding: 'utf-8', cwd: path_1.default.resolve(__dirname, "../") });
         }
         catch (err) {
             throw err;

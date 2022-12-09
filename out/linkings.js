@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Linker = exports.InvalidLinkingsError = void 0;
 const utils_1 = require("./utils");
 const fs_1 = __importDefault(require("fs"));
 class InvalidLinkingsError extends Error {

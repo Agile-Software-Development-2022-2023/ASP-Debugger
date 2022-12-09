@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.DebugAtom = exports.AspRule = void 0;
 class AspRule {
     constructor(body, globvars = []) {
         this.body = body;

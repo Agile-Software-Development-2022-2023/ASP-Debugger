@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.ASP_REGEX = void 0;
 class ASP_REGEX {
 }
 exports.ASP_REGEX = ASP_REGEX;

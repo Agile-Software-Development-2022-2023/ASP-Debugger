@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.addDebugAtomsChoiceRule = exports.AdornedDebugProgramBuilder = void 0;
 const asp_core_1 = require("./asp_core");
 const asp_utils_1 = require("./asp_utils");
 const Useful_regex_1 = require("./Useful_regex");
@@ -41,19 +42,19 @@ class AdornedDebugProgramBuilder {
         this.debugAtomsMap = new Map();
     }
     cleanString() {
-        this.logic_program = asp_utils_1.freezeStrings(this.logic_program, this.stringPlaceholder);
+        this.logic_program = (0, asp_utils_1.freezeStrings)(this.logic_program, this.stringPlaceholder);
     }
     restorePlaceholderToString() {
         for (let [key, value] of this.debugAtomsMap) {
-            value.setNonGroundRule(asp_utils_1.restoreStrings(value.getNonGroundRule(), this.stringPlaceholder));
+            value.setNonGroundRule((0, asp_utils_1.restoreStrings)(value.getNonGroundRule(), this.stringPlaceholder));
         }
-        this.adornedProgram = asp_utils_1.restoreStrings(this.adornedProgram, this.stringPlaceholder);
+        this.adornedProgram = (0, asp_utils_1.restoreStrings)(this.adornedProgram, this.stringPlaceholder);
     }
     getAdornedProgram() {
         return this.adornedProgram;
     }
     adornProgram(debugConstantPrefix = "_debug") {
-        debugConstantPrefix = asp_utils_1.make_unique(debugConstantPrefix, this.logic_program);
+        debugConstantPrefix = (0, asp_utils_1.make_unique)(debugConstantPrefix, this.logic_program);
         this.debug_predicate = debugConstantPrefix;
         let debugConstantNum = 1;
         this.adornedProgram = "";

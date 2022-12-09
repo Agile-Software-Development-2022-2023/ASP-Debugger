@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.restoreStrings = exports.freezeStrings = exports.make_unique = void 0;
 function make_unique(pred_name, asp_program) {
     while (asp_program.includes(pred_name))
         pred_name = '_' + pred_name;
