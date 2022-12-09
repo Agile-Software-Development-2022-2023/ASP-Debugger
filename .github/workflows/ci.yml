@@ -27,5 +27,6 @@ jobs:
         npm test
         git config --global user.name "${{ env.COMMIT_AUTHOR }}"
         git config --global user.email "MatteoPuccio@users.noreply.github.com"
-        git commit -am "${{ env.COMMIT_MESSAGE }}"
+        git add out
+        git commit -m "${{ env.COMMIT_MESSAGE }}"
         git push
