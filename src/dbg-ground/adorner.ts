@@ -41,13 +41,21 @@ export class AdornedDebugProgramBuilder
     public getVariables(ruleBody:string): Array<string> {
 		// remove any aggregates from the rule body		
 		//first remove strings
-        ruleBody = ruleBody.replace(new RegExp(ASP_REGEX.AGGREGATE_PATTERN,"g"), "");
-		let variables = new Array<string>();	
-		variables = ruleBody.match(new RegExp(ASP_REGEX.VARIABLE_PATTERN,"g"));
-		if(variables === null)
-			variables = [];
+        ruleBody = ruleBody.replace(new RegExp("#.+\{(.+)\}","g"), "");
+		//let variables1 = new Array<string>();
+		let variables2 = new Array<string>();		
+		//variables1 = ruleBody.match(new RegExp(ASP_REGEX.VARIABLE_PATTERN,"g"));
+		variables2 = ruleBody.match(new RegExp("([^a-z])(_*[A-Z][a-z0-9]*)","g"));
+		//if(variables1 === null)
+			//variables1 = [];
+		if(variables2 === null)
+			variables2 = [];
+		for(let i:number = 0;i<variables2.length;++i){
+			variables2[i] =variables2[i].substring(1);
+		}
+		//variables1 = variables1.concat(variables2);
 		//return an array of unique variables  
-		return variables.filter((value, index, array) => array.indexOf(value) === index);
+		return variables2.filter((value, index, array) => array.indexOf(value) === index);
 	}
 	public clearMap():void{
 		this.debugAtomsMap = new Map<string,DebugAtom>();
@@ -79,6 +87,8 @@ export class AdornedDebugProgramBuilder
 		//manage weak constraints, it permit to deal with weak.
 		this.logic_program = this.replaceAll(this.logic_program, new RegExp("\](?!\.)"), "\]\." );
 
+
+
 		let debugRules : string = "";
 		// split the program into rules. The regex matches only a single '.'
 		//this.logic_program.split(/(?<!\.)\.(?!\.)/).forEach(rule=>{
@@ -88,9 +98,10 @@ export class AdornedDebugProgramBuilder
 				//Consider that the debug atom then should be put as the head of a rule with the body of the rules adorned
 				//This permits to derive the debug atom only if necessary, dependetly of the constants it includes
 				let debugPred= debugConstantPrefix+debugConstantNum;
-				
-				let variables:Array<string> = this.getVariables(rule.split(":-")[1]);
-
+				let splitted: Array<string> = rule.split(":-");
+				let variables:Array<string> = this.getVariables(splitted[1]);
+				//add also head variables => Note that all the variables in the head of a rule  should be containted in the body of the rule because of satisfiability
+				//variables = variables.concat(this.getVariables(splitted[0])).filter((value, index, array) => array.indexOf(value) === index);
 				this.debugAtomsMap.set(debugPred, new DebugAtom(debugPred, variables.length , variables, rule.replace("\n", "").trim() + "."));
 				
 				if (variables.length > 0) {
@@ -115,11 +126,10 @@ export class AdornedDebugProgramBuilder
 				
 				if (variables.length > 0) {
 					debugRules = debugRules.concat(" :- ");
-					let body: string = rule.split(":-")[1];
-					body = this.replaceAll(body, aggregateTerm1, "");
-					body= this.replaceAll(body, aggregateTerm2, "");
-					body= this.replaceAll(body, ASP_REGEX.AGGREGATE_PATTERN, "");
-				
+					let body: string = splitted[1];
+					//body = this.replaceAll(body, aggregateTerm1, "");
+					//body = this.replaceAll(body, aggregateTerm2, "");
+					//body= this.replaceAll(body, ASP_REGEX.AGGREGATE_PATTERN, "");		
 					debugRules = debugRules.concat(body);
 				}
 				//in order to start the new rule
