@@ -56,14 +56,14 @@
       },
       {
          
-         "expected":"h1(X,J):- b1(X,Y),b(Z,K),J=#count{L:pipipi(L,J,N,_)}, _debug1(X, Y, Z, K, J). h2:- b2(X,Y), _debug2(X, Y).\n:-text(a), _debug3. \nfact(X,V,B,B,77,constant). :~preg(X,Y,Z,C,V), #count{X:pred(T)}. [X@Y]\n_debug1(X, Y, Z, K, J) :-  b1(X,Y),b(Z,K),J=#count{L:pipipi(L,J,N,_)}.\n_debug2(X, Y) :-  b2(X,Y).\n_debug3.\n",
-         "program": "h1(X,J):- b1(X,Y),b(Z,K),J=#count{L:pipipi(L,J,N,_)}. h2:- b2(X,Y).\n:-text(a). \nfact(X,V,B,B,77,constant). :~preg(X,Y,Z,C,V), #count{X:pred(T)}. [X@Y]",
+         "expected":"h1(X,J, P):-P=X-60, b1(X,Y),b(Z,K),J=#count{L:pipipi(L,J,N,_)}, _debug1(P, X, Y, Z, K, J). h2:- b2(X,Y), _debug2(X, Y).\n:-text(a), _debug3. \nfact(X,V,B,B,77,constant). :~preg(X,Y,Z,C,V), #count{X:pred(T)}. [X@Y]\n_debug1(P, X, Y, Z, K, J) :- P=X-60, b1(X,Y),b(Z,K),J=#count{L:pipipi(L,J,N,_)}.\n_debug2(X, Y) :-  b2(X,Y).\n_debug3.\n",
+         "program": "h1(X,J, P):-P=X-60, b1(X,Y),b(Z,K),J=#count{L:pipipi(L,J,N,_)}. h2:- b2(X,Y).\n:-text(a). \nfact(X,V,B,B,77,constant). :~preg(X,Y,Z,C,V), #count{X:pred(T)}. [X@Y]",
          "map": {
              "_debug1": {
                "predicateName": "_debug1",
-               "predicateArity": 5,
-               "variables": ["X", "Y", "Z", "K","J"],
-               "nonground_rule": "h1(X,J):- b1(X,Y),b(Z,K),J=#count{L:pipipi(L,J,N,_)}."
+               "predicateArity": 6,
+               "variables": ["P","X", "Y", "Z", "K","J"],
+               "nonground_rule": "h1(X,J, P):-P=X-60, b1(X,Y),b(Z,K),J=#count{L:pipipi(L,J,N,_)}."
              },
               "_debug2": {
                 "predicateName": "_debug2",

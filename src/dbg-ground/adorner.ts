@@ -43,19 +43,14 @@ export class AdornedDebugProgramBuilder
 		//first remove strings
         ruleBody = ruleBody.replace(new RegExp("#.+\{(.+)\}","g"), "");
 		//let variables1 = new Array<string>();
-		let variables2 = new Array<string>();		
+		let variables = new Array<string>();		
 		//variables1 = ruleBody.match(new RegExp(ASP_REGEX.VARIABLE_PATTERN,"g"));
-		variables2 = ruleBody.match(new RegExp("([^a-z])(_*[A-Z][a-z0-9]*)","g"));
+		variables = ruleBody.match(new RegExp("(?<![a-z])_*[A-Z][a-z0-9]*","g"));
 		//if(variables1 === null)
 			//variables1 = [];
-		if(variables2 === null)
-			variables2 = [];
-		for(let i:number = 0;i<variables2.length;++i){
-			variables2[i] =variables2[i].substring(1);
-		}
-		//variables1 = variables1.concat(variables2);
-		//return an array of unique variables  
-		return variables2.filter((value, index, array) => array.indexOf(value) === index);
+		if(variables === null)
+			variables = [];
+		return variables.filter((value, index, array) => array.indexOf(value) === index);
 	}
 	public clearMap():void{
 		this.debugAtomsMap = new Map<string,DebugAtom>();
