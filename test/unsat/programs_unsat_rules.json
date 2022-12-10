@@ -69,5 +69,19 @@
         "non_ground_rules" : "",
         "number_of_muses" : "0",
         "mus_index_for_ground_rules" : "0"
+    },
+    {
+        "problem_path" : "test/unsat/problems/even.asp",
+        "ground_rules" : "",
+        "non_ground_rules" : ":- not even.",
+        "number_of_muses" : "1",
+        "mus_index_for_ground_rules" : "0"
+    }
+    , {
+        "problem_path" : "test/unsat/problems/noVar.asp",
+        "ground_rules" : "",
+        "non_ground_rules" : ":-not a.",
+        "number_of_muses" : "1",
+        "mus_index_for_ground_rules" : "0"
     }
 ]}

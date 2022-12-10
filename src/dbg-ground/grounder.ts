@@ -43,7 +43,7 @@ export class AspGrounderGringo extends AspGrounder
         if ( !gringo_proc.stdout )
             throw new AspGrounderError('Invalid gringo exec.');
 
-        if ( gringo_proc.stderr && gringo_proc.stderr.match(/not\sfound|error/i).length > 0 )
+        if ( gringo_proc.stderr  && gringo_proc.stderr.match(/not\sfound|error/i))
             throw new AspGrounderError(gringo_proc.stderr);
         
         return gringo_proc.stdout;
