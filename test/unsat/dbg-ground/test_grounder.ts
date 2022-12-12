@@ -220,28 +220,28 @@ describe('Theoretical ASP grounder rewritings [pre-grounding]', function()
 
         {
         input_program:
-        "a.     b.   c.   \n" +
+        "a\n.     b.   c.   \n" +
 	    "   d. e.f.g.\n" +
-		"x :- a",
+		"x :-\n a",
         expected:
-        "a :- _df.     b :- _df.   c :- _df.   \n" +
+        "a\n :- _df.     b :- _df.   c :- _df.   \n" +
         "   d :- _df. e :- _df.f :- _df.g :- _df.\n" +
-        "x :- a\n" +
+        "x :-\n a\n" +
         "_df | -_df."
         },
 
         {
         input_program:
-        "pred(a).\n" +
-		"pred(b,c).\n" +
-		"_pRed1(b).\n" +
-		"_pRed1(b,c,d).\n" +
+        "pred(f(a)\n).\n" +
+		"pred(b,\nc).\n" +
+		"_pRed1\n(b).\n" +
+		"_pRed1(b,f(c,g(d))).\n" +
 		"a(X) :- pred(X).",
         expected:
-        "pred(a) :- _df.\n" +
-		"pred(b,c) :- _df.\n" +
-		"_pRed1(b) :- _df.\n" +
-		"_pRed1(b,c,d) :- _df.\n" +
+        "pred(f(a)\n) :- _df.\n" +
+		"pred(b,\nc) :- _df.\n" +
+		"_pRed1\n(b) :- _df.\n" +
+		"_pRed1(b,f(c,g(d))) :- _df.\n" +
 		"a(X) :- pred(X).\n" +
 		"_df | -_df."
         },
@@ -278,16 +278,30 @@ describe('Theoretical ASP grounder rewritings [pre-grounding]', function()
 
         {
         input_program:
-        "pred(1..10). pred2 ( 1 ..   5).pred3(  5     ..4).\n" +
+        "pred(1\n..\n10). pred2 ( 1 ..\n   5).pred3(  5     ..4).\n" +
 		"pred4(0..2).\n" +
 		" pred5 ( 1 ..   9, 10, a).\n" +
 		"a(X) :- pred(X).",
         expected:
-        "pred(1..10) :- _df. pred2 ( 1 ..   5) :- _df.pred3(  5     ..4) :- _df.\n" +
+        "pred(1\n..\n10) :- _df. pred2 ( 1 ..\n   5) :- _df.pred3(  5     ..4) :- _df.\n" +
 		"pred4(0..2) :- _df.\n" +
 		" pred5 ( 1 ..   9, 10, a) :- _df.\n" +
 		"a(X) :- pred(X).\n" +
 		"_df | -_df."
+        },
+
+        {
+        input_program:
+        "pred(1\n..\n10). pred2 ( 1 ..\n   5).pred3(  5     ..4).\n" +
+        "pred4(0..2).\n" +
+        " pred5 ( 1 ..   9, 10, a).\n" +
+        "a(X) :- \npred(X), pred2(X).",
+        expected:
+        "pred(1\n..\n10) :- _df. pred2 ( 1 ..\n   5) :- _df.pred3(  5     ..4) :- _df.\n" +
+        "pred4(0..2) :- _df.\n" +
+        " pred5 ( 1 ..   9, 10, a) :- _df.\n" +
+        "a(X) :- \npred(X), pred2(X).\n" +
+        "_df | -_df."
         },
         
         { // string injection

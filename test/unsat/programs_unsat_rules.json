@@ -83,5 +83,13 @@
         "non_ground_rules" : ":-not a.",
         "number_of_muses" : "1",
         "mus_index_for_ground_rules" : "0"
+    },
+
+    {
+        "problem_path" : "test/unsat/problems/multiline.asp",
+        "ground_rules" : "",
+        "non_ground_rules" : "",
+        "number_of_muses" : "0",
+        "mus_index_for_ground_rules" : "0"
     }
 ]}

@@ -75,8 +75,8 @@ export class TheoreticalAspGrounder extends AspGrounder
     {
         //const df_predname: string = this.getDisjFactPredName(input_program);
         return input_program.replace(
-            /((?<=((?<!\.)\.(?!\.)))|^)(([ a-zA-Z0-9(),_\-#]|(\.\.))*)(?=((?<!\.)\.(?!\.)))/gm,
-            "$3 :- _df") + "\n_df | -_df.";
+            /(?<=^|\.|\])(\s*[a-z\-_][a-zA-Z0-9_]*\s*(\([\sa-zA-Z0-9_,\-#\(\)\.]*?\))?\s*)\./g,
+            "$1 :- _df.") + "\n_df | -_df.";
     }    
 
     protected nullifyFactRewritings(ground_program: string): string
