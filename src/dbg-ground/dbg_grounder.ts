@@ -3,6 +3,7 @@ import path from "path";
 import { DebugAtom } from "./asp_core";
 import { AspGrounder, AspGrounderError, AspGrounderFactory } from "./grounder";
 import { addDebugAtomsChoiceRule, AdornedDebugProgramBuilder } from "./adorner";
+import { DebugRuleFilter, DebugRuleGroup } from "./dbg_filter";
 
 const GRINGO_WRAPPER = './src/dbg-ground/gringo-wrapper/bin/gringo-wrapper';
 const GRINGO_WRAPPER_OPTIONS = ['-go="-o smodels"']
@@ -122,17 +123,31 @@ export class RewritingBasedDebugGrounder extends DebugGrounder
         //
         // pre-ground rewriting.
         //
-        let nongroundDebugProgBuilder: AdornedDebugProgramBuilder = new AdornedDebugProgramBuilder(input_program);
+        let nongroundDebugProgBuilder: AdornedDebugProgramBuilder = new AdornedDebugProgramBuilder();
         
-        nongroundDebugProgBuilder.cleanString();
-        nongroundDebugProgBuilder.removeComments();
-    
+        input_program = nongroundDebugProgBuilder.cleanString(input_program);
+        let debugRuleFilter: DebugRuleFilter = new DebugRuleFilter(input_program);
+
+        let adorned:string = '';
+
+        for ( let ruleGroup of debugRuleFilter.getRuleGroups() )
+        {
+            //
+            // remove comments from the rule group
+            //
+            nongroundDebugProgBuilder.removeComments(ruleGroup);
+
+            //
+            // program adornment.
+            //
+            nongroundDebugProgBuilder.adornProgram(ruleGroup);
+            nongroundDebugProgBuilder.restorePlaceholderToString();
+            adorned += nongroundDebugProgBuilder.getAdornedProgram();
+        }
+
         //
-        // program grounding.
+        // adorned program grounding.
         //
-        nongroundDebugProgBuilder.adornProgram();
-        nongroundDebugProgBuilder.restorePlaceholderToString();
-        let adorned:string = nongroundDebugProgBuilder.getAdornedProgram();
         let ground_prog: string = AspGrounderFactory.getInstance().getTheoretical().ground(adorned);
         
         //get Maps of Debug Atom after the calculatoin of the preprocessed ground program
