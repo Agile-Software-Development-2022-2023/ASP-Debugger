@@ -1,5 +1,6 @@
 import { AspRule, DebugAtom } from "./asp_core";
 import { freezeStrings, make_unique, restoreStrings } from "./asp_utils";
+import { DebugRuleGroup } from "./dbg_filter";
 import { ASP_REGEX } from "./Useful_regex";
 
 
@@ -9,11 +10,12 @@ export class AdornedDebugProgramBuilder
 	private adornedProgram: string;
     private debugAtomsMap: Map<string,DebugAtom>;
 	private debug_predicate:string;
+	private debug_num: number ;
 	//private nonground_rules: AspRule[];
 	private stringPlaceholder: Map<string, string>;
-    public constructor(input_program: string)
+    public constructor()
     {
-        this.logic_program = input_program;
+		this.debug_num = 1;
 		this.debugAtomsMap = new Map<string,DebugAtom>();
 		this.adornedProgram = "";
 		this.stringPlaceholder = new Map<string, string>();
@@ -21,11 +23,11 @@ export class AdornedDebugProgramBuilder
     }
     public getDebugPredicate():string{return this.debug_predicate; }
 	public setDebugPredicate(pred : string):void{ this.debug_predicate=pred; }
-    public getLogicProgram(): string { return this.logic_program; }
-	public setLogicProgram(input_program: string){ this.logic_program = input_program;this.debug_predicate = "_debug";}
+    //public getLogicProgram(): string { return logic_program; }
+	//public setLogicProgram(input_program: string){ logic_program = input_program;this.debug_predicate = "_debug";}
 
 
-	private replaceAll(program:string, regex: RegExp, sub:string){
+	private replaceAll(program:string, regex: RegExp, sub:string):string{
 		let origin = program; 
         let replaced = program.replace(regex, sub);
 		while(origin !== replaced){
@@ -35,7 +37,7 @@ export class AdornedDebugProgramBuilder
 		return replaced;
 	}
 
-    public removeComments() {this.logic_program = this.replaceAll(this.logic_program, ASP_REGEX.COMMENT_PATTERN, "");}
+    public removeComments(logic_program:string):string {return this.replaceAll(logic_program, ASP_REGEX.COMMENT_PATTERN, "");}
 
 	//it should ignore the strings
     public getVariables(ruleBody:string): Array<string> {
@@ -52,47 +54,53 @@ export class AdornedDebugProgramBuilder
 			variables = [];
 		return variables.filter((value, index, array) => array.indexOf(value) === index);
 	}
-	public clearMap():void{
+	public reset():void{
 		this.debugAtomsMap = new Map<string,DebugAtom>();
+		this.adornedProgram = "";
+		this.debug_num = 1;
+		this.stringPlaceholder.clear();
 	}
 
-	public cleanString(){
-		this.logic_program = freezeStrings(this.logic_program, this.stringPlaceholder);
+	public cleanString(logic_program:string):string{
+		return freezeStrings(logic_program, this.stringPlaceholder);
 	}
 
-	public restorePlaceholderToString(){
+	public restorePlaceholderToString(program:string):string{
 		for(let [key, value] of this.debugAtomsMap){
 			value.setNonGroundRule(restoreStrings(value.getNonGroundRule(), this.stringPlaceholder));
 		}
-		this.adornedProgram = restoreStrings(this.adornedProgram, this.stringPlaceholder);
+		return restoreStrings(program, this.stringPlaceholder);
 	}
 
 	public getAdornedProgram(){
 		return this.adornedProgram;
 	}
-
-	public adornProgram(debugConstantPrefix:string  = "_debug"): void {
-		debugConstantPrefix = make_unique(debugConstantPrefix, this.logic_program);
-		this.debug_predicate = debugConstantPrefix;
-		let debugConstantNum: number = 1;
-		this.adornedProgram = "";
+	public make_unique_debug_prefix(logic_program:string):string{
+		this.debug_predicate = make_unique(this.debug_predicate, logic_program); 
+		return this.debug_predicate;
+	}
+	public adornProgram(logic_group:DebugRuleGroup): void {
+		let logic_program = logic_group.getRules();
 		//remove aggregate atoms that are not useful for debugging purposes.
 		let aggregateTerm1 : RegExp = new RegExp(ASP_REGEX.AGGREGATE_PATTERN+",");
 		let aggregateTerm2 : RegExp = new RegExp(ASP_REGEX.AGGREGATE_PATTERN+ "(?!,)");
 		//manage weak constraints, it permit to deal with weak.
-		this.logic_program = this.replaceAll(this.logic_program, new RegExp("\](?!\.)"), "\]\." );
+		logic_program = this.replaceAll(logic_program, new RegExp("\](?!\.)"), "\]\." );
 
-
-
+		let skipCount = logic_group.getSkipCount();
 		let debugRules : string = "";
 		// split the program into rules. The regex matches only a single '.'
-		//this.logic_program.split(/(?<!\.)\.(?!\.)/).forEach(rule=>{
-		this.logic_program.split(/(?<!\.)\.(?!\.)/).forEach(rule =>{
-			if (rule.includes(":-")) {
+		//logic_program.split(/(?<!\.)\.(?!\.)/).forEach(rule=>{
+		logic_program.split(/(?<!\.)\.(?!\.)/).forEach(rule =>{
+			if(skipCount > 0){
+				console.log(rule);
+				skipCount-=1;
+			}
+			else if (rule.includes(":-")) {
 				// rule with the body should be adorned adding a the debug atoms with their globalVars
 				//Consider that the debug atom then should be put as the head of a rule with the body of the rules adorned
 				//This permits to derive the debug atom only if necessary, dependetly of the constants it includes
-				let debugPred= debugConstantPrefix+debugConstantNum;
+				let debugPred= this.debug_predicate+this.debug_num;
 				let splitted: Array<string> = rule.split(":-");
 				let variables:Array<string> = this.getVariables(splitted[1]);
 				//add also head variables => Note that all the variables in the head of a rule  should be containted in the body of the rule because of satisfiability
@@ -129,12 +137,12 @@ export class AdornedDebugProgramBuilder
 				}
 				//in order to start the new rule
 				debugRules = debugRules.concat(".\n");			
-				debugConstantNum ++;
+				this.debug_num ++;
 
 			//this includes rules without the body, such a rule should be adorned with the creation of the body including the debug atom
 			} else if((rule.includes("|") || (rule.includes("{") && rule.includes("}"))) && !rule.includes(":~")) {
 				// disjunction or choice rule, thus add ' :- _debug#' to the rule
-				let debugPred:string= debugConstantPrefix+debugConstantNum;
+				let debugPred:string= this.debug_predicate+this.debug_num;
 				this.adornedProgram = this.adornedProgram.concat(rule);
 				this.adornedProgram = this.adornedProgram.concat(" :- ");
 				this.adornedProgram = this.adornedProgram.concat(debugPred);
@@ -143,7 +151,7 @@ export class AdornedDebugProgramBuilder
 				
 				debugRules = debugRules.concat(debugPred);
 				debugRules = debugRules.concat(".\n");
-				debugConstantNum ++;
+				this.debug_num ++;
 			
 			//can be modified if i want to adorn facts too
 			} 
@@ -159,10 +167,11 @@ export class AdornedDebugProgramBuilder
 					this.adornedProgram = this.adornedProgram.concat(".");
 				}
 			}});
+			//final append
 			if(debugRules.length>0){
 				this.adornedProgram = this.adornedProgram.concat("\n"+debugRules);
 			}
-			//this.logic_program = this.adornedProgram;
+			//logic_program = this.adornedProgram;
 	}
 	public getDebugAtomsMap(): Map<string,DebugAtom>{return this.debugAtomsMap;}
     //public adornRules(): Map<string, DebugAtom> { return null; }

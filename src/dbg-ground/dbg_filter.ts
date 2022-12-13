@@ -4,7 +4,7 @@ export class DebugRuleGroup
     private rules: string;
     private skip_count: number;
 
-    public constructor(rules: string, skip_count: number)
+    public constructor(rules: string, skip_count: number = 0)
     {
         this.rules = rules;
         this.skip_count = skip_count;
@@ -12,6 +12,9 @@ export class DebugRuleGroup
 
     public getRules(): string { return this.rules; }
     public getSkipCount(): number { return this.skip_count; }
+    public setRules(rules:string): void {  this.rules = rules; }
+    public setSkipCount(count:number): void { this.skip_count= count; }
+    
 }
 
 export class DebugRuleFilter
@@ -31,13 +34,17 @@ export class DebugRuleFilter
             group_headers.push(header);
             return header;
         });
-
-        for ( let header of group_headers )
-        {
-            let group_split: string[] = program.split(header);
-            if ( group_split.length > 1 )
-                this.rule_groups.push( new DebugRuleGroup(group_split[0], 0) );
-            this.rule_groups.push( new DebugRuleGroup(group_split[1], 1) );
+        if(group_headers.length === 0 ){
+            this.rule_groups.push(new DebugRuleGroup(program));
+        }
+        else{
+            for ( let header of group_headers )
+            {
+                let group_split: string[] = program.split(header);
+                if ( group_split.length > 1 )
+                    this.rule_groups.push( new DebugRuleGroup(group_split[0], 0) );
+                this.rule_groups.push( new DebugRuleGroup(group_split[1], 1) );
+            }
         }
     }
 

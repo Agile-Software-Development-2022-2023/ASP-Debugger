@@ -2,7 +2,7 @@ import assert from "assert";
 import { describe, it } from "mocha";
 import { DebugRuleFilter, DebugRuleGroup } from "../../../src/dbg-ground/dbg_filter";
 
-describe.only('Debug rule filter through ASP annotations', function()
+describe('Debug rule filter through ASP annotations', function()
 {
     //
     // it is assumed that strings have been properly freezed

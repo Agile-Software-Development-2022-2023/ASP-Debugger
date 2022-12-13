@@ -5,6 +5,7 @@ import { readFileSync } from 'fs';
 import { DebugGrounder } from '../../../src/dbg-ground/dbg_grounder';
 import { DebugAtom } from "../../../src/dbg-ground/asp_core";
 import { AspGrounderError } from "../../../src/dbg-ground/grounder";
+import { assert } from "console";
 
 
 interface DebugProgramTestCase
@@ -27,9 +28,8 @@ let debug_program_test_cases: DebugProgramTestCase[] =
         expected_ground: 'test/unsat/dbg-ground/col_test.smodels',
         debug_atoms_map: new Map<string, DebugAtom>( [
         ['_debug1', new DebugAtom('_debug1', 1, ['X'], 'node(X) :- arc(X, _).')],
-        ['_debug2', new DebugAtom('_debug2', 1, ['X'], 'node(X) :- arc(_, X).')],
-        ['_debug3', new DebugAtom('_debug3', 1, ['X'], 'col(X, blue) | col(X, red) | col(X, yellow) :- node(X).')],
-        ['_debug4', new DebugAtom('_debug4', 4, ['X','C1','Y','C2'], ':- col(X, C1), col(Y, C2), arc(X, Y), C1=C2.')] ] ) }
+        ['_debug2', new DebugAtom('_debug2', 1, ['X'], 'col(X, blue) | col(X, red) | col(X, yellow) :- node(X).')],
+        ['_debug3', new DebugAtom('_debug3', 4, ['X','C1','Y','C2'], ':- col(X, C1), col(Y, C2), arc(X, Y), C1=C2.')] ] ) }
     ]
 
 describe('Basic mocha usage', function()

@@ -17,12 +17,13 @@ export abstract class DebugGrounder
 {
     protected encodings: string[];
     protected debugAtomsMap: Map<string, DebugAtom>;
-
+    protected debug_predicate: string;
     public constructor(encoding_paths: string | string[])
     {
         if ( typeof encoding_paths === "string" ) this.encodings = [encoding_paths];
         else this.encodings = encoding_paths;
         this.debugAtomsMap = new Map<string, DebugAtom>();
+        this.debug_predicate =  "_debug";
     }
 
     public getEncodings(): string[]
@@ -32,7 +33,7 @@ export abstract class DebugGrounder
 
     public getDebugAtomsMap(): Map<string, DebugAtom>
     { return this.debugAtomsMap; }
-
+    public getDebugPredicate():string{return this.debug_predicate;};
     public static createDefault(encoding_paths: string | string[]): DebugGrounder
     { return new RewritingBasedDebugGrounder(encoding_paths); 
       //return new GringoWrapperDebugGrounder(encoding_paths); 
@@ -126,23 +127,23 @@ export class RewritingBasedDebugGrounder extends DebugGrounder
         let nongroundDebugProgBuilder: AdornedDebugProgramBuilder = new AdornedDebugProgramBuilder();
         
         input_program = nongroundDebugProgBuilder.cleanString(input_program);
+        this.debug_predicate = nongroundDebugProgBuilder.make_unique_debug_prefix(input_program);
         let debugRuleFilter: DebugRuleFilter = new DebugRuleFilter(input_program);
 
         let adorned:string = '';
-
+        
         for ( let ruleGroup of debugRuleFilter.getRuleGroups() )
         {
             //
             // remove comments from the rule group
             //
-            nongroundDebugProgBuilder.removeComments(ruleGroup);
 
+            ruleGroup.setRules(nongroundDebugProgBuilder.removeComments(ruleGroup.getRules()));
             //
             // program adornment.
             //
             nongroundDebugProgBuilder.adornProgram(ruleGroup);
-            nongroundDebugProgBuilder.restorePlaceholderToString();
-            adorned += nongroundDebugProgBuilder.getAdornedProgram();
+            adorned = adorned.concat(nongroundDebugProgBuilder.restorePlaceholderToString(nongroundDebugProgBuilder.getAdornedProgram()));
         }
 
         //
