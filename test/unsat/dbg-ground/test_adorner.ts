@@ -21,8 +21,9 @@ describe('Check preprocessing phase works properly before grounding the program'
         let prog :string = "h1(X,Y,Z):-b1(X,Y,Z).\n"+"      %comment%comment&imcommenting\n"+"  %          \n"+":-{pred(X,Y)},t(X).\n"+"%this co!#mm()ent@ is removed from the program\n"+":-3{pred(X,Y,Z)},t(X).\n"+"%also this comments should be removed\n"+":-1<{pred(X,Y):t(Y)},t(costant).\n"+"         %comment that should be removed    \n";
         let expected:string = "h1(X,Y,Z):-b1(X,Y,Z).\n:-{pred(X,Y)},t(X).\n:-3{pred(X,Y,Z)},t(X).\n:-1<{pred(X,Y):t(Y)},t(costant).\n"; 
 
-        prog = preproc.removeComments(prog);
-        assert.deepEqual(prog, expected);
+        preproc.setCurrentRuleGroup(prog);
+        preproc.removeComments();
+        assert.deepEqual(preproc.getCurrentRuleGroup(), expected);
     });
 
     it('checks that an ASP program already processed and without comments is adorned correctly', function(){
@@ -31,7 +32,8 @@ describe('Check preprocessing phase works properly before grounding the program'
             let program:string = item["program"];
             let adorned:string = item["expected"];
             preproc.reset();
-            preproc.adornProgram(new DebugRuleGroup(program));
+            preproc.setCurrentRuleGroup(program);
+            preproc.adornProgram();
             let computed = preproc.getAdornedProgram();
             assert.deepEqual(computed, adorned);
         });
@@ -42,7 +44,8 @@ describe('Check preprocessing phase works properly before grounding the program'
             let program:string = item["program"];
             let atoms = item["map"];
             preproc.reset();
-            preproc.adornProgram(new DebugRuleGroup(program));
+            preproc.setCurrentRuleGroup(program);
+            preproc.adornProgram();
             let obtainedMap: Map<string, DebugAtom> = preproc.getDebugAtomsMap();
             obtainedMap.forEach((value:DebugAtom, key:string)=>{
                 let map:any = atoms[key];

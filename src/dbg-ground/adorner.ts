@@ -3,19 +3,26 @@ import { freezeStrings, make_unique, restoreStrings } from "./asp_utils";
 import { DebugRuleGroup } from "./dbg_filter";
 import { ASP_REGEX } from "./Useful_regex";
 
+export enum DefaultAdornerPolicy
+{
+	RULES_ONLY,
+	FACTS_ONLY,
+	ALL
+}
 
 export class AdornedDebugProgramBuilder
 {
-    private logic_program: string;
+	private currentRuleGroup: DebugRuleGroup;
 	private adornedProgram: string;
     private debugAtomsMap: Map<string,DebugAtom>;
 	private debug_predicate:string;
 	private debug_num: number ;
-	//private nonground_rules: AspRule[];
 	private stringPlaceholder: Map<string, string>;
+
     public constructor()
     {
 		this.debug_num = 1;
+		this.currentRuleGroup = null;
 		this.debugAtomsMap = new Map<string,DebugAtom>();
 		this.adornedProgram = "";
 		this.stringPlaceholder = new Map<string, string>();
@@ -26,6 +33,10 @@ export class AdornedDebugProgramBuilder
     //public getLogicProgram(): string { return logic_program; }
 	//public setLogicProgram(input_program: string){ logic_program = input_program;this.debug_predicate = "_debug";}
 
+	public setDefaultPolicy(policy: DefaultAdornerPolicy)
+	{
+		
+	}
 
 	private replaceAll(program:string, regex: RegExp, sub:string):string{
 		let origin = program; 
@@ -36,8 +47,19 @@ export class AdornedDebugProgramBuilder
 		}
 		return replaced;
 	}
+	
+	public setCurrentRuleGroup(ruleGroup: DebugRuleGroup | string)
+	{
+		if ( !(ruleGroup instanceof DebugRuleGroup) )
+			ruleGroup = new DebugRuleGroup(ruleGroup);
+		this.currentRuleGroup = ruleGroup;
+	}
+	
+	public getCurrentRuleGroup(): string
+		{ return this.currentRuleGroup.getRules(); }
 
-    public removeComments(logic_program:string):string {return this.replaceAll(logic_program, ASP_REGEX.COMMENT_PATTERN, "");}
+    public removeComments()
+		{this.currentRuleGroup.setRules(this.replaceAll(this.currentRuleGroup.getRules(), ASP_REGEX.COMMENT_PATTERN, ""));}
 
 	//it should ignore the strings
     public getVariables(ruleBody:string): Array<string> {
@@ -55,6 +77,7 @@ export class AdornedDebugProgramBuilder
 		return variables.filter((value, index, array) => array.indexOf(value) === index);
 	}
 	public reset():void{
+		this.currentRuleGroup = null;
 		this.debugAtomsMap = new Map<string,DebugAtom>();
 		this.adornedProgram = "";
 		this.debug_num = 1;
@@ -65,11 +88,11 @@ export class AdornedDebugProgramBuilder
 		return freezeStrings(logic_program, this.stringPlaceholder);
 	}
 
-	public restorePlaceholderToString(program:string):string{
+	public restorePlaceholderToString(){
 		for(let [key, value] of this.debugAtomsMap){
 			value.setNonGroundRule(restoreStrings(value.getNonGroundRule(), this.stringPlaceholder));
 		}
-		return restoreStrings(program, this.stringPlaceholder);
+		this.adornedProgram = restoreStrings(this.adornedProgram, this.stringPlaceholder);
 	}
 
 	public getAdornedProgram(){
@@ -79,15 +102,15 @@ export class AdornedDebugProgramBuilder
 		this.debug_predicate = make_unique(this.debug_predicate, logic_program); 
 		return this.debug_predicate;
 	}
-	public adornProgram(logic_group:DebugRuleGroup): void {
-		let logic_program = logic_group.getRules();
+	public adornProgram(): void {
+		let logic_program = this.currentRuleGroup.getRules();
 		//remove aggregate atoms that are not useful for debugging purposes.
 		let aggregateTerm1 : RegExp = new RegExp(ASP_REGEX.AGGREGATE_PATTERN+",");
 		let aggregateTerm2 : RegExp = new RegExp(ASP_REGEX.AGGREGATE_PATTERN+ "(?!,)");
 		//manage weak constraints, it permit to deal with weak.
 		logic_program = this.replaceAll(logic_program, new RegExp("\](?!\.)"), "\]\." );
 
-		let skipCount = logic_group.getSkipCount();
+		let skipCount = this.currentRuleGroup.getSkipCount();
 		let debugRules : string = "";
 		// split the program into rules. The regex matches only a single '.'
 		//logic_program.split(/(?<!\.)\.(?!\.)/).forEach(rule=>{

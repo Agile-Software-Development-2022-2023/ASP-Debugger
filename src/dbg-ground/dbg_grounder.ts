@@ -2,8 +2,9 @@ import { spawnSync, SpawnSyncReturns } from "child_process";
 import path from "path";
 import { DebugAtom } from "./asp_core";
 import { AspGrounder, AspGrounderError, AspGrounderFactory } from "./grounder";
-import { addDebugAtomsChoiceRule, AdornedDebugProgramBuilder } from "./adorner";
+import { addDebugAtomsChoiceRule, AdornedDebugProgramBuilder, DefaultAdornerPolicy } from "./adorner";
 import { DebugRuleFilter, DebugRuleGroup } from "./dbg_filter";
+import { ALL } from "dns";
 
 const GRINGO_WRAPPER = './src/dbg-ground/gringo-wrapper/bin/gringo-wrapper';
 const GRINGO_WRAPPER_OPTIONS = ['-go="-o smodels"']
@@ -129,26 +130,32 @@ export class RewritingBasedDebugGrounder extends DebugGrounder
         input_program = nongroundDebugProgBuilder.cleanString(input_program);
         this.debug_predicate = nongroundDebugProgBuilder.make_unique_debug_prefix(input_program);
         let debugRuleFilter: DebugRuleFilter = new DebugRuleFilter(input_program);
-
-        let adorned:string = '';
         
+        nongroundDebugProgBuilder.setDefaultPolicy(DefaultAdornerPolicy.ALL);
+
         for ( let ruleGroup of debugRuleFilter.getRuleGroups() )
         {
             //
+            // set the new group o rules to adorn 
+            //
+            nongroundDebugProgBuilder.setCurrentRuleGroup(ruleGroup);
+            
+            //
             // remove comments from the rule group
             //
-
-            ruleGroup.setRules(nongroundDebugProgBuilder.removeComments(ruleGroup.getRules()));
+            nongroundDebugProgBuilder.removeComments();
+            
             //
             // program adornment.
             //
-            nongroundDebugProgBuilder.adornProgram(ruleGroup);
-            adorned = adorned.concat(nongroundDebugProgBuilder.restorePlaceholderToString(nongroundDebugProgBuilder.getAdornedProgram()));
+            nongroundDebugProgBuilder.adornProgram();
+            nongroundDebugProgBuilder.restorePlaceholderToString();
         }
 
         //
         // adorned program grounding.
         //
+        let adorned:string = nongroundDebugProgBuilder.getAdornedProgram();
         let ground_prog: string = AspGrounderFactory.getInstance().getTheoretical().ground(adorned);
         
         //get Maps of Debug Atom after the calculatoin of the preprocessed ground program
