@@ -1,3 +1,4 @@
+import { AdornerImplementation, FactsOnlyImplementation } from "./AdornerImplementation";
 import { AspRule, DebugAtom } from "./asp_core";
 import { freezeStrings, make_unique, restoreStrings } from "./asp_utils";
 import { DebugRuleGroup } from "./dbg_filter";
@@ -12,30 +13,35 @@ export enum DefaultAdornerPolicy
 
 export class AdornedDebugProgramBuilder
 {
-	private currentRuleGroup: DebugRuleGroup;
-	private adornedProgram: string;
-    private debugAtomsMap: Map<string,DebugAtom>;
-	private debug_predicate:string;
-	private debug_num: number ;
-	private stringPlaceholder: Map<string, string>;
+	protected currentRuleGroup: DebugRuleGroup;
+	protected adornerImpl: AdornerImplementation;
+	protected stringPlaceholder: Map<string, string>;
 
     public constructor()
     {
-		this.debug_num = 1;
-		this.currentRuleGroup = null;
-		this.debugAtomsMap = new Map<string,DebugAtom>();
-		this.adornedProgram = "";
+		this.adornerImpl = new AdornerImplementation();
 		this.stringPlaceholder = new Map<string, string>();
-		this.debug_predicate = "_debug";
     }
-    public getDebugPredicate():string{return this.debug_predicate; }
-	public setDebugPredicate(pred : string):void{ this.debug_predicate=pred; }
+    public getDebugPredicate():string{return this.adornerImpl.getDebugPredicate(); }
+	public setDebugPredicate(pred : string):void{ this.adornerImpl.setDebugPredicate(pred); }
     //public getLogicProgram(): string { return logic_program; }
 	//public setLogicProgram(input_program: string){ logic_program = input_program;this.debug_predicate = "_debug";}
 
 	public setDefaultPolicy(policy: DefaultAdornerPolicy)
 	{
-		
+		switch(policy){
+			case DefaultAdornerPolicy.RULES_ONLY:
+				this.adornerImpl = new AdornerImplementation();
+				break;
+			case DefaultAdornerPolicy.ALL:
+				this.adornerImpl = new AdornerImplementation();
+				break;
+			case DefaultAdornerPolicy.FACTS_ONLY:
+				this.adornerImpl = new AdornerImplementation();
+				break;
+			default:
+				this.adornerImpl = new AdornerImplementation();
+		}	
 	}
 
 	private replaceAll(program:string, regex: RegExp, sub:string):string{
@@ -77,11 +83,9 @@ export class AdornedDebugProgramBuilder
 		return variables.filter((value, index, array) => array.indexOf(value) === index);
 	}
 	public reset():void{
-		this.currentRuleGroup = null;
-		this.debugAtomsMap = new Map<string,DebugAtom>();
-		this.adornedProgram = "";
-		this.debug_num = 1;
+		this.adornerImpl.reset();
 		this.stringPlaceholder.clear();
+		this.currentRuleGroup = null;
 	}
 
 	public cleanString(logic_program:string):string{
@@ -89,19 +93,21 @@ export class AdornedDebugProgramBuilder
 	}
 
 	public restorePlaceholderToString(){
-		for(let [key, value] of this.debugAtomsMap){
+
+		for(let [key, value] of this.adornerImpl.getDebugAtomsMap()){
 			value.setNonGroundRule(restoreStrings(value.getNonGroundRule(), this.stringPlaceholder));
 		}
-		this.adornedProgram = restoreStrings(this.adornedProgram, this.stringPlaceholder);
+		this.adornerImpl.setAdornedProgram(restoreStrings(this.adornerImpl.getAdornedProgram(), this.stringPlaceholder));
 	}
 
 	public getAdornedProgram(){
-		return this.adornedProgram;
+		return this.adornerImpl.getAdornedProgram();
 	}
 	public make_unique_debug_prefix(logic_program:string):string{
-		this.debug_predicate = make_unique(this.debug_predicate, logic_program); 
-		return this.debug_predicate;
+		return this.adornerImpl.make_unique_debug_prefix(logic_program);
 	}
+
+
 	public adornProgram(): void {
 		let logic_program = this.currentRuleGroup.getRules();
 		//remove aggregate atoms that are not useful for debugging purposes.
@@ -111,92 +117,36 @@ export class AdornedDebugProgramBuilder
 		logic_program = this.replaceAll(logic_program, new RegExp("\](?!\.)"), "\]\." );
 
 		let skipCount = this.currentRuleGroup.getSkipCount();
-		let debugRules : string = "";
 		// split the program into rules. The regex matches only a single '.'
 		//logic_program.split(/(?<!\.)\.(?!\.)/).forEach(rule=>{
 		logic_program.split(/(?<!\.)\.(?!\.)/).forEach(rule =>{
 			if(skipCount > 0){
-				console.log(rule);
 				skipCount-=1;
 			}
 			else if (rule.includes(":-")) {
-				// rule with the body should be adorned adding a the debug atoms with their globalVars
-				//Consider that the debug atom then should be put as the head of a rule with the body of the rules adorned
-				//This permits to derive the debug atom only if necessary, dependetly of the constants it includes
-				let debugPred= this.debug_predicate+this.debug_num;
-				let splitted: Array<string> = rule.split(":-");
-				let variables:Array<string> = this.getVariables(splitted[1]);
-				//add also head variables => Note that all the variables in the head of a rule  should be containted in the body of the rule because of satisfiability
-				//variables = variables.concat(this.getVariables(splitted[0])).filter((value, index, array) => array.indexOf(value) === index);
-				this.debugAtomsMap.set(debugPred, new DebugAtom(debugPred, variables.length , variables, rule.replace("\n", "").trim() + "."));
-				
-				if (variables.length > 0) {
-					debugPred = debugPred.concat("(");
-					debugPred = debugPred.concat(variables[0]);
-					for (let i = 1; i < variables.length; ++i) {
-						debugPred = debugPred.concat(", ");
-						debugPred = debugPred.concat(variables[i]);
-					}
-					debugPred = debugPred.concat(")");
-				}
-				
-				this.adornedProgram = this.adornedProgram.concat(rule);
-				this.adornedProgram = this.adornedProgram.concat(", ");
-				this.adornedProgram = this.adornedProgram.concat(debugPred);
-				this.adornedProgram = this.adornedProgram.concat(".");
-				
-
-				/*Construct a rule of the form debug(1,2,3):- pred1(1), pred2(2),pred3(3).
-					where the original rule was head...:- pred1(1), pred2(2),pred3(3).*/ 
-				debugRules = debugRules.concat(debugPred);
-				
-				if (variables.length > 0) {
-					debugRules = debugRules.concat(" :- ");
-					let body: string = splitted[1];
-					//body = this.replaceAll(body, aggregateTerm1, "");
-					//body = this.replaceAll(body, aggregateTerm2, "");
-					//body= this.replaceAll(body, ASP_REGEX.AGGREGATE_PATTERN, "");		
-					debugRules = debugRules.concat(body);
-				}
-				//in order to start the new rule
-				debugRules = debugRules.concat(".\n");			
-				this.debug_num ++;
+				this.adornerImpl.adornSimpleRules(rule);
 
 			//this includes rules without the body, such a rule should be adorned with the creation of the body including the debug atom
 			} else if((rule.includes("|") || (rule.includes("{") && rule.includes("}"))) && !rule.includes(":~")) {
-				// disjunction or choice rule, thus add ' :- _debug#' to the rule
-				let debugPred:string= this.debug_predicate+this.debug_num;
-				this.adornedProgram = this.adornedProgram.concat(rule);
-				this.adornedProgram = this.adornedProgram.concat(" :- ");
-				this.adornedProgram = this.adornedProgram.concat(debugPred);
-				this.adornedProgram = this.adornedProgram.concat(".");
-				this.debugAtomsMap.set(debugPred, new DebugAtom(debugPred,0,[],rule.replace("\n", "").trim() + "."));
-				
-				debugRules = debugRules.concat(debugPred);
-				debugRules = debugRules.concat(".\n");
-				this.debug_num ++;
+				this.adornerImpl.adornChoiceRules(rule);
 			
 			//can be modified if i want to adorn facts too
 			} 
 			else {
-				
-				// ignore if a fact or [w@l], copy as it is
-				this.adornedProgram = this.adornedProgram.concat(rule);
-				
-				// only add delimiting . if the rule is not empty
-				//note that the weight and the level [w@l] of a weak is managed as follow.
-				
-				if (rule.trim().length > 0 && !rule.includes("@")) {
-					this.adornedProgram = this.adornedProgram.concat(".");
-				}
+				if(rule.includes("@"))
+					this.adornerImpl.adornWeights(rule);
+				else if(rule.includes(":~"))
+					this.adornerImpl.adornWeak(rule);
+				else 
+					this.adornerImpl.adornFacts(rule);
 			}});
 			//final append
-			if(debugRules.length>0){
-				this.adornedProgram = this.adornedProgram.concat("\n"+debugRules);
+			if(this.adornerImpl.getDebugRules().length>0){
+				this.adornerImpl.appendDebugRules();
 			}
 			//logic_program = this.adornedProgram;
 	}
-	public getDebugAtomsMap(): Map<string,DebugAtom>{return this.debugAtomsMap;}
+	public getDebugAtomsMap(): Map<string,DebugAtom>{return this.adornerImpl.getDebugAtomsMap();}
     //public adornRules(): Map<string, DebugAtom> { return null; }
 }
 
