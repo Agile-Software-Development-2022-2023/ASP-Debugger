@@ -37,7 +37,7 @@ export class AdornedDebugProgramBuilder
 				this.adornerImpl = new AdornerImplementation();
 				break;
 			case DefaultAdornerPolicy.FACTS_ONLY:
-				this.adornerImpl = new AdornerImplementation();
+				this.adornerImpl = new FactsOnlyImplementation();
 				break;
 			default:
 				this.adornerImpl = new AdornerImplementation();
