@@ -1,12 +1,10 @@
 import assert from "assert";
 import { readFileSync } from "fs";
-import { brotliDecompressSync } from "zlib";
 import { DebugAtom } from "../../../src/dbg-ground/asp_core";
 import { AdornedDebugProgramBuilder, DefaultAdornerPolicy } from "../../../src/dbg-ground/adorner"
-import { DebugRuleGroup } from "../../../src/dbg-ground/dbg_filter";
 describe('Check preprocessing phase relatively to the utility feature works properly before grounding the program ', function()
 {
-    let preproc: AdornedDebugProgramBuilder = new AdornedDebugProgramBuilder() ;
+    let preproc: AdornedDebugProgramBuilder = new AdornedDebugProgramBuilder();
     it('checks that the method getVariables retrieve actually retrieve all the variables in a function', function()
     {
         let bodies: Array<string> = ["pred(A,B,C,D), #count{X: pred1(X)}", "test(Z,A), test(Z,B), test(Z,C)", "test, proof, proof", "pred(X,C,V), pred1(L,O,P)"];
@@ -20,9 +18,9 @@ describe('Check preprocessing phase relatively to the utility feature works prop
         let prog :string = "h1(X,Y,Z):-b1(X,Y,Z).\n"+"      %comment%comment&imcommenting\n"+"  %          \n"+":-{pred(X,Y)},t(X).\n"+"%this co!#mm()ent@ is removed from the program\n"+":-3{pred(X,Y,Z)},t(X).\n"+"%also this comments should be removed\n"+":-1<{pred(X,Y):t(Y)},t(costant).\n"+"         %comment that should be removed    \n";
         let expected:string = "h1(X,Y,Z):-b1(X,Y,Z).\n:-{pred(X,Y)},t(X).\n:-3{pred(X,Y,Z)},t(X).\n:-1<{pred(X,Y):t(Y)},t(costant).\n"; 
 
-        preproc.setCurrentRuleGroup(prog);
+        preproc.setLogicProgram(prog);
         preproc.removeComments();
-        assert.deepEqual(preproc.getCurrentRuleGroup(), expected);
+        assert.deepEqual(preproc.getLogicProgram(), expected);
     });
     
 });
@@ -37,7 +35,7 @@ describe('Check preprocessing phase relatively to the rules adornment works prop
             let program:string = item["program"];
             let adorned:string = item["expected"];
             preproc.reset();
-            preproc.setCurrentRuleGroup(program);
+            preproc.setLogicProgram(program);
             preproc.adornProgram();
             let computed = preproc.getAdornedProgram();
             assert.deepEqual(computed, adorned);
@@ -49,7 +47,7 @@ describe('Check preprocessing phase relatively to the rules adornment works prop
             let program:string = item["program"];
             let atoms = item["map"];
             preproc.reset();
-            preproc.setCurrentRuleGroup(program);
+            preproc.setLogicProgram(program);
             preproc.adornProgram();
             let obtainedMap: Map<string, DebugAtom> = preproc.getDebugAtomsMap();
             obtainedMap.forEach((value:DebugAtom, key:string)=>{
@@ -71,10 +69,9 @@ describe('Check preprocessing phase relatively to the facts adornment works prop
             let program:string = item["program"];
             let adorned:string = item["expected"];
             preproc.reset();
-            preproc.setCurrentRuleGroup(program);
+            preproc.setLogicProgram(program);
             preproc.adornProgram();
             let computed = preproc.getAdornedProgram();
-            console.log(computed);
             assert.deepEqual(computed, adorned);
         });
     })
@@ -84,7 +81,7 @@ describe('Check preprocessing phase relatively to the facts adornment works prop
             let program:string = item["program"];
             let atoms = item["map"];
             preproc.reset();
-            preproc.setCurrentRuleGroup(program);
+            preproc.setLogicProgram(program);
             preproc.adornProgram();
             let obtainedMap: Map<string, DebugAtom> = preproc.getDebugAtomsMap();
             obtainedMap.forEach((value:DebugAtom, key:string)=>{
@@ -105,10 +102,9 @@ describe('Check preprocessing phase relatively to the facts adornment works prop
             let program:string = item["program"];
             let adorned:string = item["expected"];
             preproc.reset();
-            preproc.setCurrentRuleGroup(program);
+            preproc.setLogicProgram(program);
             preproc.adornProgram();
             let computed = preproc.getAdornedProgram();
-            console.log(computed);
             assert.deepEqual(computed, adorned);
         });
     })
@@ -118,7 +114,7 @@ describe('Check preprocessing phase relatively to the facts adornment works prop
             let program:string = item["program"];
             let atoms = item["map"];
             preproc.reset();
-            preproc.setCurrentRuleGroup(program);
+            preproc.setLogicProgram(program);
             preproc.adornProgram();
             let obtainedMap: Map<string, DebugAtom> = preproc.getDebugAtomsMap();
             obtainedMap.forEach((value:DebugAtom, key:string)=>{

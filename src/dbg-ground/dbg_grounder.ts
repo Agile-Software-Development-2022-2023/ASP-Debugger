@@ -3,8 +3,7 @@ import path from "path";
 import { DebugAtom } from "./asp_core";
 import { AspGrounder, AspGrounderError, AspGrounderFactory } from "./grounder";
 import { addDebugAtomsChoiceRule, AdornedDebugProgramBuilder, DefaultAdornerPolicy } from "./adorner";
-import { DebugRuleFilter, DebugRuleGroup } from "./dbg_filter";
-import { ALL } from "dns";
+import { DebugDirectives } from "./dbg_directives";
 
 const GRINGO_WRAPPER = './src/dbg-ground/gringo-wrapper/bin/gringo-wrapper';
 const GRINGO_WRAPPER_OPTIONS = ['-go="-o smodels"']
@@ -120,38 +119,30 @@ export class RewritingBasedDebugGrounder extends DebugGrounder
 {
     public ground(): string
     {
+        let debugDirectives: DebugDirectives = DebugDirectives.getInstance();
         let input_program: string = AspGrounder.loadProgram(this.encodings);
+        input_program = debugDirectives.parseDirectives(input_program);
         
         //
         // pre-ground rewriting.
         //
-        let nongroundDebugProgBuilder: AdornedDebugProgramBuilder = new AdornedDebugProgramBuilder();
+        let nongroundDebugProgBuilder: AdornedDebugProgramBuilder = new AdornedDebugProgramBuilder
+            ( input_program, debugDirectives.getDefaultAdornerPolicy() );
         
-        input_program = nongroundDebugProgBuilder.cleanString(input_program);
-        this.debug_predicate = nongroundDebugProgBuilder.make_unique_debug_prefix(input_program);
-        let debugRuleFilter: DebugRuleFilter = new DebugRuleFilter(input_program);
+        nongroundDebugProgBuilder.cleanString();
+        this.debug_predicate = nongroundDebugProgBuilder.getUniqueDebugPrefix();
+            
+        //
+        // remove comments from the rule group
+        //
+        nongroundDebugProgBuilder.removeComments();
         
-        nongroundDebugProgBuilder.setDefaultPolicy(DefaultAdornerPolicy.RULES_ONLY);
-
-        for ( let ruleGroup of debugRuleFilter.getRuleGroups() )
-        {
-            //
-            // set the new group o rules to adorn 
-            //
-            nongroundDebugProgBuilder.setCurrentRuleGroup(ruleGroup);
-            
-            //
-            // remove comments from the rule group
-            //
-            nongroundDebugProgBuilder.removeComments();
-            
-            //
-            // program adornment.
-            //
-            nongroundDebugProgBuilder.adornProgram();
-            nongroundDebugProgBuilder.restorePlaceholderToString();
-        }
-
+        //
+        // program adornment.
+        //
+        nongroundDebugProgBuilder.adornProgram();
+        nongroundDebugProgBuilder.restorePlaceholderToString();
+    
         //
         // adorned program grounding.
         //

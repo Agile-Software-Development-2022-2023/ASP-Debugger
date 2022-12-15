@@ -16,7 +16,7 @@ export abstract class AspGrounder
         {
             let program: string = "";
             for ( let ppath of programPaths )
-                program += readFileSync(ppath, 'utf-8');
+                program += readFileSync(ppath, 'utf-8') + "\n";
             return program;
         }
         catch (err) { throw new AspGrounderError('Loading ASP program error.'); }
