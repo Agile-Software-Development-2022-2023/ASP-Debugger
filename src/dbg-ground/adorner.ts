@@ -1,4 +1,4 @@
-import { AdornerImplementation, FactsOnlyImplementation } from "./AdornerImplementation";
+import { AdornAllImplementation, AdornerImplementation, FactsOnlyImplementation, RulesOnlyImplementation } from "./AdornerImplementation";
 import { AspRule, DebugAtom } from "./asp_core";
 import { freezeStrings, make_unique, restoreStrings } from "./asp_utils";
 import { DebugRuleGroup } from "./dbg_filter";
@@ -19,7 +19,7 @@ export class AdornedDebugProgramBuilder
 
     public constructor()
     {
-		this.adornerImpl = new AdornerImplementation();
+		this.adornerImpl = new RulesOnlyImplementation();
 		this.stringPlaceholder = new Map<string, string>();
     }
     public getDebugPredicate():string{return this.adornerImpl.getDebugPredicate(); }
@@ -31,16 +31,16 @@ export class AdornedDebugProgramBuilder
 	{
 		switch(policy){
 			case DefaultAdornerPolicy.RULES_ONLY:
-				this.adornerImpl = new AdornerImplementation();
+				this.adornerImpl = new RulesOnlyImplementation();
 				break;
 			case DefaultAdornerPolicy.ALL:
-				this.adornerImpl = new AdornerImplementation();
+				this.adornerImpl = new AdornAllImplementation();
 				break;
 			case DefaultAdornerPolicy.FACTS_ONLY:
 				this.adornerImpl = new FactsOnlyImplementation();
 				break;
 			default:
-				this.adornerImpl = new AdornerImplementation();
+				this.adornerImpl = new RulesOnlyImplementation();
 		}	
 	}
 

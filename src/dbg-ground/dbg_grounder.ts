@@ -131,7 +131,7 @@ export class RewritingBasedDebugGrounder extends DebugGrounder
         this.debug_predicate = nongroundDebugProgBuilder.make_unique_debug_prefix(input_program);
         let debugRuleFilter: DebugRuleFilter = new DebugRuleFilter(input_program);
         
-        nongroundDebugProgBuilder.setDefaultPolicy(DefaultAdornerPolicy.ALL);
+        nongroundDebugProgBuilder.setDefaultPolicy(DefaultAdornerPolicy.RULES_ONLY);
 
         for ( let ruleGroup of debugRuleFilter.getRuleGroups() )
         {
@@ -157,7 +157,6 @@ export class RewritingBasedDebugGrounder extends DebugGrounder
         //
         let adorned:string = nongroundDebugProgBuilder.getAdornedProgram();
         let ground_prog: string = AspGrounderFactory.getInstance().getTheoretical().ground(adorned);
-        
         //get Maps of Debug Atom after the calculatoin of the preprocessed ground program
         this.debugAtomsMap = nongroundDebugProgBuilder.getDebugAtomsMap();
 
