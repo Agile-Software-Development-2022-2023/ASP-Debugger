@@ -43,7 +43,7 @@ class Grounder_Solver {
      * @returns an array with the stdout of the process at index 0 and the stderr of the process at index 1
      */
     getAllAnswerSets(files_paths) {
-        return this.runAspSystem(files_paths);
+        return this.runAspSystem(files_paths, ["-n 0"]);
     }
     /**
      * Caculates only the first answer set of the lgoic program contained in the given files
@@ -51,7 +51,7 @@ class Grounder_Solver {
      * @returns an array with the stdout of the process at index 0 and the stderr of the process at index 1
      */
     getFirstAnswerSet(files_paths) {
-        return this.runAspSystem(files_paths, ["-n=1"]);
+        return this.runAspSystem(files_paths);
     }
 }
 exports.Grounder_Solver = Grounder_Solver;
