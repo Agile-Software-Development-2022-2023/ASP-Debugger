@@ -1,7 +1,7 @@
 import assert from "assert";
 import { describe, it } from "mocha";
 import { readFileSync } from 'fs';
-import { AspGrounder, AspGrounderError, AspGrounderFactory, AspGrounderGringo, TheoreticalAspGrounder } from "../../../src/dbg-ground/grounder";
+import { AspGrounder, AspGrounderError, AspGrounderGringo, TheoreticalAspGrounder } from "../../../src/dbg-ground/grounder";
 import { spawnSync, SpawnSyncReturns } from "child_process";
 import path from "path";
 

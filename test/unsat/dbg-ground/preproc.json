@@ -124,5 +124,136 @@
               }
             }
       }
-      ]
+      ],
+      "test_facts_adornment":[
+        {   
+          "expected":" :~preg(X,Y,Z,C,V), #count{X:pred(T)}. [1@1]\n {pred(P)}. :~pred(X),pred1(Y). [1@1]\n:-pred(X)." ,
+          "program": " :~preg(X,Y,Z,C,V), #count{X:pred(T)}. [1@1]\n {pred(P)}. :~pred(X),pred1(Y). [1@1]\n:-pred(X).",
+          "map": {}
+      },
+      {   
+        "expected":"fatto(a,b,c):-_debug1. fatto2(1,2,3):-_debug2.\nfatto3(this, is, a, test):-_debug3.\n_debug1.\n_debug2.\n_debug3.\n",
+        "program": "fatto(a,b,c). fatto2(1,2,3).\nfatto3(this, is, a, test).",
+        "map":{ "_debug1" : {
+          "predicateName": "_debug1",
+          "predicateArity": 0,
+          "variables": [],
+          "nonground_rule": "fatto(a,b,c)."
+        },
+        "_debug2" : {
+          "predicateName": "_debug2",
+          "predicateArity": 0,
+          "variables": [],
+          "nonground_rule": "fatto2(1,2,3)."
+        },
+        "_debug3" : {
+          "predicateName": "_debug3",
+          "predicateArity": 0,
+          "variables": [],
+          "nonground_rule": "fatto3(this, is, a, test)."
+        }
+      }
+      },
+      {
+         
+        "expected":"h1:- b(Z, U, K). 1{hq(a)}1. fact(1,2,4):-_debug1. :~g(X). [10@X]\nfact2(1):-_debug2.\n_debug1.\n_debug2.\n",
+        "program": "h1:- b(Z, U, K). 1{hq(a)}1. fact(1,2,4). :~g(X). [10@X]\nfact2(1).",
+        "map":{
+            "_debug1": {
+            "predicateName": "_debug1",
+            "predicateArity": 0,
+            "variables": [],
+            "nonground_rule": "fact(1,2,4)."
+          },
+          "_debug2" :{
+            "predicateName": "_debug2",
+            "predicateArity": 0,
+            "variables": [],
+            "nonground_rule": "fact2(1)."
+          }
+        }
+    }
+    ],
+
+
+    "test_adorn_all":[
+      {   
+        "expected":"fatto(L, P ,O):-_debug1. :~preg(X,Y,Z,C,V), #count{X:pred(T)}. [1@1]\n {pred(P)} :- _debug2. :~pred(X),pred1(Y). [1@1]\n:-pred(X), _debug3(X).\n_debug1.\n_debug2.\n_debug3(X) :- pred(X).\n" ,
+          "program": "fatto(L, P ,O). :~preg(X,Y,Z,C,V), #count{X:pred(T)}. [1@1]\n {pred(P)}. :~pred(X),pred1(Y). [1@1]\n:-pred(X).",
+          "map": {
+            "_debug1" : {
+              "predicateName": "_debug1",
+              "predicateArity": 0,
+              "variables": [],
+              "nonground_rule": "fatto(L, P ,O)."
+            },
+              "_debug2" : {
+                "predicateName": "_debug2",
+                "predicateArity": 0,
+                "variables": [],
+                "nonground_rule": "{pred(P)}."
+              },
+              "_debug3" : {
+                "predicateName": "_debug3",
+                "predicateArity": 1,
+                "variables": [ "X" ],
+                "nonground_rule": ":-pred(X)."
+              }
+            }
+    },
+    {   
+      "expected":"fatto(a,b,c):-_debug1. fatto2(1,2,3):-_debug2.\nfatto3(this, is, a, test):-_debug3.\n_debug1.\n_debug2.\n_debug3.\n",
+      "program": "fatto(a,b,c). fatto2(1,2,3).\nfatto3(this, is, a, test).",
+      "map":{ "_debug1" : {
+        "predicateName": "_debug1",
+        "predicateArity": 0,
+        "variables": [],
+        "nonground_rule": "fatto(a,b,c)."
+      },
+      "_debug2" : {
+        "predicateName": "_debug2",
+        "predicateArity": 0,
+        "variables": [],
+        "nonground_rule": "fatto2(1,2,3)."
+      },
+      "_debug3" : {
+        "predicateName": "_debug3",
+        "predicateArity": 0,
+        "variables": [],
+        "nonground_rule": "fatto3(this, is, a, test)."
+      }
+    }
+    },
+    {
+       
+      "expected":"h1:- b(Z, U, K), _debug1(Z, U, K). 1{hq(a)}1 :- _debug2. fact(1,2,4):-_debug3. :~g(X). [10@X]\nfact2(1):-_debug4.\n_debug1(Z, U, K) :-  b(Z, U, K).\n_debug2.\n_debug3.\n_debug4.\n",
+      "program": "h1:- b(Z, U, K). 1{hq(a)}1. fact(1,2,4). :~g(X). [10@X]\nfact2(1).",
+      "map":{
+        "_debug1": {
+          "predicateName": "_debug1",
+          "predicateArity": 3,
+          "variables": [ "Z", "U", "K" ],
+          "nonground_rule": "h1:- b(Z, U, K)."
+        },
+        "_debug2" :{
+          "predicateName": "_debug2",
+          "predicateArity": 0,
+          "variables": [],
+          "nonground_rule": "1{hq(a)}1."
+        },
+          "_debug3": {
+          "predicateName": "_debug3",
+          "predicateArity": 0,
+          "variables": [],
+          "nonground_rule": "fact(1,2,4)."
+        },
+        "_debug4" :{
+          "predicateName": "_debug4",
+          "predicateArity": 0,
+          "variables": [],
+          "nonground_rule": "fact2(1)."
+        }
+      }
+  }
+  ]
 }

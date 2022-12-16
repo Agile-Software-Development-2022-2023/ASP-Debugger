@@ -1,5 +1,6 @@
 % Compute nodes from arcs
 node(X) :- arc(X, _).
+%@skip.
 node(X) :- arc(_, X).
 % Assign a color to each node
 col(X, blue) | col(X, red) | col(X, yellow) :- node(X).
