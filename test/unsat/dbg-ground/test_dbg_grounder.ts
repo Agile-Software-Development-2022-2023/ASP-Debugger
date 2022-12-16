@@ -162,6 +162,12 @@ describe('Building the debugging ASP program [dbg-integration tests]', function(
             let dbgGrounder: DebugGrounder = DebugGrounder.createDefault([annotation_test_path, test_case.default_policy_path]);
             dbgGrounder.ground();
 
+            const expectedAdorned: string = AspGrounder
+                .loadProgram(['test/unsat/dbg-ground/annotation_tests/adorned_' + test_case.default_policy + '.lp']);
+            assert.strictEqual(
+                dbgGrounder.getAdornedProgram().split(/\s*\n\s*/).join(''),
+                expectedAdorned.split(/\s*\n\s*/).join('') );
+
             const debugAtomsMap: Map<string, DebugAtom> = dbgGrounder.getDebugAtomsMap();
             expect(debugAtomsMap.size).to.eql(test_case.debug_atoms_map.size);
 

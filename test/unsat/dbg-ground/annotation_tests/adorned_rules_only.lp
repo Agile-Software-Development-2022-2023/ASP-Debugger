@@ -17,17 +17,22 @@ p(2,4).
 %@skip.
 a(X,Y) :- p(X,Y), not q(Y).
 %@check.
-b(X) :- p(X,_), not q(X).
-adorn_it(X) :- q(X).
+b(X) :- p(X,_), not q(X), _debug1(X).
+adorn_it(X) :- q(X), _debug2(X).
 
 %@correct.
 :- a(X,X), b(_).
 %@check.
-:- a(_,X), not b(X).
-:- adorn_it(X).
+:- a(_,X), not b(X), _debug3(X).
+:- adorn_it(X), _debug4(X).
 
 %@skip.
 :~ q(_). [1@2]
 %@check.
 :~ p(X,_), q(X). [2@3]
 :~ adorn_it(X). [X@4]
+
+_debug1(X) :-  p(X,_), not q(X).
+_debug2(X) :-  q(X).
+_debug3(X) :-  a(_,X), not b(X).
+_debug4(X) :-  adorn_it(X).
