@@ -1,3 +1,4 @@
+import { match } from "assert";
 import { AdornAllImplementation, AdornerImplementation, FactsOnlyImplementation, RulesOnlyImplementation } from "./AdornerImplementation";
 import { DebugAtom } from "./asp_core";
 import { freezeStrings, make_unique, restoreStrings } from "./asp_utils";
@@ -121,11 +122,20 @@ export class AdornedDebugProgramBuilder
 		//logic_program.split(/(?<!\.)\.(?!\.)/).forEach(rule=>{
 		this.logic_program.split(/(?<!\.)\.(?!\.)/).forEach(rule =>{
 			
+			if ( rule.match(/^\s*\[.*?@.*?\]\s*$/) != null )
+			{
+				this.adornerImpl.copyRuleAsItIs(rule, false);
+				return;
+			}
+
 			debugRuleAnnotation = DebugRuleAnnotation.parseAnnotation(rule.trim() + '.');
 			skipCurrentRule = (lastDebugRuleAnnotation != null && lastDebugRuleAnnotation.skipRule());
 			lastDebugRuleAnnotation = debugRuleAnnotation;
 			if ( skipCurrentRule || (debugRuleAnnotation != null && !debugRuleAnnotation.isNested()) )
+			{
+				this.adornerImpl.copyRuleAsItIs(rule);
 				return;
+			}
 			
 			if (rule.includes(":-")) {
 				this.adornerImpl.adornSimpleRules(rule);

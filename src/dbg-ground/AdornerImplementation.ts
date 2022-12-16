@@ -62,11 +62,11 @@ export abstract class AdornerImplementation{
     }
 
 	// Copy the rule as it is in the adorned program and append "."
-    protected copyRuleAsItIs(rule:string){
+    public copyRuleAsItIs(rule:string, concatDot: boolean = true){
         this.adornedProgram = this.adornedProgram.concat(rule);
 		// only add delimiting . if the rule is not empty
 		//note that the weight and the level [w@l] of a weak is managed as follow.
-		if (rule.trim().length > 0) {
+		if (rule.trim().length > 0 && concatDot) {
 			this.adornedProgram = this.adornedProgram.concat(".");
 		}
     }

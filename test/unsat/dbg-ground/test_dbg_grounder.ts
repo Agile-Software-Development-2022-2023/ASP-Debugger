@@ -4,7 +4,8 @@ import { readFileSync } from 'fs';
 
 import { DebugGrounder } from '../../../src/dbg-ground/dbg_grounder';
 import { DebugAtom } from "../../../src/dbg-ground/asp_core";
-import {  AspGrounderError } from "../../../src/dbg-ground/grounder";
+import {  AspGrounder, AspGrounderError } from "../../../src/dbg-ground/grounder";
+import assert from "assert";
 
 
 interface DebugProgramTestCase
@@ -106,9 +107,7 @@ describe('Building the debugging ASP program [dbg-integration tests]', function(
             ['_debug1', new DebugAtom('_debug1', 1, ['X'], 'b(X) :- p(X,_), not q(X).')],
             ['_debug2', new DebugAtom('_debug2', 1, ['X'], 'adorn_it(X) :- q(X).')],
             ['_debug3', new DebugAtom('_debug3', 1, ['X'], ':- a(_,X), not b(X).')],
-            ['_debug4', new DebugAtom('_debug4', 1, ['X'], ':- adorn_it(X).')]/*,
-            ['_debug5', new DebugAtom('_debug5', 1, ['X'], ':~ p(X,_), q(X). [2@3]')],
-        ['_debug6', new DebugAtom('_debug6', 1, ['X'], ':~ adorn_it(X). [X@4]')]*/ ] )
+            ['_debug4', new DebugAtom('_debug4', 1, ['X'], ':- adorn_it(X).')] ] )
         },
 
         {
@@ -141,9 +140,7 @@ describe('Building the debugging ASP program [dbg-integration tests]', function(
             ['_debug9' , new DebugAtom('_debug9',  1, ['X'], 'b(X) :- p(X,_), not q(X).')],
             ['_debug10', new DebugAtom('_debug10', 1, ['X'], 'adorn_it(X) :- q(X).')],
             ['_debug11', new DebugAtom('_debug11', 1, ['X'], ':- a(_,X), not b(X).')],
-            ['_debug12', new DebugAtom('_debug12', 1, ['X'], ':- adorn_it(X).')]/*,
-            ['_debug13', new DebugAtom('_debug13', 1, ['X'], ':~ p(X,_), q(X). [2@3]')],
-        ['_debug14', new DebugAtom('_debug14', 1, ['X'], ':~ adorn_it(X). [X@4]')]*/ ] )
+            ['_debug12', new DebugAtom('_debug12', 1, ['X'], ':- adorn_it(X).')] ] )
         },
 
         {
@@ -154,9 +151,8 @@ describe('Building the debugging ASP program [dbg-integration tests]', function(
             ['_debug2', new DebugAtom('_debug2', 0, [], 'p(2,2).')],
             ['_debug3', new DebugAtom('_debug3', 0, [], 'p(2,3).')],
 
-            ['_debug4', new DebugAtom('_debug4',  1, ['X'], 'b(X) :- p(X,_), not q(X).')],
-            ['_debug5', new DebugAtom('_debug5', 1, ['X'], ':- a(_,X), not b(X).')]/*,
-        ['_debug6', new DebugAtom('_debug6', 1, ['X'], ':~ p(X,_), q(X). [2@3]')]*/ ] )
+            ['_debug4', new DebugAtom('_debug4', 1, ['X'], 'b(X) :- p(X,_), not q(X).')],
+            ['_debug5', new DebugAtom('_debug5', 1, ['X'], ':- a(_,X), not b(X).')] ] )
         }
     ]
     .forEach( function(test_case)

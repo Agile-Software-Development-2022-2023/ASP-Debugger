@@ -30,6 +30,7 @@ export abstract class DebugGrounder
     { return this.encodings; }
 
     public abstract ground(): string;
+    public abstract getAdornedProgram(): string;
 
     public getDebugAtomsMap(): Map<string, DebugAtom>
     { return this.debugAtomsMap; }
@@ -69,6 +70,9 @@ class GringoWrapperDebugGrounder extends DebugGrounder
 
         return this.extractDebugAtomsMap(gw_proc.stdout);
     }
+
+    public getAdornedProgram(): string
+    { throw new DebugGrounderError('Program adornment not supported when using gringo-wrapper.'); }
 
     private extractDebugAtomsMap( gw_output: string ): string
     {
@@ -117,6 +121,8 @@ class GringoWrapperDebugGrounder extends DebugGrounder
 
 export class RewritingBasedDebugGrounder extends DebugGrounder
 {
+    private adornedProgram: string = '';
+
     public ground(): string
     {
         let debugDirectives: DebugDirectives = DebugDirectives.getInstance();
@@ -146,8 +152,8 @@ export class RewritingBasedDebugGrounder extends DebugGrounder
         //
         // adorned program grounding.
         //
-        let adorned:string = nongroundDebugProgBuilder.getAdornedProgram();
-        let ground_prog: string = AspGrounderFactory.getInstance().getTheoretical().ground(adorned);
+        this.adornedProgram = nongroundDebugProgBuilder.getAdornedProgram();
+        let ground_prog: string = AspGrounderFactory.getInstance().getTheoretical().ground(this.adornedProgram);
         //get Maps of Debug Atom after the calculatoin of the preprocessed ground program
         this.debugAtomsMap = nongroundDebugProgBuilder.getDebugAtomsMap();
 
@@ -160,4 +166,6 @@ export class RewritingBasedDebugGrounder extends DebugGrounder
 
         return split.join("0\n");
     }
+
+    public getAdornedProgram(): string { return this.adornedProgram; }
 }
