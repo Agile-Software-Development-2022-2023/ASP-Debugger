@@ -45,7 +45,7 @@ export class Grounder_Solver {
      * @returns an array with the stdout of the process at index 0 and the stderr of the process at index 1
      */
     getAllAnswerSets(files_paths: string[]): string[] {
-        return this.runAspSystem(files_paths);
+        return this.runAspSystem(files_paths, ["-n 0"]);
     }
 
     /**
@@ -54,6 +54,6 @@ export class Grounder_Solver {
      * @returns an array with the stdout of the process at index 0 and the stderr of the process at index 1
      */
     getFirstAnswerSet(files_paths: string[]): string[] {
-        return this.runAspSystem(files_paths, ["-n=1"]);
+        return this.runAspSystem(files_paths);
     }
 }
