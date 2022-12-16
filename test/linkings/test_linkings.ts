@@ -1,13 +1,14 @@
 import assert from 'assert';
-import { InvalidLinkingsError, Linker } from '../../../src/linkings';
-import { Util } from '../../../src/utils';
+import { InvalidLinkingsError, Linker } from '../../src/linkings';
+import { Util } from '../../src/utils';
 import fs from 'fs';
+import path from 'path';
 
-describe('LINKINGS', function() {
+describe('Linkings', function() {
 
-    const test_path = "test/unsat/linkings/linkings.json";
+    const test_path = "test/linkings/linkings.json";
 
-    const linkFiles_test_suite: Object[] = Util.readJSON("test/unsat/linkings/linkFiles_test_suite.json");
+    const linkFiles_test_suite: Object[] = Util.readJSON("test/linkings/linkFiles_test_suite.json");
     linkFiles_test_suite.forEach(test => {
         it(test["testing"], function() {
             try {
@@ -24,7 +25,7 @@ describe('LINKINGS', function() {
         });
     });
 
-    const unlinkFile_test_suite : Object[] = Util.readJSON("test/unsat/linkings/unlinkFile_test_suite.json");
+    const unlinkFile_test_suite : Object[] = Util.readJSON("test/linkings/unlinkFile_test_suite.json");
     unlinkFile_test_suite.forEach(test => {
         it(test["testing"], function() {
             try {
@@ -38,7 +39,7 @@ describe('LINKINGS', function() {
         });
     });
 
-    const invalid_linkings_test_suite: Object[] = Util.readJSON("test/unsat/linkings/invalid_linkings_test_suite.json");
+    const invalid_linkings_test_suite: Object[] = Util.readJSON("test/linkings/invalid_linkings_test_suite.json");
     it("should test that an error is thrown when the linkings file does not contain a valid linkings object", function() {
         invalid_linkings_test_suite.forEach(test => {
             try {
@@ -50,7 +51,7 @@ describe('LINKINGS', function() {
         });
     });
 
-    const disbandFilePool_test_suite: Object[] = Util.readJSON("test/unsat/linkings/disbandFilePool_test_suite.json");
+    const disbandFilePool_test_suite: Object[] = Util.readJSON("test/linkings/disbandFilePool_test_suite.json");
     disbandFilePool_test_suite.forEach(test => {
         it(test["testing"], function() {
             try {
@@ -91,7 +92,7 @@ describe('LINKINGS', function() {
         }
     });
     
-    const getLinkedFiles_test_suite: Object[] = Util.readJSON("test/unsat/linkings/getLinkedFiles_test_suite.json");
+    const getLinkedFiles_test_suite: Object[] = Util.readJSON("test/linkings/getLinkedFiles_test_suite.json");
     getLinkedFiles_test_suite.forEach(test => {
         it(test["testing"], function(){
             try {
@@ -103,4 +104,38 @@ describe('LINKINGS', function() {
             }
         });
     });
+
+    const purgeAndGetMissingFiles_test_suite: Object[] = Util.readJSON("test/linkings/purgeAndGetMissingFiles_test_suite.json");
+    it("should test if the missing files are correctly identified and removed", function() {
+
+        let presentFilesRelativePaths: string[] = [];
+
+        purgeAndGetMissingFiles_test_suite.forEach(test => {
+            try {
+                const initiallyLinkedFilesRelativePaths: string[] = test["linkedFilesRelativePaths"];
+
+                //Get the absolute paths from the relative paths and link the files
+                //We need real paths to check the presence of the files in the filesystem
+                const initiallyLinkedFilesAbsolutePaths: string[] = initiallyLinkedFilesRelativePaths.map(file => path.resolve(file));
+
+                //Create only the non-missing files
+                presentFilesRelativePaths = test["presentFilesRelativePaths"];
+                presentFilesRelativePaths.forEach(file => {
+                    fs.writeFileSync(file, "");
+                });
+
+                Linker.linkFiles(initiallyLinkedFilesAbsolutePaths, test_path);
+
+                const missingFilesAbsolutePaths: string[] = Linker.purgeAndGetMissingFiles(test_path);
+                const missingFilesRelativePaths: string[] = missingFilesAbsolutePaths.map(file => path.relative(".", file));
+
+                assert.deepEqual(missingFilesRelativePaths, test["expectedMissingRelativePaths"]);                
+            } finally {
+                presentFilesRelativePaths.forEach(file => {
+                    fs.unlinkSync(file);
+                });
+                fs.unlinkSync(test_path);
+            }
+        });
+    })
 })

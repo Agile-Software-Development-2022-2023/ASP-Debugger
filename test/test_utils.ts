@@ -1,8 +1,8 @@
 import assert from "assert";
 import fs from "fs";
-import { Util } from "../../src/utils";
+import { Util } from "../src/utils";
 
-describe('UTILS', function() {
+describe('Utils', function() {
     
     //Test One: test reading a json file
     it('should test if the json file is read correctly', function() {

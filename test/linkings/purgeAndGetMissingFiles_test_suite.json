@@ -1,0 +1,17 @@
+[
+    {
+        "linkedFilesRelativePaths": ["test/linkings/file1", "test/linkings/file2", "test/linkings/file3"],
+        "presentFilesRelativePaths": ["test/linkings/file1", "test/linkings/file3"],
+        "expectedMissingRelativePaths": ["test/linkings/file2"]
+    },
+    {
+        "linkedFilesRelativePaths": ["test/linkings/file1", "test/linkings/file2", "test/linkings/file3"],
+        "presentFilesRelativePaths": ["test/linkings/file1", "test/linkings/file2", "test/linkings/file3"],
+        "expectedMissingRelativePaths": []
+    },
+    {
+        "linkedFilesRelativePaths": ["test/linkings/file1", "test/linkings/file2", "test/linkings/file3"],
+        "presentFilesRelativePaths": [],
+        "expectedMissingRelativePaths": ["test/linkings/file1", "test/linkings/file2", "test/linkings/file3"]
+    }
+]
