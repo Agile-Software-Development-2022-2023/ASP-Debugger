@@ -1,0 +1,61 @@
+[
+    {
+        "testing": "should test if a file is properly removed from a pool",
+        "initial": {
+            "poolId": 1,
+            "file1": "pool_1",
+            "file2": "pool_1",
+            "file3": "pool_1",
+            "reverseLinkings": {
+                "pool_1": ["file1", "file2", "file3"]
+            }
+        },
+        "file_to_unlink": "file1",
+        "expected": {
+            "poolId": 1,
+            "file2": "pool_1",
+            "file3": "pool_1",
+            "reverseLinkings": {
+                "pool_1": ["file2", "file3"]
+            }
+        }
+    },
+    {
+        "testing": "should test if a pool of 2 files is removed when one is unlinked",
+        "initial": {
+            "poolId": 1,
+            "file1": "pool_1",
+            "file2": "pool_1",
+            "reverseLinkings": {
+                "pool_1": ["file1", "file2"]
+            }
+        },
+        "file_to_unlink": "file1",
+        "expected": {
+            "poolId": 1,
+            "reverseLinkings": {}
+        }
+    },
+    {
+        "testing": "should test if the linkings file is unchanged when a file not linked to any file is unlinked",
+        "initial": {
+            "poolId": 1,
+            "file1": "pool_1",
+            "file2": "pool_1",
+            "file3": "pool_1",
+            "reverseLinkings": {
+                "pool_1": ["file1", "file2", "file3"]
+            }
+        },
+        "file_to_unlink": "file4",
+        "expected": {
+            "poolId": 1,
+            "file1": "pool_1",
+            "file2": "pool_1",
+            "file3": "pool_1",
+            "reverseLinkings": {
+                "pool_1": ["file1", "file2", "file3"]
+            }
+        }
+    }
+]
