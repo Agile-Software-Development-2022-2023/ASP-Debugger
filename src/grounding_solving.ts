@@ -36,7 +36,7 @@ export class Grounder_Solver {
      * @returns an array with the stdout of the process at index 0 and the stderr of the process at index 1
      */
     ground(files_paths: string[]): string[] {
-        return this.runAspSystem(files_paths, ["--mode=idlv"]);
+        return this.runAspSystem(files_paths, ["--mode=idlv", "--t"]);
     }
 
     /**
