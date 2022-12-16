@@ -182,12 +182,11 @@ export class RulesGenerator{
 //Usage example
 // let generator = new RulesGenerator();
 // //computes ground instances and non ground rules belonging to muses
-// let file_path : string = '/home/andrea/git/ASP-Debugger/test/unsat/problems/example_aggregates_strings_sat.asp';
+// let file_path : string = '/home/andrea/git/ASP-Debugger/test/unsat/problems/annotations_rules_only.asp';
 // let number_of_muses = 0;
 // let mus_index_for_ground_rules = 0;
 // let musFacade = new MUSesCalculator();
 // let total_muses :number = musFacade.calculateMUSes([file_path], number_of_muses).length;
-// //console.log("WEEEEEE", total_muses);
 // let ground_rules : Map<string, string[]> = musFacade.getGroundRulesForMUS(mus_index_for_ground_rules);
 // let non_ground_rules : Array<Set<string>> = musFacade.getNonGroundRulesForMUSes();
 
@@ -197,7 +196,7 @@ export class RulesGenerator{
 //     ground_rules.clear();
 //     ground_rules = musFacade.getGroundRulesForMUS(i);
 //     for(let [key, value] of ground_rules){
-//         //result_set.add(value.toString());
+//         result_set.add(value.toString());
 //         result += value.toString();
 //     }
 // }

@@ -64,6 +64,11 @@
         "problem_path" : "test/unsat/problems/example_aggregates_strings_unsat.asp",
         "ground_rules" : "a(3):- b(3), 3>2.:-a(3).",
         "non_ground_rules" : "a(X):- b(X), #count{Y : c(Y, \"string\")}=T, #max{Y: b(Y)} = S, S>T. :-a(X)."
+    },
+    {
+        "problem_path" : "test/unsat/problems/annotations_rules_only.asp",
+        "ground_rules" : "adorn_it(1) :- q(1).:- adorn_it(1).adorn_it(2) :- q(2).:- adorn_it(2).adorn_it(3) :- q(3).:- adorn_it(3).adorn_it(4) :- q(4).:- adorn_it(4).",
+        "non_ground_rules" : "adorn_it(X) :- q(X). :- adorn_it(X)." 
     }
 
 ]}
