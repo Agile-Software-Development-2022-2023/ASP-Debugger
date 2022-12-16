@@ -80,7 +80,7 @@ export class RulesGenerator{
                 //get non-ground rule which will become ground after substitutions
                 let corresponding_ground_rule : string = corresponding_debug_atom.getNonGroundRule();
                 //remove aggregates from rule because they do not have to be shown in ground istances
-                let aggregates_regex = new RegExp('[^\\{\\},]*\\{[^\\{\\}]*?\\}[^\\{\\},]*', 'g');
+                let aggregates_regex = new RegExp('[^\\{\\},]*\\{[^\\{\\}]*?\\}[^\\{\\},]*,?', 'g');
                 corresponding_ground_rule = corresponding_ground_rule.replace(aggregates_regex, "");
                 //scroll all the rule and do the replace only where you are not in a string
                 let double_quotes_indexes : Array<number> = new Array<number>();
@@ -182,26 +182,34 @@ export class RulesGenerator{
 //Usage example
 // let generator = new RulesGenerator();
 // //computes ground instances and non ground rules belonging to muses
-// let file_path : string = '/home/andrea/git/ASP-Debugger/test/unsat/problems/example_aggregates.asp';
-// let number_of_muses = 1;
+// let file_path : string = '/home/andrea/git/ASP-Debugger/test/unsat/problems/example_aggregates_strings_sat.asp';
+// let number_of_muses = 0;
 // let mus_index_for_ground_rules = 0;
 // let musFacade = new MUSesCalculator();
-// musFacade.calculateMUSes([file_path], number_of_muses)
-
+// let total_muses :number = musFacade.calculateMUSes([file_path], number_of_muses).length;
+// //console.log("WEEEEEE", total_muses);
 // let ground_rules : Map<string, string[]> = musFacade.getGroundRulesForMUS(mus_index_for_ground_rules);
 // let non_ground_rules : Array<Set<string>> = musFacade.getNonGroundRulesForMUSes();
 
-
 // let result : string = '';
-// for(let [key, value] of ground_rules){
-//     result += value.toString();
+// let result_set : Set<string>= new Set<string>(); 
+// for (let i = 0; i < total_muses; i++){
+//     ground_rules.clear();
+//     ground_rules = musFacade.getGroundRulesForMUS(i);
+//     for(let [key, value] of ground_rules){
+//         //result_set.add(value.toString());
+//         result += value.toString();
+//     }
 // }
-// console.log(result);
 
+// console.log(result);
 // let result1 : string = '';
+// let non_ground_rules_set : Set<string> = new Set<string>(); 
 // for(let i = 0; i< non_ground_rules.length; i++){
 //     for(let element of non_ground_rules[i]){
+//         non_ground_rules_set.add(element);
 //         result1 += element;
 //     }
 // }
-// console.log(result1);
+
+// console.log(non_ground_rules_set);
