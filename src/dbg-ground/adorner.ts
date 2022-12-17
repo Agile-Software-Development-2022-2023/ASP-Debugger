@@ -1,7 +1,6 @@
-import { match } from "assert";
 import { AdornAllImplementation, AdornerImplementation, FactsOnlyImplementation, RulesOnlyImplementation } from "./AdornerImplementation";
 import { DebugAtom } from "./asp_core";
-import { freezeStrings, make_unique, restoreStrings } from "./asp_utils";
+import { freezeStrings, restoreStrings } from "./asp_utils";
 import { DebugRuleAnnotation } from "./dbg_annotation";
 import { ASP_REGEX } from "./Useful_regex";
 
@@ -133,7 +132,8 @@ export class AdornedDebugProgramBuilder
 			lastDebugRuleAnnotation = debugRuleAnnotation;
 			if ( skipCurrentRule || (debugRuleAnnotation != null && !debugRuleAnnotation.isNested()) )
 			{
-				this.adornerImpl.copyRuleAsItIs(rule);
+				//if (debugRuleAnnotation == null || debugRuleAnnotation.isNested())
+					this.adornerImpl.copyRuleAsItIs(rule);
 				return;
 			}
 			

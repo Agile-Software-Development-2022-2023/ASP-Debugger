@@ -163,7 +163,7 @@ export class RewritingBasedDebugGrounder extends DebugGrounder
         // ground_prog will be properly rewrited to obtain the final debug program...
         let split:Array<string> =  ground_prog.split(/^0\n/gm); 
         split[0] = addDebugAtomsChoiceRule(split[0], split[1], nongroundDebugProgBuilder.getDebugPredicate());
-
+        
         return split.join("0\n");
     }
 
