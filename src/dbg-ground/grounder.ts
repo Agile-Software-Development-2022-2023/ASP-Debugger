@@ -3,8 +3,6 @@ import { readFileSync } from 'fs';
 import path from 'path';
 import { freezeStrings, make_unique, restoreStrings } from './asp_utils';
 
-const FACT_REGEX: RegExp = /(?<=^|\.|\])(\s*[a-z\-_][a-zA-Z0-9_]*\s*(\([\sa-zA-Z0-9_,\-#\(\)\.]*?\))?\s*)\./g;
-
 export class AspGrounderError extends Error
 {
     public constructor(message?: string) {super(message);}
@@ -74,62 +72,9 @@ export class AspGrounderIdlv extends ExternalAspGrounder
     public ground(inputProgram: string): string
     {
         const us_unique: string = make_unique('u', inputProgram, 'u');
-        return super.ground(AspGrounderIdlv.expandIntervals(inputProgram.replace(new RegExp(/(^|\W)_(\w)/g), "$1 " + us_unique + "$2")))
+        return super.ground(IntervalsExpander.expandIntervals(inputProgram.replace(new RegExp(/(^|\W)_(\w)/g), "$1 " + us_unique + "$2")))
             .replace(new RegExp(us_unique, "g"), '_')
             .replace(/\s+\n/g, "\n");
-    }
-
-    private static expandIntervals(input_program: string): string
-    {
-        let ans: string = '';
-        input_program.split(/(?<!\.)\.(?!\.)/).forEach( rule =>
-        {
-            if ( rule.match(/^\s*$/) != null ) return;
-            if ( rule.match(FACT_REGEX) != null ) { ans += rule + '.'; return;}
-
-            let intervalFromIndices:    number[] = [];
-            let intervalToIndices:      number[] = [];
-            let intervalCurrentIndices: number[] = [];
-            let id: number = 0;
-            
-            rule = rule.replace(/((?:-\s*)?\d+)\s*\.\.\s*((?:-\s*)?\d+)/g, function(match, from, to)
-            {
-                intervalFromIndices.push(from);
-                intervalToIndices.push(to);
-                intervalCurrentIndices.push(from);
-                return '#interval-' + (id++) + '#';
-            });
-
-            if ( intervalCurrentIndices.length === 0 )
-            {
-                ans += rule + '.';
-                return;
-            }
-            
-            intervalCurrentIndices[0]--;
-            while ( AspGrounderIdlv.nextIntervalIndices(intervalFromIndices, intervalToIndices, intervalCurrentIndices) )
-            {
-                for ( let i=0; i<intervalCurrentIndices.length; ++i )
-                    ans += rule.replace('#interval-' + i + '#', intervalCurrentIndices[i].toString()) + '.';
-            }
-        });
-        
-        return ans;
-    }
-
-    private static nextIntervalIndices(intervalFromIndices: number[], intervalToIndices: number[], intervalCurrentIndices: number[]): boolean
-    {
-        let i: number = 0;
-        while ( i < intervalFromIndices.length )
-        {
-            intervalCurrentIndices[i]++;
-            if ( intervalCurrentIndices[i] <= intervalToIndices[i] )
-                return true;
-            
-            intervalCurrentIndices[i] = intervalFromIndices[i];
-            i++;
-        }
-        return false;
     }
 }
 
@@ -157,7 +102,9 @@ export class TheoreticalAspGrounder extends AspGrounder
     protected rewriteFacts(input_program: string): string
     {
         //const df_predname: string = this.getDisjFactPredName(input_program);
-        return input_program.replace(FACT_REGEX, "$1 :- _df.") + "\n_df | -_df.";
+        return input_program.replace(
+            /(?<=^|\.|\])(\s*[a-z\-_][a-zA-Z0-9_]*\s*(\([\sa-zA-Z0-9_,\-#\(\)\.]*?\))?\s*)\./g,
+            "$1 :- _df.") + "\n_df | -_df.";
     }    
 
     protected nullifyFactRewritings(ground_program: string): string
@@ -220,4 +167,68 @@ export class AspGrounderFactory
 
     public getDefault(): AspGrounder { return new AspGrounderIdlv(); }
     public getTheoretical(): TheoreticalAspGrounder { return new TheoreticalAspGrounder(this.getDefault()); }
+}
+
+export class IntervalsExpander
+{
+    public static expandIntervals(input_program: string): string
+    {
+        let ans: string = '';
+
+        input_program = input_program.replace(/(\[.*?@.*?\])/g, "$1.");
+        input_program.split(/(?<!\.)\.(?!\.)/).forEach( rule =>
+        {
+            if ( rule.match(/^\s*$/) != null || rule.match(/\[.*?@.*?\]/) != null ) { ans += rule; return;}
+            if ( rule.match(/:~/) != null ) { ans += rule + '.'; return;}
+
+            let intervalFromIndices:    number[] = [];
+            let intervalToIndices:      number[] = [];
+            let intervalCurrentIndices: number[] = [];
+            let id: number = 0;
+            
+            rule = rule.replace(/((?:-\s*)?\d+)\s*\.\.\s*((?:-\s*)?\d+)/g, function(match, from, to)
+            {
+                from = Number.parseInt( from.replace(/\s/g, '') );
+                to   = Number.parseInt( to  .replace(/\s/g, '') );
+
+                intervalFromIndices.push(from);
+                intervalToIndices.push(to);
+                intervalCurrentIndices.push(from);
+
+                return '#interval-' + (id++) + '#';
+            });
+
+            if ( intervalCurrentIndices.length === 0 )
+            {
+                ans += rule + '.';
+                return;
+            }
+            
+            intervalCurrentIndices[0]--;
+            while ( IntervalsExpander.nextIntervalIndices(intervalFromIndices, intervalToIndices, intervalCurrentIndices) )
+            {
+                let ruleInstance: string = rule;
+                for ( let i=0; i<intervalCurrentIndices.length; ++i )
+                    ruleInstance = ruleInstance.replace('#interval-' + i + '#', intervalCurrentIndices[i].toString());
+                ans += ruleInstance + '.';
+            }
+        });
+        
+        return ans;
+    }
+
+    private static nextIntervalIndices(intervalFromIndices: number[], intervalToIndices: number[], intervalCurrentIndices: number[]): boolean
+    {
+        let i: number = 0;
+        while ( i < intervalFromIndices.length )
+        {
+            intervalCurrentIndices[i]++;
+            if ( intervalCurrentIndices[i] <= intervalToIndices[i] )
+                return true;
+            
+            intervalCurrentIndices[i] = intervalFromIndices[i];
+            i++;
+        }
+        return false;
+    }
 }

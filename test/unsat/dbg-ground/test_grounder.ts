@@ -1,7 +1,7 @@
 import assert from "assert";
 import { describe, it } from "mocha";
 import { readFileSync } from 'fs';
-import { AspGrounder, AspGrounderError, AspGrounderGringo, TheoreticalAspGrounder } from "../../../src/dbg-ground/grounder";
+import { AspGrounder, AspGrounderError, AspGrounderGringo, IntervalsExpander, TheoreticalAspGrounder } from "../../../src/dbg-ground/grounder";
 import { spawnSync, SpawnSyncReturns } from "child_process";
 import path from "path";
 
@@ -101,6 +101,84 @@ describe('Basic ASP grounder usage', function()
         });
     });
 
+});
+
+
+describe('Intervals expander', function()
+{
+    [
+        {
+        input_program: 'p(1..5). q(1..2,  - 1 ..0).',
+        expanded_program: 'p(1).p(2).p(3).p(4).p(5). q(1,  -1). q(2,  -1). q(1,  0). q(2,  0).'
+        },
+
+        {
+        input_program: 'p(-5..-1). q(-2..-1,  - 1 ..0).',
+        expanded_program: 'p(-5).p(-4).p(-3).p(-2).p(-1). q(-2,  -1). q(-1,  -1). q(-2,  0). q(-1,  0).'
+        },
+
+        {
+        input_program: 'p(  1.. 1,\n 2..2\n )\n.\n q(-1..-1).\n',
+        expanded_program: 'p(  1,\n 2\n )\n.\n q(-1).\n'
+        },
+        
+        {
+        input_program: 'p(-1..-5, 5..2)\n. q(-1..-4).\n',
+        expanded_program: '\n'
+        },
+        
+        {
+        input_program: 'p(-5..-1). q(-2..-1,  - 1 ..0) :- p(X).:~p(1..2). [1@4] :~ p(X), q(X,1..4). [1@2] pp(1..2).',
+        expanded_program:
+            'p(-5).p(-4).p(-3).p(-2).p(-1). q(-2,  -1) :- p(X). q(-1,  -1) :- p(X). q(-2,  0) :- p(X).' +
+            ' q(-1,  0) :- p(X).:~p(1..2). [1@4] :~ p(X), q(X,1..4). [1@2] pp(1). pp(2).'
+        },
+        
+        {
+        input_program:
+        'p(X,1..2) :- q(X).\n:~ p(_,_), not q(-1..2). [1@1]:~ q(_,_). :~p(1..2). [1@4] q(-2..-1,X) :- p(X,1..2).',
+        expanded_program:
+        'p(X,1) :- q(X).p(X,2) :- q(X).\n:~ p(_,_), not q(-1..2). [1@1]:~ q(_,_). :~p(1..2). [1@4] q(-2,X)' +
+        ' :- p(X,1). q(-1,X) :- p(X,1). q(-2,X) :- p(X,2). q(-1,X) :- p(X,2).'
+        },
+
+        {
+        input_program: "a(X) :- b(X).\nc(X) :- a(X), b(Y), X < Y.\nb(1..3).\n",
+        expanded_program: "a(X) :- b(X).\nc(X) :- a(X), b(Y), X < Y.\nb(1).\nb(2).\nb(3).\n"
+        }
+    ]
+    .forEach( function(test_case)
+    {
+        it('Expands ground intervals used in head of a non-ground rules', function()
+        {
+            assert.strictEqual(IntervalsExpander.expandIntervals(test_case.input_program), test_case.expanded_program);
+        });
+    });
+
+
+    [
+        {
+        input_program: 'p(f(1..2), 2) :- p(_).\n q(f(1..2), g(2..3)).',
+        expanded_program: 'p(f(1), 2) :- p(_).p(f(2), 2) :- p(_).\n q(f(1), g(2)).\n q(f(2), g(2)).\n q(f(1), g(3)).\n q(f(2), g(3)).'
+        },
+
+        {
+        input_program: 'p(f(g(1..2,-2..-1))).\n q(1..2).',
+        expanded_program: 'p(f(g(1,-2))).p(f(g(2,-2))).p(f(g(1,-1))).p(f(g(2,-1))).\n q(1).\n q(2).'
+        },
+
+        {
+        input_program: 'p(f(g(h(-1..0)), i(1..2)))) :- p(X,Y).',
+        expanded_program: 'p(f(g(h(-1)), i(1)))) :- p(X,Y).p(f(g(h(0)), i(1)))) :- p(X,Y).p(f(g(h(-1)), i(2)))) :- p(X,Y).p(f(g(h(0)), i(2)))) :- p(X,Y).'
+        }
+    ]
+    .forEach( function(test_case)
+    {
+        it('Expands ground intervals used in head inside synbolic functions', function()
+        {
+            assert.strictEqual(IntervalsExpander.expandIntervals(test_case.input_program), test_case.expanded_program);
+        });
+    });
 });
 
 
