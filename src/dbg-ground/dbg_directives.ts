@@ -1,4 +1,5 @@
 import { DefaultAdornerPolicy } from "./adorner";
+import { DebugRuleAnnotation } from "./dbg_annotation";
 
 export class DebugDirectiveError extends Error
 {
@@ -51,6 +52,14 @@ export class DebugDirectives
 
     public getDefaultAdornerPolicy(): DefaultAdornerPolicy { return this.defaultAdornerPolicy; }
     public isNegateDefaultAdornerPolicy(): boolean { return this.negateDefaultAdornerPolicy; }
+
+    public getStartingDebugRuleAnnotation(): DebugRuleAnnotation
+    {
+        if ( this.defaultAdornerPolicy == DefaultAdornerPolicy.ALL &&
+            this.negateDefaultAdornerPolicy )
+            return new DebugRuleAnnotation(true, true);
+        return null;
+    }
 
     private constructor() {}
 }

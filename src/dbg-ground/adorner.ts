@@ -3,6 +3,7 @@ import { DebugAtom } from "./asp_core";
 import { freezeStrings, restoreStrings } from "./asp_utils";
 import { DebugRuleAnnotation } from "./dbg_annotation";
 import { ASP_REGEX } from "./Useful_regex";
+import { DebugDirectives } from "./dbg_directives";
 
 export enum DefaultAdornerPolicy
 {
@@ -114,8 +115,9 @@ export class AdornedDebugProgramBuilder
 		this.logic_program = this.replaceAll(this.logic_program, new RegExp("\](?!\.)"), "\]\." );
 
 		let skipCurrentRule: boolean = false;
-		let lastDebugRuleAnnotation: DebugRuleAnnotation = null;
+		let lastDebugRuleAnnotation: DebugRuleAnnotation = DebugDirectives.getInstance().getStartingDebugRuleAnnotation();
 		let debugRuleAnnotation: DebugRuleAnnotation = null;
+
 
 		// split the program into rules. The regex matches only a single '.'
 		//logic_program.split(/(?<!\.)\.(?!\.)/).forEach(rule=>{
@@ -123,7 +125,7 @@ export class AdornedDebugProgramBuilder
 			
 			if ( rule.match(/^\s*\[.*?@.*?\]\s*$/) != null )
 			{
-				this.adornerImpl.copyRuleAsItIs(rule, false);
+				this.adornerImpl.adornWeights(rule);
 				return;
 			}
 
@@ -147,9 +149,7 @@ export class AdornedDebugProgramBuilder
 			//can be modified if i want to adorn facts too
 			} 
 			else {
-				if(rule.includes("@"))
-					this.adornerImpl.adornWeights(rule);
-				else if(rule.includes(":~"))
+				if(rule.includes(":~"))
 					this.adornerImpl.adornWeak(rule);
 				else 
 					this.adornerImpl.adornFacts(rule);

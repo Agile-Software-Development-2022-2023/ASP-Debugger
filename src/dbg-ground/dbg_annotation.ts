@@ -24,10 +24,10 @@ export class DebugRuleAnnotation
                 throw new DebugAnnotationError('Annotation "' + annotationMatch[0] + '" not supported.');
             
             let directives: DebugDirectives = DebugDirectives.getInstance();
-            return directives.getDefaultAdornerPolicy() == DefaultAdornerPolicy.ALL &&
-                   directives.isNegateDefaultAdornerPolicy()
-                   ? new DebugRuleAnnotation( true, true )
-                   : null;
+            if(directives.getDefaultAdornerPolicy() == DefaultAdornerPolicy.ALL &&
+                   directives.isNegateDefaultAdornerPolicy())
+            return  new DebugRuleAnnotation( true, true )
+            return null;
         }
         return new DebugRuleAnnotation( annotationMatch[1] != 'check' );
     }
