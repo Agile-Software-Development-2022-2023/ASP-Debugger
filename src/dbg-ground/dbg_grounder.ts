@@ -2,7 +2,8 @@ import { spawnSync, SpawnSyncReturns } from "child_process";
 import path from "path";
 import { DebugAtom } from "./asp_core";
 import { AspGrounder, AspGrounderError, AspGrounderFactory } from "./grounder";
-import { addDebugAtomsChoiceRule, AdornedDebugProgramBuilder } from "./adorner";
+import { addDebugAtomsChoiceRule, AdornedDebugProgramBuilder, DefaultAdornerPolicy } from "./adorner";
+import { DebugDirectives } from "./dbg_directives";
 
 const GRINGO_WRAPPER = './src/dbg-ground/gringo-wrapper/bin/gringo-wrapper';
 const GRINGO_WRAPPER_OPTIONS = ['-go="-o smodels"']
@@ -16,22 +17,24 @@ export abstract class DebugGrounder
 {
     protected encodings: string[];
     protected debugAtomsMap: Map<string, DebugAtom>;
-
+    protected debug_predicate: string;
     public constructor(encoding_paths: string | string[])
     {
         if ( typeof encoding_paths === "string" ) this.encodings = [encoding_paths];
         else this.encodings = encoding_paths;
         this.debugAtomsMap = new Map<string, DebugAtom>();
+        this.debug_predicate =  "_debug";
     }
 
     public getEncodings(): string[]
     { return this.encodings; }
 
     public abstract ground(): string;
+    public abstract getAdornedProgram(): string;
 
     public getDebugAtomsMap(): Map<string, DebugAtom>
     { return this.debugAtomsMap; }
-
+    public getDebugPredicate():string{return this.debug_predicate;};
     public static createDefault(encoding_paths: string | string[]): DebugGrounder
     { return new RewritingBasedDebugGrounder(encoding_paths); 
       //return new GringoWrapperDebugGrounder(encoding_paths); 
@@ -67,6 +70,9 @@ class GringoWrapperDebugGrounder extends DebugGrounder
 
         return this.extractDebugAtomsMap(gw_proc.stdout);
     }
+
+    public getAdornedProgram(): string
+    { throw new DebugGrounderError('Program adornment not supported when using gringo-wrapper.'); }
 
     private extractDebugAtomsMap( gw_output: string ): string
     {
@@ -115,26 +121,39 @@ class GringoWrapperDebugGrounder extends DebugGrounder
 
 export class RewritingBasedDebugGrounder extends DebugGrounder
 {
+    private adornedProgram: string = '';
+
     public ground(): string
     {
+        let debugDirectives: DebugDirectives = DebugDirectives.getInstance();
         let input_program: string = AspGrounder.loadProgram(this.encodings);
+        input_program = debugDirectives.parseDirectives(input_program);
         
         //
         // pre-ground rewriting.
         //
-        let nongroundDebugProgBuilder: AdornedDebugProgramBuilder = new AdornedDebugProgramBuilder(input_program);
+        let nongroundDebugProgBuilder: AdornedDebugProgramBuilder = new AdornedDebugProgramBuilder
+            ( input_program, debugDirectives.getDefaultAdornerPolicy() );
         
         nongroundDebugProgBuilder.cleanString();
-        nongroundDebugProgBuilder.removeComments();
-    
+        this.debug_predicate = nongroundDebugProgBuilder.getUniqueDebugPrefix();
+            
         //
-        // program grounding.
+        // remove comments from the rule group
+        //
+        nongroundDebugProgBuilder.removeComments();
+        
+        //
+        // program adornment.
         //
         nongroundDebugProgBuilder.adornProgram();
         nongroundDebugProgBuilder.restorePlaceholderToString();
-        let adorned:string = nongroundDebugProgBuilder.getAdornedProgram();
-        let ground_prog: string = AspGrounderFactory.getInstance().getTheoretical().ground(adorned);
-        
+    
+        //
+        // adorned program grounding.
+        //
+        this.adornedProgram = nongroundDebugProgBuilder.getAdornedProgram();
+        let ground_prog: string = AspGrounderFactory.getInstance().getTheoretical().ground(this.adornedProgram);
         //get Maps of Debug Atom after the calculatoin of the preprocessed ground program
         this.debugAtomsMap = nongroundDebugProgBuilder.getDebugAtomsMap();
 
@@ -144,7 +163,9 @@ export class RewritingBasedDebugGrounder extends DebugGrounder
         // ground_prog will be properly rewrited to obtain the final debug program...
         let split:Array<string> =  ground_prog.split(/^0\n/gm); 
         split[0] = addDebugAtomsChoiceRule(split[0], split[1], nongroundDebugProgBuilder.getDebugPredicate());
-
+        
         return split.join("0\n");
     }
+
+    public getAdornedProgram(): string { return this.adornedProgram; }
 }

@@ -18,7 +18,7 @@ export class ASP_REGEX{
 
     public static  VARIABLE_PATTERN: RegExp = new RegExp(ASP_REGEX.VARIABLE_REGEX);
 
-	public static  COMMENT_PATTERN: RegExp = new RegExp(" *%.*$\n?", ASP_REGEX.MULTILINE);
+	public static  COMMENT_PATTERN: RegExp = new RegExp(" *%([^#@].*)?$\n?", ASP_REGEX.MULTILINE);
 
 	public static  AGGREGATE_PATTERN: RegExp = new RegExp("[^\\{\\},]*\\{[^\\{\\}]*?\\}[^\\{\\},]*");
 	

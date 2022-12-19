@@ -1,7 +1,7 @@
-export function make_unique(pred_name: string, asp_program: string): string
+export function make_unique(pred_name: string, asp_program: string, append_chars: string = '_'): string
 {
     while ( asp_program.includes(pred_name) )
-        pred_name = '_' + pred_name;
+        pred_name = append_chars + pred_name;
     return pred_name;
 }
 
