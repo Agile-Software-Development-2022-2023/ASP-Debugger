@@ -71,6 +71,14 @@ export class AspGrounderIdlv extends ExternalAspGrounder
 
     public ground(inputProgram: string): string
     {
+        if(process.platform == 'win32'){
+            throw new Error( "Missing wasp exe for windows so no debuging can be supported after executing idlv");
+            //this.sysComm = './bin/wasp-windows';
+        }
+        else if(process.platform == 'darwin'){
+            throw new Error( "Missing wasp for mac so no debuging can be supported after executing idlv");
+            //this.sysComm = './bin/wasp-mac';
+        }
         const us_unique: string = make_unique('u', inputProgram, 'u');
         return super.ground(IntervalsExpander.expandIntervals(inputProgram.replace(new RegExp(/(^|\W)_(\w)/g), "$1 " + us_unique + "$2")))
             .replace(new RegExp(us_unique, "g"), '_')
