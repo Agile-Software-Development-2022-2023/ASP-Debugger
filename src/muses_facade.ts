@@ -36,7 +36,7 @@ export class MUSesCalculator {
     public getGroundRulesForMUS(musIndex: number) {
         if(!this.muses)
             throw new Error("calculateMUSes has to be called in order to get the ground rules")
-        return this.generator.get_ground_rules_from_debug(this.muses, this.program, musIndex);
+        return this.generator.get_ground_rules_from_debug(this.muses, this.program, musIndex, this.debug_predicate);
     }
 
 }
