@@ -9,6 +9,7 @@ const path_1 = __importDefault(require("path"));
 const asp_core_1 = require("./asp_core");
 const grounder_1 = require("./grounder");
 const adorner_1 = require("./adorner");
+const dbg_directives_1 = require("./dbg_directives");
 const GRINGO_WRAPPER = './src/dbg-ground/gringo-wrapper/bin/gringo-wrapper';
 const GRINGO_WRAPPER_OPTIONS = ['-go="-o smodels"'];
 class DebugGrounderError extends grounder_1.AspGrounderError {
@@ -22,9 +23,12 @@ class DebugGrounder {
         else
             this.encodings = encoding_paths;
         this.debugAtomsMap = new Map();
+        this.debug_predicate = "_debug";
     }
     getEncodings() { return this.encodings; }
     getDebugAtomsMap() { return this.debugAtomsMap; }
+    getDebugPredicate() { return this.debug_predicate; }
+    ;
     static createDefault(encoding_paths) {
         return new RewritingBasedDebugGrounder(encoding_paths);
         //return new GringoWrapperDebugGrounder(encoding_paths); 
@@ -51,6 +55,7 @@ class GringoWrapperDebugGrounder extends DebugGrounder {
             throw new DebugGrounderError(gw_proc.stderr);
         return this.extractDebugAtomsMap(gw_proc.stdout);
     }
+    getAdornedProgram() { throw new DebugGrounderError('Program adornment not supported when using gringo-wrapper.'); }
     extractDebugAtomsMap(gw_output) {
         let ground_prog_rules = [];
         let b_minus_found = false;
@@ -84,21 +89,34 @@ class GringoWrapperDebugGrounder extends DebugGrounder {
     }
 }
 class RewritingBasedDebugGrounder extends DebugGrounder {
+    constructor() {
+        super(...arguments);
+        this.adornedProgram = '';
+    }
     ground() {
+        let debugDirectives = dbg_directives_1.DebugDirectives.getInstance();
         let input_program = grounder_1.AspGrounder.loadProgram(this.encodings);
+        input_program = debugDirectives.parseDirectives(input_program);
         //
         // pre-ground rewriting.
         //
-        let nongroundDebugProgBuilder = new adorner_1.AdornedDebugProgramBuilder(input_program);
+        let nongroundDebugProgBuilder = new adorner_1.AdornedDebugProgramBuilder(input_program, debugDirectives.getDefaultAdornerPolicy());
         nongroundDebugProgBuilder.cleanString();
+        this.debug_predicate = nongroundDebugProgBuilder.getUniqueDebugPrefix();
+        //
+        // remove comments from the rule group
+        //
         nongroundDebugProgBuilder.removeComments();
         //
-        // program grounding.
+        // program adornment.
         //
         nongroundDebugProgBuilder.adornProgram();
         nongroundDebugProgBuilder.restorePlaceholderToString();
-        let adorned = nongroundDebugProgBuilder.getAdornedProgram();
-        let ground_prog = grounder_1.AspGrounderFactory.getInstance().getTheoretical().ground(adorned);
+        //
+        // adorned program grounding.
+        //
+        this.adornedProgram = nongroundDebugProgBuilder.getAdornedProgram();
+        let ground_prog = grounder_1.AspGrounderFactory.getInstance().getTheoretical().ground(this.adornedProgram);
         //get Maps of Debug Atom after the calculatoin of the preprocessed ground program
         this.debugAtomsMap = nongroundDebugProgBuilder.getDebugAtomsMap();
         //
@@ -109,6 +127,7 @@ class RewritingBasedDebugGrounder extends DebugGrounder {
         split[0] = (0, adorner_1.addDebugAtomsChoiceRule)(split[0], split[1], nongroundDebugProgBuilder.getDebugPredicate());
         return split.join("0\n");
     }
+    getAdornedProgram() { return this.adornedProgram; }
 }
 exports.RewritingBasedDebugGrounder = RewritingBasedDebugGrounder;
 //# sourceMappingURL=dbg_grounder.js.map

@@ -18,6 +18,6 @@ ASP_REGEX.VARIABLE_REGEX = "(?<=[(,; ])" + "(_*[A-Z][A-Za-z0-9]*)" + "(?=[),; ])
 ASP_REGEX.MULTILINE = 'm';
 ASP_REGEX.FACT_PATTERN = new RegExp(ASP_REGEX.FACT_REGEX, ASP_REGEX.MULTILINE);
 ASP_REGEX.VARIABLE_PATTERN = new RegExp(ASP_REGEX.VARIABLE_REGEX);
-ASP_REGEX.COMMENT_PATTERN = new RegExp(" *%.*$\n?", ASP_REGEX.MULTILINE);
+ASP_REGEX.COMMENT_PATTERN = new RegExp(" *%([^#@].*)?$\n?", ASP_REGEX.MULTILINE);
 ASP_REGEX.AGGREGATE_PATTERN = new RegExp("[^\\{\\},]*\\{[^\\{\\}]*?\\}[^\\{\\},]*");
 //# sourceMappingURL=Useful_regex.js.map

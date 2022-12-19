@@ -8,8 +8,19 @@ const child_process_1 = require("child_process");
 const path_1 = __importDefault(require("path"));
 class WaspCaller {
     constructor(pathToWasp = "/bin/wasp") {
+        if (process.platform == 'linux') {
+            this.sysComm = "./".concat(pathToWasp);
+        }
+        else if (process.platform == 'win32') {
+            throw new Error("Missing wasp exe for windows");
+            //this.sysComm = './bin/wasp-windows';
+        }
+        else if (process.platform == 'darwin') {
+            throw new Error("Missing wasp for mac");
+            //this.sysComm = './bin/wasp-mac';
+        }
         //for now it is linux based
-        this.sysComm = "./".concat(pathToWasp);
+        //this.sysComm = "./".concat(pathToWasp);
     }
     exec_command(command, args, input, std_out) {
         let execProcess;

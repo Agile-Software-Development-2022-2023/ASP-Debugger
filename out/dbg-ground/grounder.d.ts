@@ -5,9 +5,22 @@ export declare abstract class AspGrounder {
     static loadProgram(programPaths: string[]): string;
     abstract ground(inputProgram: string): string;
 }
-export declare class AspGrounderGringo extends AspGrounder {
+declare abstract class ExternalAspGrounder extends AspGrounder {
+    ground(inputProgram: string): string;
+    protected abstract getGrounderCommand(): string;
+    protected abstract getGrounderOptions(): string;
+}
+export declare class AspGrounderGringo extends ExternalAspGrounder {
     private static GRINGO_COMMAND;
     private static GRINGO_OPTIONS;
+    protected getGrounderCommand(): string;
+    protected getGrounderOptions(): string;
+}
+export declare class AspGrounderIdlv extends ExternalAspGrounder {
+    private static IDLV_COMMAND;
+    private static IDLV_OPTIONS;
+    protected getGrounderCommand(): string;
+    protected getGrounderOptions(): string;
     ground(inputProgram: string): string;
 }
 export declare class TheoreticalAspGrounder extends AspGrounder {
@@ -27,3 +40,8 @@ export declare class AspGrounderFactory {
     getDefault(): AspGrounder;
     getTheoretical(): TheoreticalAspGrounder;
 }
+export declare class IntervalsExpander {
+    static expandIntervals(input_program: string): string;
+    private static nextIntervalIndices;
+}
+export {};

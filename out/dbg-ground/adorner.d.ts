@@ -1,23 +1,29 @@
+import { AdornerImplementation } from "./AdornerImplementation";
 import { DebugAtom } from "./asp_core";
+export declare enum DefaultAdornerPolicy {
+    RULES_ONLY = 0,
+    FACTS_ONLY = 1,
+    ALL = 2
+}
 export declare class AdornedDebugProgramBuilder {
-    private logic_program;
-    private adornedProgram;
-    private debugAtomsMap;
-    private debug_predicate;
-    private stringPlaceholder;
-    constructor(input_program: string);
+    protected adornerImpl: AdornerImplementation;
+    protected stringPlaceholder: Map<string, string>;
+    protected logic_program: string;
+    constructor(logic_program?: string, policy?: DefaultAdornerPolicy);
+    setDefaultPolicy(policy: DefaultAdornerPolicy): void;
     getDebugPredicate(): string;
     setDebugPredicate(pred: string): void;
-    getLogicProgram(): string;
-    setLogicProgram(input_program: string): void;
     private replaceAll;
     removeComments(): void;
     getVariables(ruleBody: string): Array<string>;
-    clearMap(): void;
+    reset(): void;
     cleanString(): void;
     restorePlaceholderToString(): void;
+    setLogicProgram(logic_program: string): void;
+    getLogicProgram(): string;
     getAdornedProgram(): string;
-    adornProgram(debugConstantPrefix?: string): void;
+    getUniqueDebugPrefix(): string;
+    adornProgram(): void;
     getDebugAtomsMap(): Map<string, DebugAtom>;
 }
 export declare function addDebugAtomsChoiceRule(rules: string, atoms: string, predicate: string): string;

@@ -3,6 +3,7 @@ export declare class MUSesCalculator {
     private program;
     private generator;
     private waspCaller;
+    private debug_predicate;
     constructor();
     calculateMUSes(filepaths: string[], musesNum: number): string[][];
     getNonGroundRulesForMUSes(): Set<string>[];
