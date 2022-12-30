@@ -1,4 +1,4 @@
-name: Update and test
+name: Update, test and publish package
 env:
   COMMIT_MESSAGE: Continuous Integration compilation
   COMMIT_AUTHOR: Continuous Integration
@@ -34,6 +34,23 @@ jobs:
         tsc -p ./
         git config --global user.name "${{ env.COMMIT_AUTHOR }}"
         git config --global user.email "MatteoPuccio@users.noreply.github.com"
-        git add out
+        git add -A
         git commit -m "${{ env.COMMIT_MESSAGE }}"
         git push
+
+  publish-gpr:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          registry-url: https://npm.pkg.github.com/
+      - run: npm ci
+      - run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
