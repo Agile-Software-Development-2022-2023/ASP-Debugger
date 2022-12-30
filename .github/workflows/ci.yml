@@ -2,7 +2,10 @@ name: Update, test and publish package
 env:
   COMMIT_MESSAGE: Continuous Integration compilation
   COMMIT_AUTHOR: Continuous Integration
-on: [push]
+on:
+  push:
+    branches:
+      - new_artifactory
 
 jobs:
   build:
@@ -50,7 +53,6 @@ jobs:
         with:
           node-version: 16
           registry-url: https://npm.pkg.github.com/
-          scope: '@asp-debugger'
       - run: npm ci
       - run: npm publish
         env:
