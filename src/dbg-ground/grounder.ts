@@ -35,7 +35,7 @@ abstract class ExternalAspGrounder extends AspGrounder
         {
             grounder_proc = spawnSync( grounder_command, grounder_options.split(/\s+/),
                 {encoding: 'utf-8', cwd: path.resolve(__dirname, "../../"), input: inputProgram} );
-        }
+            }
         catch(err)
             { throw new AspGrounderError(err); }
         
@@ -63,22 +63,27 @@ export class AspGrounderGringo extends ExternalAspGrounder
 
 export class AspGrounderIdlv extends ExternalAspGrounder
 {
-    private static IDLV_COMMAND: string = './bin/idlv_1.1.6_linux_x86-64';
-    private static IDLV_OPTIONS: string = '--stdin';
+    private  idlv_command: string;
+    private  idlv_options: string;
 
-    protected getGrounderCommand(): string { return AspGrounderIdlv.IDLV_COMMAND; }
-    protected getGrounderOptions(): string { return AspGrounderIdlv.IDLV_OPTIONS; }
-
-    public ground(inputProgram: string): string
-    {
-        if(process.platform == 'win32'){
-            throw new Error( "Missing wasp exe for windows so no debuging can be supported after executing idlv");
-            //this.sysComm = './bin/wasp-windows';
+    protected getGrounderCommand(): string { return this.idlv_command; }
+    protected getGrounderOptions(): string { return this.idlv_options; }
+    constructor(){
+        super();
+        if(process.platform == 'linux'){
+            this.idlv_command = './bin/idlv_1.1.6_linux_x86-64';
+            this.idlv_options = '--stdin';
+        }
+        else if(process.platform == 'win32'){
+            this.idlv_command = '.\\bin\\idlv_1.1.6_windows.exe';
+            this.idlv_options = '--stdin --output 0';
         }
         else if(process.platform == 'darwin'){
-            throw new Error( "Missing wasp for mac so no debuging can be supported after executing idlv");
-            //this.sysComm = './bin/wasp-mac';
+            throw new Error( "Missing wasp for mac");
         }
+    }
+    public ground(inputProgram: string): string
+    {
         const us_unique: string = make_unique('u', inputProgram, 'u');
         return super.ground(IntervalsExpander.expandIntervals(inputProgram.replace(new RegExp(/(^|\W)_(\w)/g), "$1 " + us_unique + "$2")))
             .replace(new RegExp(us_unique, "g"), '_')

@@ -1,6 +1,7 @@
 import { WaspCaller } from "../../src/unsat_wasp";
 import  {readFileSync} from 'fs';
 import assert from 'assert';
+import { TestOsPortability } from "../test_os_portability";
 // Create a test suite for wasp call
 describe('WASP_CALL', function() {
   
@@ -11,7 +12,7 @@ describe('WASP_CALL', function() {
     // Test One: Test of compute muses
     values["test_success"].forEach(function(item: string[]) {
       it('should test if the given program return the expected muses', function(){
-        assert.equal(wasp_M.compute_muses(item["program"], item["predicates"]), item["output"]);
+        assert.equal(wasp_M.compute_muses(item["program"], item["predicates"]), TestOsPortability.get_instance().convert_endl(item["output"]));
       });
     });
 

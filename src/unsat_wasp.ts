@@ -9,8 +9,7 @@ export class WaspCaller{
             this.sysComm = "./".concat(pathToWasp);
         }
         else if(process.platform == 'win32'){
-            throw new Error( "Missing wasp exe for windows");
-            //this.sysComm = './bin/wasp-windows';
+            this.sysComm = '.\\bin\\wasp.exe';
         }
         else if(process.platform == 'darwin'){
             throw new Error( "Missing wasp for mac");

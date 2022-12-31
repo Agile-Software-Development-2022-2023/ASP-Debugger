@@ -4,6 +4,7 @@ import { MUSesCalculator } from "../../src/muses_facade"
 import { DebugGrounder } from "../../src/dbg-ground/dbg_grounder";
 import { DebugAtom } from "../../src/dbg-ground/asp_core";
 import assert from "assert";
+import { platform } from "os";
 
 
 describe('rules_generator_output', function(){

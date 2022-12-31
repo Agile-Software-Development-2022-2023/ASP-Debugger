@@ -1,7 +1,7 @@
 import assert from "assert";
 import { describe, it } from "mocha";
 import { readFileSync } from 'fs';
-import { AspGrounder, AspGrounderError, AspGrounderGringo, IntervalsExpander, TheoreticalAspGrounder } from "../../../src/dbg-ground/grounder";
+import { AspGrounder, AspGrounderError, AspGrounderGringo, AspGrounderIdlv, IntervalsExpander, TheoreticalAspGrounder } from "../../../src/dbg-ground/grounder";
 import { spawnSync, SpawnSyncReturns } from "child_process";
 import path from "path";
 
@@ -44,7 +44,7 @@ function check_ground_program(actual_ground: string, expected_ground_file: strin
     {
         let actual_as: string   = compute_answer_sets(actual_ground);
         let expected_as: string = compute_answer_sets(expected_ground);
-        
+        console.log(actual_as.split("\n").sort().join(), "\n\n\n", expected_as.split("\n").sort().join());
         return actual_as.split("\n").sort().join() === expected_as.split("\n").sort().join();
     }
     catch (err) { return false; }
@@ -58,7 +58,7 @@ describe('Basic ASP grounder usage', function()
     {
         GROUNDERS_UNDER_TEST =
         [
-            new AspGrounderGringo()/*,
+            new AspGrounderIdlv()/*,
             AspGrounderFactory.getInstance().getTheoretical()*/
         ]
     });
@@ -74,14 +74,14 @@ describe('Basic ASP grounder usage', function()
         });
     });
 
-    it('Properly instantiate a non-ground ASP program', function()
-    {
-        GROUNDERS_UNDER_TEST.forEach( function(grounder: AspGrounder) {
-        let input_files = [TEST_CASES_PATH + 'col_test.lp', TEST_CASES_PATH + 'col_test.in'];
-        let actual_ground: string = grounder.ground(AspGrounder.loadProgram(input_files));
-        assert.ok(check_ground_program(actual_ground, TEST_CASES_PATH + 'col_test.smodels'));
-        });
-    });
+    // it('Properly instantiate a non-ground ASP program', function()
+    // {
+    //     GROUNDERS_UNDER_TEST.forEach( function(grounder: AspGrounder) {
+    //     let input_files = [TEST_CASES_PATH + 'col_test.lp', TEST_CASES_PATH + 'col_test.in'];
+    //     let actual_ground: string = grounder.ground(AspGrounder.loadProgram(input_files));
+    //     assert.ok(check_ground_program(actual_ground, TEST_CASES_PATH + 'col_test.smodels'));
+    //     });
+    // });
 
     it('Throws an error in case of an invalid ASP program', function()
     {
