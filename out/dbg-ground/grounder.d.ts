@@ -17,10 +17,11 @@ export declare class AspGrounderGringo extends ExternalAspGrounder {
     protected getGrounderOptions(): string;
 }
 export declare class AspGrounderIdlv extends ExternalAspGrounder {
-    private static IDLV_COMMAND;
-    private static IDLV_OPTIONS;
+    private idlv_command;
+    private idlv_options;
     protected getGrounderCommand(): string;
     protected getGrounderOptions(): string;
+    constructor();
     ground(inputProgram: string): string;
 }
 export declare class TheoreticalAspGrounder extends AspGrounder {

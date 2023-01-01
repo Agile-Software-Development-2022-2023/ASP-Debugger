@@ -173,7 +173,7 @@ exports.RulesGenerator = RulesGenerator;
 //Usage example
 // let generator = new RulesGenerator();
 // //computes ground instances and non ground rules belonging to muses
-// let file_path : string = '/home/andrea/git/ASP-Debugger/test/unsat/problems/annotations_rules_only.asp';
+// let file_path : string = 'C:/Users/Andrea PC/git/ASP-Debugger/test/unsat/problems/example_unsat_strings.asp';
 // let number_of_muses = 0;
 // let mus_index_for_ground_rules = 0;
 // let musFacade = new MUSesCalculator();

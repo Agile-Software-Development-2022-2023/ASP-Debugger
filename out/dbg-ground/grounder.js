@@ -52,17 +52,23 @@ exports.AspGrounderGringo = AspGrounderGringo;
 AspGrounderGringo.GRINGO_COMMAND = 'gringo';
 AspGrounderGringo.GRINGO_OPTIONS = '-o smodels';
 class AspGrounderIdlv extends ExternalAspGrounder {
-    getGrounderCommand() { return AspGrounderIdlv.IDLV_COMMAND; }
-    getGrounderOptions() { return AspGrounderIdlv.IDLV_OPTIONS; }
-    ground(inputProgram) {
-        if (process.platform == 'win32') {
-            throw new Error("Missing wasp exe for windows so no debuging can be supported after executing idlv");
-            //this.sysComm = './bin/wasp-windows';
+    getGrounderCommand() { return this.idlv_command; }
+    getGrounderOptions() { return this.idlv_options; }
+    constructor() {
+        super();
+        if (process.platform == 'linux') {
+            this.idlv_command = './bin/idlv_1.1.6_linux_x86-64';
+            this.idlv_options = '--stdin';
+        }
+        else if (process.platform == 'win32') {
+            this.idlv_command = '.\\bin\\idlv_1.1.6_windows.exe';
+            this.idlv_options = '--stdin --output 0';
         }
         else if (process.platform == 'darwin') {
-            throw new Error("Missing wasp for mac so no debuging can be supported after executing idlv");
-            //this.sysComm = './bin/wasp-mac';
+            throw new Error("Missing wasp for mac");
         }
+    }
+    ground(inputProgram) {
         const us_unique = (0, asp_utils_1.make_unique)('u', inputProgram, 'u');
         return super.ground(IntervalsExpander.expandIntervals(inputProgram.replace(new RegExp(/(^|\W)_(\w)/g), "$1 " + us_unique + "$2")))
             .replace(new RegExp(us_unique, "g"), '_')
@@ -70,8 +76,6 @@ class AspGrounderIdlv extends ExternalAspGrounder {
     }
 }
 exports.AspGrounderIdlv = AspGrounderIdlv;
-AspGrounderIdlv.IDLV_COMMAND = './bin/idlv_1.1.6_linux_x86-64';
-AspGrounderIdlv.IDLV_OPTIONS = '--stdin';
 class TheoreticalAspGrounder extends AspGrounder {
     constructor(grnd) { super(); this.grounder = grnd; }
     ground(inputProgram) {
