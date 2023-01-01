@@ -3,7 +3,7 @@ import { InvalidLinkingsError, Linker } from '../../src/linkings';
 import { Util } from '../../src/utils';
 import fs from 'fs';
 import path from 'path';
-import { TestOsPortability } from '../test_os_portability';
+import { OsPortability } from '../../src/os_portability';
 
 describe('Linkings', function() {
 
@@ -129,7 +129,7 @@ describe('Linkings', function() {
 
                 const missingFilesAbsolutePaths: string[] = Linker.purgeAndGetMissingFiles(test_path);
                 const missingFilesRelativePaths: string[] = missingFilesAbsolutePaths.map(file => path.relative(".", file));
-                assert.deepEqual(missingFilesRelativePaths.toString(), TestOsPortability.get_instance().convert_file_sep(test["expectedMissingRelativePaths"].toString()));                
+                assert.deepEqual(missingFilesRelativePaths.toString(), OsPortability.get_instance().convert_file_sep(test["expectedMissingRelativePaths"].toString()));                
             } finally {
                 presentFilesRelativePaths.forEach(file => {
                     fs.unlinkSync(file);

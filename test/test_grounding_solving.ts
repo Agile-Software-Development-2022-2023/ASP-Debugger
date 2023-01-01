@@ -1,7 +1,7 @@
 import assert from 'assert';
 import { Grounder_Solver } from '../src/grounding_solving';
 import fs from 'fs';
-import { TestOsPortability } from './test_os_portability';
+import { OsPortability } from '../src/os_portability';
 
 describe("Grounding and solving", function() {
 
@@ -14,7 +14,7 @@ describe("Grounding and solving", function() {
             fs.writeFileSync(test_path, "", {encoding: 'utf-8'});
             const grounder_solver = new Grounder_Solver();
             let expected_output :string = "DLV 2.1.1\n\n{}\n";
-            expected_output = TestOsPortability.get_instance().convert_endl(expected_output);
+            expected_output = OsPortability.get_instance().convert_endl(expected_output);
             assert.deepEqual(expected_output, grounder_solver.getFirstAnswerSet([test_path])[0]);
             assert.deepEqual("", grounder_solver.getFirstAnswerSet([test_path])[1]);
         } finally {
