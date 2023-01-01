@@ -21,14 +21,14 @@ describe('os-portability-win', function(){
         assert.deepEqual(a,b);
     });
 
-    beforeEach(function(){
+    before(function(){
         current_os = process.platform;
         //Object.defineProperty(process, 'platform', {value : 'win32'});
         OsPortabilitySpy.get_instance();
         OsPortabilitySpy.set_platform('win32');
     });
 
-    this.afterEach(function(){
+    after(function(){
         //Object.defineProperty(process, 'platform', {value : current_os});
         OsPortabilitySpy.set_platform(current_os);
     });
@@ -53,14 +53,14 @@ describe('os-portability-linux', function(){
         assert.deepEqual(a,b);
     });
 
-    beforeEach(function(){
+    before(function(){
         current_os = process.platform;
         //Object.defineProperty(process, 'platform', {value : 'linux'});
         OsPortabilitySpy.get_instance();
         OsPortabilitySpy.set_platform('linux');
     });
 
-    afterEach(function(){
+    after(function(){
         //Object.defineProperty(process, 'platform', {value : current_os});
         OsPortabilitySpy.set_platform(current_os);
     });
