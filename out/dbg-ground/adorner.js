@@ -6,6 +6,7 @@ const asp_utils_1 = require("./asp_utils");
 const dbg_annotation_1 = require("./dbg_annotation");
 const Useful_regex_1 = require("./Useful_regex");
 const dbg_directives_1 = require("./dbg_directives");
+const support_mapper_1 = require("../support/support_mapper");
 var DefaultAdornerPolicy;
 (function (DefaultAdornerPolicy) {
     DefaultAdornerPolicy[DefaultAdornerPolicy["RULES_ONLY"] = 0] = "RULES_ONLY";
@@ -16,6 +17,7 @@ class AdornedDebugProgramBuilder {
     constructor(logic_program = '', policy = DefaultAdornerPolicy.RULES_ONLY) {
         this.stringPlaceholder = new Map();
         this.logic_program = logic_program;
+        this.supportRuleMapper = new support_mapper_1.SupportRuleMapper();
         this.setDefaultPolicy(policy);
     }
     setDefaultPolicy(policy) {
@@ -35,6 +37,7 @@ class AdornedDebugProgramBuilder {
     }
     getDebugPredicate() { return this.adornerImpl.getDebugPredicate(); }
     setDebugPredicate(pred) { this.adornerImpl.setDebugPredicate(pred); }
+    getSupportRuleMap() { return this.supportRuleMapper.getMap(); }
     //public getLogicProgram(): string { return logic_program; }
     //public setLogicProgram(input_program: string){ logic_program = input_program;this.debug_predicate = "_debug";}
     replaceAll(program, regex, sub) {
@@ -113,6 +116,7 @@ class AdornedDebugProgramBuilder {
                 return;
             }
             if (rule.includes(":-")) {
+                this.supportRuleMapper.mapSimpleRule(rule);
                 this.adornerImpl.adornSimpleRules(rule);
                 //this includes rules without the body, such a rule should be adorned with the creation of the body including the debug atom
             }
@@ -136,9 +140,9 @@ class AdornedDebugProgramBuilder {
     getDebugAtomsMap() { return this.adornerImpl.getDebugAtomsMap(); }
 }
 exports.AdornedDebugProgramBuilder = AdornedDebugProgramBuilder;
-function addDebugAtomsChoiceRule(rules, atoms, predicate) {
+function addDebugAtomsChoiceRule(rules, atoms, debug_predicate, support_predicate) {
     let placeholders = new Map();
-    let id_of_debug = atoms.match(new RegExp(`^([0-9]+) ${predicate}.*\n`, "gm"));
+    let id_of_debug = atoms.match(new RegExp(`^([0-9]+) (${debug_predicate}|${support_predicate}).*\n`, "gm"));
     if (id_of_debug == null)
         return '';
     for (let i = 0; i < id_of_debug.length; ++i) {

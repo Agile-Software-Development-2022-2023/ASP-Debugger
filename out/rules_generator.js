@@ -160,9 +160,12 @@ class RulesGenerator {
         let regex_identifier = new RegExp(regex_text);
         for (let i = 0; i < muses.length && mus_index_max; i++) {
             for (let j = 0; j < muses[i].length; j++) {
-                let atom_identifier = regex_identifier.exec(muses[i][j])[0];
-                if (debug_atom_rules.has(atom_identifier)) {
-                    non_ground_rules[i].add(debug_atom_rules.get(atom_identifier).getNonGroundRule());
+                let regex_result = regex_identifier.exec(muses[i][j]);
+                if (regex_result) {
+                    let atom_identifier = regex_result[0];
+                    if (debug_atom_rules.has(atom_identifier)) {
+                        non_ground_rules[i].add(debug_atom_rules.get(atom_identifier).getNonGroundRule());
+                    }
                 }
             }
         }

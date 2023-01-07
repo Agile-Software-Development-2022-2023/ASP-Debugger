@@ -22,3 +22,13 @@ export declare class DebugAtom {
     getNonGroundRule(): string;
     setNonGroundRule(nonground_rule: string): void;
 }
+export declare class Predicate {
+    private predicateName;
+    private predicateArity;
+    constructor(predName: string, predArity?: number);
+    equals(other: any): boolean;
+    getPredicateName(): string;
+    getPredicateArity(): number;
+    static getFromAtom(atom: string): Predicate;
+    getPredString(): string;
+}

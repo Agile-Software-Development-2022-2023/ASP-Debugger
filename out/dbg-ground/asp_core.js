@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DebugAtom = exports.AspRule = void 0;
+exports.Predicate = exports.DebugAtom = exports.AspRule = void 0;
 class AspRule {
     constructor(body, globvars = []) {
         this.body = body;
@@ -42,4 +42,29 @@ class DebugAtom {
     setNonGroundRule(nonground_rule) { this.nonground_rule = nonground_rule; }
 }
 exports.DebugAtom = DebugAtom;
+class Predicate {
+    constructor(predName, predArity = 0) {
+        this.predicateName = predName;
+        this.predicateArity = predArity;
+    }
+    equals(other) {
+        return this.predicateName === other.predicateName && other.predicateArity === this.predicateArity;
+    }
+    ;
+    getPredicateName() { return this.predicateName; }
+    getPredicateArity() { return this.predicateArity; }
+    static getFromAtom(atom) {
+        let matches = atom.match(/\s*([a-z\-_][a-zA-Z0-9_]*)\s*(\(([\sa-zA-Z0-9_,\-#\(\)\.]*?)\))?\s*/);
+        if (matches == null)
+            return null;
+        let predname = matches[1];
+        let termslist = matches[3];
+        if (termslist == undefined)
+            return new Predicate(predname);
+        termslist = termslist.replace(/\(.*\)/g, '');
+        return new Predicate(predname, termslist.split(',').length);
+    }
+    getPredString() { return this.predicateName + '/' + this.predicateArity.toString(); }
+}
+exports.Predicate = Predicate;
 //# sourceMappingURL=asp_core.js.map
