@@ -56,16 +56,15 @@ class AspGrounderIdlv extends ExternalAspGrounder {
     getGrounderOptions() { return this.idlv_options; }
     constructor() {
         super();
+        this.idlv_options = '--stdin --output 0';
         if (process.platform == 'linux') {
             this.idlv_command = './bin/idlv_1.1.6_linux_x86-64';
-            this.idlv_options = '--stdin';
         }
         else if (process.platform == 'win32') {
             this.idlv_command = '.\\bin\\idlv_1.1.6_windows.exe';
-            this.idlv_options = '--stdin --output 0';
         }
         else if (process.platform == 'darwin') {
-            throw new Error("Missing wasp for mac");
+            this.idlv_command = './bin/idlv_1.1.6_mac';
         }
     }
     ground(inputProgram) {

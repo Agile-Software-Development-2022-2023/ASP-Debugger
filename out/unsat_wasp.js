@@ -15,8 +15,7 @@ class WaspCaller {
             this.sysComm = '.\\bin\\wasp.exe';
         }
         else if (process.platform == 'darwin') {
-            throw new Error("Missing wasp for mac");
-            //this.sysComm = './bin/wasp-mac';
+            this.sysComm = './bin/wasp_mac';
         }
         //for now it is linux based
         //this.sysComm = "./".concat(pathToWasp);
