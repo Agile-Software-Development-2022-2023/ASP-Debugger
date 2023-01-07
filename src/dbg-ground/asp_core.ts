@@ -89,4 +89,6 @@ export class Predicate
         termslist = termslist.replace(/\(.*\)/g, '');
         return new Predicate(predname, termslist.split(',').length);
     }
+
+    public getPredString(): string { return this.predicateName + '/' + this.predicateArity.toString(); }
 }
