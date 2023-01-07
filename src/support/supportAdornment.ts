@@ -1,13 +1,15 @@
-import { debug } from "console";
-import { DebugAtom } from ".././dbg-ground/asp_core";
+import { Predicate } from "../dbg-ground/asp_core";
+
 export class SupportAdorner{
+    protected debug_predicate: string;
     protected support_predicate :string;
     protected numeric_program: string;
     protected output_program = "";
-    public constructor(numeric_program:string, support_predicate:string = "support")
+    public constructor(numeric_program:string, debug_predicate: string = '_debug', support_predicate:string = '_support')
     {
         this.numeric_program = numeric_program;
         this.output_program = "";
+        this.debug_predicate = debug_predicate;
         this.support_predicate = support_predicate;
     } 
 
@@ -23,7 +25,11 @@ export class SupportAdorner{
         elements[1].split("\n").forEach(atom => {
             
             let groups:RegExpMatchArray = atom.match(new RegExp("([0-9]+)\\s+(.+)","m"));
-            if(groups){ 
+            if ( !groups ) return;
+
+            let atom_pred: Predicate = Predicate.getFromAtom(groups[2]);
+            if (atom_pred != null && atom_pred.getPredicateName().match(`^${this.debug_predicate}\\d+$`) == null )
+            { 
                 support_rules = support_rules.concat("1 "+groups[1]+" 1 1 "+support_id+"\n");
                 support_maps  = support_maps .concat(support_id + " "+ this.support_predicate.concat("("+groups[2]+")\n"));
                 support_id+=1;

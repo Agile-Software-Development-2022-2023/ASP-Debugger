@@ -1,20 +1,20 @@
 import assert from "assert";
-import { SupportRuleMapper } from "../../../src/support/support_rule";
+import { SupportRuleMapper } from "../../../src/support/support_mapper";
 
 describe('Support rule mapper', function()
 {
     [
-        {input_rule: "p(X) :- q(X), not r(X).", expected_map: new Map<string, Set<string>>([
-            [ 'p/1', new Set<string>(['p(X) :- q(X), not r(X).'])]
+        {input_rule: "p(X) :- q(X), not r(X)", expected_map: new Map<string, Set<string>>([
+            [ 'p/1', new Set<string>(['p(X) :- q(X), not r(X)'])]
         ])},
 
-        {input_rule: " _p_1(X)|  _p_2(X,Y) |aa|aa :- q(X,Y), not r(X).", expected_map: new Map<string, Set<string>>([
-            [ '_p_1/1', new Set<string>([' _p_1(X)|  _p_2(X,Y) |aa|aa :- q(X,Y), not r(X).'])],
-            [ '_p_2/2', new Set<string>([' _p_1(X)|  _p_2(X,Y) |aa|aa :- q(X,Y), not r(X).'])],
-            [ 'aa/0',   new Set<string>([' _p_1(X)|  _p_2(X,Y) |aa|aa :- q(X,Y), not r(X).'])]
+        {input_rule: " _p_1(X)|  _p_2(X,Y) |aa|aa :- q(X,Y), not r(X)", expected_map: new Map<string, Set<string>>([
+            [ '_p_1/1', new Set<string>(['_p_1(X)|  _p_2(X,Y) |aa|aa :- q(X,Y), not r(X)'])],
+            [ '_p_2/2', new Set<string>(['_p_1(X)|  _p_2(X,Y) |aa|aa :- q(X,Y), not r(X)'])],
+            [ 'aa/0',   new Set<string>(['_p_1(X)|  _p_2(X,Y) |aa|aa :- q(X,Y), not r(X)'])]
         ])},
 
-        {input_rule: "a|b|c|d.", expected_map: new Map<string, Set<string>>([])},
+        {input_rule: "a|b|c|d", expected_map: new Map<string, Set<string>>([])},
 
         {input_rule: "",    expected_map: new Map<string, Set<string>>()},
         {input_rule: "   ", expected_map: new Map<string, Set<string>>()}
