@@ -5,8 +5,8 @@ describe('ASP core', function()
 {
     [
         {input_atom: " p  ", expected_pred: new Predicate('p', 0), expected_pred_str: 'p/0'},
-        {input_atom: " __p(X,  f(Y) ) ", expected_pred: new Predicate('__p', 2), expected_pred_str: '__p/2'},
-        {input_atom: " __pq(f(X,g(1,2)),  f(Y), 1, 2) ", expected_pred: new Predicate('__pq', 3), expected_pred_str: '__pq/3'},
+        {input_atom: " __p(X,  \nf(\nY,Z) ) ", expected_pred: new Predicate('__p', 2), expected_pred_str: '__p/2'},
+        {input_atom: " __pq(f(X\n,\ng(1,\n2)\n),  f(Y), 1, 2) ", expected_pred: new Predicate('__pq', 4), expected_pred_str: '__pq/4'},
         {input_atom: "   ", expected_pred: null, expected_pred_str: null},
         {input_atom: "  p((( ", expected_pred: new Predicate('p'), expected_pred_str: 'p/0'},
         {input_atom: ".123", expected_pred: null, expected_pred_str: null},

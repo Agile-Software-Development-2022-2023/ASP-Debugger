@@ -21,7 +21,11 @@ describe('MUSes calculator for missing support', function()
         {
         input_program: 'test/unsat/support_tests/missing_support_3.lp',
         expected_missing_support: new Map<string, Set<string>>([
-            ['_support(1)', new Set(['_support(X) :- b(X)', '_support(X) | _a(X,Y) :- b(X), b(Y)'])]
+            ['_support(1)', new Set(
+                ['_support(X) :- b(X)', 
+                 '_support(X) | _a(X,Y) :- b(X), b(Y)',
+                 '1 <= \n{ _support(X) } \n<= 2 :- b(X), b(Y)',
+                 '{ _support(X): \nb(X), b(Y); _support(3) }'])]
         ])        
         },
 

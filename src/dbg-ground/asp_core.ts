@@ -78,7 +78,7 @@ export class Predicate
 
     public static getFromAtom( atom: string ): Predicate
     {
-        let matches = atom.match(/\s*([a-z\-_][a-zA-Z0-9_]*)\s*(\(([\sa-zA-Z0-9_,\-#\(\)\.]*?)\))?\s*/);
+        let matches = atom.match(/\s*([a-z\-_][a-zA-Z0-9_]*)\s*(\(([\sa-zA-Z0-9_,\-#\(\)\.]*)\))?\s*/);
         if ( matches == null ) return null;
 
         let predname: string = matches[1];
@@ -86,7 +86,7 @@ export class Predicate
 
         if ( termslist == undefined ) return new Predicate(predname);
         
-        termslist = termslist.replace(/\(.*\)/g, '');
+        termslist = termslist.replace(/\((.|\n)*?\)/g, '');
         return new Predicate(predname, termslist.split(',').length);
     }
 
