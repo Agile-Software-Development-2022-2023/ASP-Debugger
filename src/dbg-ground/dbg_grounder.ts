@@ -172,7 +172,8 @@ export class RewritingBasedDebugGrounder extends DebugGrounder
         //
         // adorn ground program for support
         //
-        ground_prog = new SupportAdorner(ground_prog, this.debug_predicate, this.support_predicate).addSupport();
+        if ( debugDirectives.isMissingSupportEnabled() )
+            ground_prog = new SupportAdorner(ground_prog, this.debug_predicate, this.support_predicate).addSupport();
 
         //get Maps of Debug Atom after the calculatoin of the preprocessed ground program
         this.debugAtomsMap = nongroundDebugProgBuilder.getDebugAtomsMap();

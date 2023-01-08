@@ -38,7 +38,7 @@ describe('Debug directives through ASP annotations', function()
     ]
     .forEach( function(test_case)
     {
-        it('Properly parses debug directive from an input program', function()
+        it('Properly parses debug directive from an input program [default policy]', function()
         {
             ["", "\naa.\n\n", "aa.%#debug default=all.\npp.\n%#debug default=none.\n%#debug default=facts_only.\n"]
             .forEach ( function(prefix)
@@ -63,17 +63,66 @@ describe('Debug directives through ASP annotations', function()
         });
     });
 
+
+    [
+        {
+        input_program: "",
+        support_enabled: true,
+        },
+
+        {
+        input_program: "%#debug support=none.",
+        support_enabled: false,
+        },
+
+        {
+        input_program: "%#debug support=none.\n%#debug     support =   none.",
+        support_enabled: false
+        },
+
+        {
+        input_program: "%#debug support=   none.",
+        support_enabled: false
+        },
+
+        {
+        input_program: "%#debug support=none  .   ",
+        support_enabled: false
+        }
+    ]
+    .forEach( function(test_case)
+    {
+        it('Properly parses debug directive from an input program [support]', function()
+        {
+            let dirs: DebugDirectives = DebugDirectives.getInstance();
+            dirs.reset();
+
+            dirs.parseDirectives( test_case.input_program );
+            assert.strictEqual(dirs.isMissingSupportEnabled(), test_case.support_enabled);
+        });
+    });
+
+
     [
         {
         input_program: "% #debug default=all.",  // no directive, only comment
         default_policy: DefaultAdornerPolicy.RULES_ONLY,
-        negate_policy: false
+        negate_policy: false,
+        support_enabled: true
         },
 
         {
         input_program: "% #debug default\n\n",  // no directive, only comment
         default_policy: DefaultAdornerPolicy.RULES_ONLY,
-        negate_policy: false
+        negate_policy: false,
+        support_enabled: true
+        },
+
+        {
+        input_program: "% #debug support=none\n\n",  // no directive, only comment
+        default_policy: DefaultAdornerPolicy.RULES_ONLY,
+        negate_policy: false,
+        support_enabled: true
         }
     ]
     .forEach( function(test_case)
@@ -86,6 +135,7 @@ describe('Debug directives through ASP annotations', function()
             dirs.parseDirectives( test_case.input_program );
             assert.strictEqual(dirs.getDefaultAdornerPolicy(), test_case.default_policy);
             assert.strictEqual(dirs.isNegateDefaultAdornerPolicy(), test_case.negate_policy);
+            assert.strictEqual(dirs.isMissingSupportEnabled(), test_case.support_enabled);
         });
     });
 
@@ -94,6 +144,9 @@ describe('Debug directives through ASP annotations', function()
         "a :- p.\n%#debug not_supported=nothing.\n",
         "\n%#debug default=all_only.\n",
         "%#debug default=all",
+        "%#de_bug support==.\n",
+        "\n%#debug default=no.\n",
+        "%#debug support=yes",
         "\n%#.\n"
     ]
     .forEach( function(input_program)
