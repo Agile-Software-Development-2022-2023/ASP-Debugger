@@ -1,5 +1,7 @@
 export declare class SupportRuleMapper {
     private supportMap;
-    mapSimpleRule(rule: string): void;
+    mapRule(rule: string): void;
+    private tryMapChoice;
+    private addSupport;
     getMap(): Map<string, Set<string>>;
 }

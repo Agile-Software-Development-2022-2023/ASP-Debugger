@@ -54,14 +54,14 @@ class Predicate {
     getPredicateName() { return this.predicateName; }
     getPredicateArity() { return this.predicateArity; }
     static getFromAtom(atom) {
-        let matches = atom.match(/\s*([a-z\-_][a-zA-Z0-9_]*)\s*(\(([\sa-zA-Z0-9_,\-#\(\)\.]*?)\))?\s*/);
+        let matches = atom.match(/\s*([a-z\-_][a-zA-Z0-9_]*)\s*(\(([\sa-zA-Z0-9_,\-#\(\)\.]*)\))?\s*/);
         if (matches == null)
             return null;
         let predname = matches[1];
         let termslist = matches[3];
         if (termslist == undefined)
             return new Predicate(predname);
-        termslist = termslist.replace(/\(.*\)/g, '');
+        termslist = termslist.replace(/\((.|\n)*?\)/g, '');
         return new Predicate(predname, termslist.split(',').length);
     }
     getPredString() { return this.predicateName + '/' + this.predicateArity.toString(); }

@@ -115,8 +115,8 @@ class AdornedDebugProgramBuilder {
                 this.adornerImpl.copyRuleAsItIs(rule);
                 return;
             }
+            this.supportRuleMapper.mapRule(rule);
             if (rule.includes(":-")) {
-                this.supportRuleMapper.mapSimpleRule(rule);
                 this.adornerImpl.adornSimpleRules(rule);
                 //this includes rules without the body, such a rule should be adorned with the creation of the body including the debug atom
             }
