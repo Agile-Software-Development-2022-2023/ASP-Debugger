@@ -17,28 +17,44 @@ class DebugDirectives {
         this.reset();
         let __this = this;
         return input_program.replace(/^\s*%#(.*)$/gm, function (dir_match, dir_content) {
-            let dir_content_match = dir_content.match(/^debug\s+default\s*=\s*(rules_only|facts_only|all|none)\s*\.\s*$/);
-            if (dir_content_match == null)
+            if (!__this.__parseDefaultPolicyDirective(dir_content) &&
+                !__this.__parseMissingSupportDirective(dir_content))
                 throw new DebugDirectiveError('Directive "' + dir_match + '" not supported.');
-            __this.reset();
-            const policy = dir_content_match[1];
-            if (policy === 'facts_only')
-                __this.defaultAdornerPolicy = adorner_1.DefaultAdornerPolicy.FACTS_ONLY;
-            else if (policy === 'all')
-                __this.defaultAdornerPolicy = adorner_1.DefaultAdornerPolicy.ALL;
-            else if (policy === 'none') {
-                __this.defaultAdornerPolicy = adorner_1.DefaultAdornerPolicy.ALL;
-                __this.negateDefaultAdornerPolicy = true;
-            }
             return '';
         });
+    }
+    __parseDefaultPolicyDirective(dir_content) {
+        let dir_content_match = dir_content.match(/^debug\s+default\s*=\s*(rules_only|facts_only|all|none)\s*\.\s*$/);
+        if (dir_content_match == null)
+            return false;
+        this.reset();
+        const policy = dir_content_match[1];
+        if (policy === 'facts_only')
+            this.defaultAdornerPolicy = adorner_1.DefaultAdornerPolicy.FACTS_ONLY;
+        else if (policy === 'all')
+            this.defaultAdornerPolicy = adorner_1.DefaultAdornerPolicy.ALL;
+        else if (policy === 'none') {
+            this.defaultAdornerPolicy = adorner_1.DefaultAdornerPolicy.ALL;
+            this.negateDefaultAdornerPolicy = true;
+        }
+        return true;
+    }
+    __parseMissingSupportDirective(dir_content) {
+        let dir_content_match = dir_content.match(/^debug\s+support\s*=\s*none\s*\.\s*$/);
+        if (dir_content_match == null)
+            return false;
+        this.reset();
+        this.missingSupportEnabled = false;
+        return true;
     }
     reset() {
         this.defaultAdornerPolicy = adorner_1.DefaultAdornerPolicy.RULES_ONLY;
         this.negateDefaultAdornerPolicy = false;
+        this.missingSupportEnabled = true;
     }
     getDefaultAdornerPolicy() { return this.defaultAdornerPolicy; }
     isNegateDefaultAdornerPolicy() { return this.negateDefaultAdornerPolicy; }
+    isMissingSupportEnabled() { return this.missingSupportEnabled; }
     getStartingDebugRuleAnnotation() {
         if (this.defaultAdornerPolicy == adorner_1.DefaultAdornerPolicy.ALL &&
             this.negateDefaultAdornerPolicy)
@@ -48,6 +64,7 @@ class DebugDirectives {
     constructor() {
         this.defaultAdornerPolicy = adorner_1.DefaultAdornerPolicy.RULES_ONLY;
         this.negateDefaultAdornerPolicy = false;
+        this.missingSupportEnabled = true;
     }
 }
 exports.DebugDirectives = DebugDirectives;
