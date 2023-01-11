@@ -35,5 +35,5 @@ jobs:
         git config --global user.name "${{ env.COMMIT_AUTHOR }}"
         git config --global user.email "MatteoPuccio@users.noreply.github.com"
         git add out
-        git commit -m "${{ env.COMMIT_MESSAGE }}"
+        git diff --staged --quiet || git commit -m "${{ env.COMMIT_MESSAGE }}"
         git push
