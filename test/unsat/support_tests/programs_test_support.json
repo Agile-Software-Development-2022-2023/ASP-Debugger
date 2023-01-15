@@ -1,0 +1,14 @@
+{"test":[
+    {
+        "problem_path" : "test/unsat/support_tests/workingProgram.smodels",
+        "output": "1 4 0 0\n1 5 0 0\n1 8 1 0 4\n1 9 1 0 5\n1 10 2 0 6 8\n1 11 2 0 7 9\n1 14 1 0 4\n1 15 1 0 5\n1 11 2 0 12 14\n1 16 2 0 13 15\n8 3 20 21 22 2 0 17 10\n8 3 23 24 25 2 0 18 11\n8 3 26 27 28 2 0 19 16\n1 1 4 0 29 4 23 20\n1 1 4 0 30 4 24 21\n1 1 4 0 31 4 25 22\n1 1 4 0 32 5 26 23\n1 1 4 0 33 5 27 24\n1 1 4 0 34 5 28 25\n3 13 6 7 12 13 17 18 19 29 30 31 32 33 34 0 0\n1 4 1 1 35\n1 5 1 1 36\n1 10 1 1 37\n1 11 1 1 38\n1 16 1 1 39\n1 20 1 1 40\n1 21 1 1 41\n1 22 1 1 42\n1 23 1 1 43\n1 24 1 1 44\n1 25 1 1 45\n1 26 1 1 46\n1 27 1 1 47\n1 28 1 1 48\n0\n4 arc(1,2)\n5 arc(2,3)\n6 _debug1(1)\n7 _debug1(2)\n10 node(1)\n11 node(2)\n12 _debug2(2)\n13 _debug2(3)\n16 node(3)\n17 _debug3(1)\n18 _debug3(2)\n19 _debug3(3)\n20 col(1,red)\n21 col(1,yellow)\n22 col(1,blue)\n23 col(2,red)\n24 col(2,yellow)\n25 col(2,blue)\n26 col(3,red)\n27 col(3,yellow)\n28 col(3,blue)\n29 _debug4(1,red,2,red)\n30 _debug4(1,yellow,2,yellow)\n31 _debug4(1,blue,2,blue)\n32 _debug4(2,red,3,red)\n33 _debug4(2,yellow,3,yellow)\n34 _debug4(2,blue,3,blue)\n35 _support(arc(1,2))\n36 _support(arc(2,3))\n37 _support(node(1))\n38 _support(node(2))\n39 _support(node(3))\n40 _support(col(1,red))\n41 _support(col(1,yellow))\n42 _support(col(1,blue))\n43 _support(col(2,red))\n44 _support(col(2,yellow))\n45 _support(col(2,blue))\n46 _support(col(3,red))\n47 _support(col(3,yellow))\n48 _support(col(3,blue))\n0\nB+\n0\nB-\n1\n0\n1"
+    },
+    {
+        "problem_path" : "test/unsat/support_tests/notWorkingProgram.smodels",
+        "output": "ERRORE"
+    },
+    {
+        "problem_path" : "test/unsat/support_tests/weirdWorkingProgram.smodels",
+        "output": "NOT A RULE\nNOT A RULE 2\nNOT A RULE 3\n1 11010106 1 1 311321121313\n1 2123120 1 1 311321121314\n1 21 1 1 311321121315\n1 2123122 1 1 311321121316\n1 23 1 1 311321121317\n1 24 1 1 311321121318\n1 2123125 1 1 311321121319\n1 26 1 1 311321121320\n1 2123127 1 1 311321121321\n1 28 1 1 311321121322\n0\n09000 STRANGE FORMAT\n11010106 node(3)\n17 _debug3(1)\n18 _debug3(2)\n123213219 _debug3(3)\n2123120 col(1,red)\n21 col(1,yellow)\n2123122 col(1,blue)\n23 col(2,red)\n24 col(2,yellow)\n2123125 col(2,blue)\n26 col(3,red)\n2123127 col(3,yellow)\n28 col(3,blue)\n2123129 _debug4(1,red,2,red)\n30 _debug4(1,yellow,2,yellow)\n311321121312 _debug4(1,blue,2,blue)\n3132133122 _debug4(2,red,3,red)\n33 _debug4(2,yellow,3,yellow)\n1000034 _debug4(2,blue,3,blue)\n311321121313 _support(node(3))\n311321121314 _support(col(1,red))\n311321121315 _support(col(1,yellow))\n311321121316 _support(col(1,blue))\n311321121317 _support(col(2,red))\n311321121318 _support(col(2,yellow))\n311321121319 _support(col(2,blue))\n311321121320 _support(col(3,red))\n311321121321 _support(col(3,yellow))\n311321121322 _support(col(3,blue))\n0\n0\n0\n0\n0\n0\n0\n0\nNOT A NORMAL SMODELS PROGRAM FORMAT\n0\n0\n0\n0\n0\n0\n1\n\n"
+    }
+]}

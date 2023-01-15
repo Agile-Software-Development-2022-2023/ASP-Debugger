@@ -9,10 +9,12 @@ export declare class AdornedDebugProgramBuilder {
     protected adornerImpl: AdornerImplementation;
     protected stringPlaceholder: Map<string, string>;
     protected logic_program: string;
+    private supportRuleMapper;
     constructor(logic_program?: string, policy?: DefaultAdornerPolicy);
     setDefaultPolicy(policy: DefaultAdornerPolicy): void;
     getDebugPredicate(): string;
     setDebugPredicate(pred: string): void;
+    getSupportRuleMap(): Map<string, Set<string>>;
     private replaceAll;
     removeComments(): void;
     getVariables(ruleBody: string): Array<string>;
@@ -26,4 +28,4 @@ export declare class AdornedDebugProgramBuilder {
     adornProgram(): void;
     getDebugAtomsMap(): Map<string, DebugAtom>;
 }
-export declare function addDebugAtomsChoiceRule(rules: string, atoms: string, predicate: string): string;
+export declare function addDebugAtomsChoiceRule(rules: string, atoms: string, debug_predicate: string, support_predicate: string): string;

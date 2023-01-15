@@ -1,0 +1,41 @@
+NOT A RULE
+NOT A RULE 2
+NOT A RULE 3
+0
+09000 STRANGE FORMAT
+11010106 node(3)
+17 _debug3(1)
+18 _debug3(2)
+123213219 _debug3(3)
+2123120 col(1,red)
+21 col(1,yellow)
+2123122 col(1,blue)
+23 col(2,red)
+24 col(2,yellow)
+2123125 col(2,blue)
+26 col(3,red)
+2123127 col(3,yellow)
+28 col(3,blue)
+2123129 _debug4(1,red,2,red)
+30 _debug4(1,yellow,2,yellow)
+311321121312 _debug4(1,blue,2,blue)
+3132133122 _debug4(2,red,3,red)
+33 _debug4(2,yellow,3,yellow)
+1000034 _debug4(2,blue,3,blue)
+0
+0
+0
+0
+0
+0
+0
+0
+NOT A NORMAL SMODELS PROGRAM FORMAT
+0
+0
+0
+0
+0
+0
+1
+

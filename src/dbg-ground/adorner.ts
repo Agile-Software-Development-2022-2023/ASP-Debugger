@@ -1,9 +1,10 @@
 import { AdornAllImplementation, AdornerImplementation, FactsOnlyImplementation, RulesOnlyImplementation } from "./AdornerImplementation";
-import { DebugAtom } from "./asp_core";
+import { DebugAtom, Predicate } from "./asp_core";
 import { freezeStrings, restoreStrings } from "./asp_utils";
 import { DebugRuleAnnotation } from "./dbg_annotation";
 import { ASP_REGEX } from "./Useful_regex";
 import { DebugDirectives } from "./dbg_directives";
+import { SupportRuleMapper } from "../support/support_mapper";
 
 export enum DefaultAdornerPolicy
 {
@@ -17,11 +18,13 @@ export class AdornedDebugProgramBuilder
 	protected adornerImpl: AdornerImplementation;
 	protected stringPlaceholder: Map<string, string>;
 	protected logic_program: string;
+	private   supportRuleMapper: SupportRuleMapper;
 
     public constructor(logic_program: string = '', policy: DefaultAdornerPolicy = DefaultAdornerPolicy.RULES_ONLY)
     {
 		this.stringPlaceholder = new Map<string, string>();
 		this.logic_program = logic_program;
+		this.supportRuleMapper = new SupportRuleMapper();
 		this.setDefaultPolicy(policy);
     }
 
@@ -44,6 +47,7 @@ export class AdornedDebugProgramBuilder
 
     public getDebugPredicate():string{return this.adornerImpl.getDebugPredicate(); }
 	public setDebugPredicate(pred : string):void{ this.adornerImpl.setDebugPredicate(pred); }
+	public getSupportRuleMap(): Map<string, Set<string>> { return this.supportRuleMapper.getMap(); }
     //public getLogicProgram(): string { return logic_program; }
 	//public setLogicProgram(input_program: string){ logic_program = input_program;this.debug_predicate = "_debug";}
 
@@ -138,6 +142,8 @@ export class AdornedDebugProgramBuilder
 					this.adornerImpl.copyRuleAsItIs(rule);
 				return;
 			}
+
+			this.supportRuleMapper.mapRule(rule);
 			
 			if (rule.includes(":-")) {
 				this.adornerImpl.adornSimpleRules(rule);
@@ -164,10 +170,10 @@ export class AdornedDebugProgramBuilder
     //public adornRules(): Map<string, DebugAtom> { return null; }
 }
 
-export function addDebugAtomsChoiceRule(rules: string, atoms: string, predicate: string): string {
+export function addDebugAtomsChoiceRule(rules: string, atoms: string, debug_predicate: string, support_predicate: string): string {
 	let placeholders: Map<string, string>  = new Map<string, string>();
 
-	let id_of_debug: Array<string> = atoms.match(new RegExp(`^([0-9]+) ${predicate}.*\n`, "gm"));
+	let id_of_debug: Array<string> = atoms.match(new RegExp(`^([0-9]+) (${debug_predicate}|${support_predicate}).*\n`, "gm"));
 	if ( id_of_debug == null )
 		return '';
 	

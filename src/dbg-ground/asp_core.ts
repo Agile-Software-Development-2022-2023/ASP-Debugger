@@ -57,3 +57,38 @@ export class DebugAtom
     public getNonGroundRule(): string  { return this.nonground_rule; }
     public setNonGroundRule(nonground_rule: string)   { this.nonground_rule = nonground_rule; }
 }
+
+export class Predicate
+{
+    private predicateName: string;
+    private predicateArity: number;
+
+    public constructor(predName: string, predArity: number = 0)
+    {
+        this.predicateName = predName;
+        this.predicateArity = predArity;
+    }
+    
+    public equals(other) {
+        return this.predicateName === other.predicateName && other.predicateArity === this.predicateArity;
+     };
+
+    public getPredicateName(): string  { return this.predicateName; }
+    public getPredicateArity(): number { return this.predicateArity; }
+
+    public static getFromAtom( atom: string ): Predicate
+    {
+        let matches = atom.match(/\s*([a-z\-_][a-zA-Z0-9_]*)\s*(\(([\sa-zA-Z0-9_,\-#\(\)\.]*)\))?\s*/);
+        if ( matches == null ) return null;
+
+        let predname: string = matches[1];
+        let termslist: string = matches[3];
+
+        if ( termslist == undefined ) return new Predicate(predname);
+        
+        termslist = termslist.replace(/\((.|\n)*?\)/g, '');
+        return new Predicate(predname, termslist.split(',').length);
+    }
+
+    public getPredString(): string { return this.predicateName + '/' + this.predicateArity.toString(); }
+}
