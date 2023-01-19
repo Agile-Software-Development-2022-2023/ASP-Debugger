@@ -42,14 +42,18 @@ abstract class ExternalAspGrounder extends AspGrounder
         if ( !grounder_proc.stdout )
             throw new AspGrounderError('Invalid external grounder exec:\n\t' + grounder_proc.toString());
 
-            if ( grounder_proc.stderr  && grounder_proc.stderr.match(/not\sfound|error/i))
+        if ( grounder_proc.stderr  && grounder_proc.stderr.match(/not\sfound|error/i))
             throw new AspGrounderError(grounder_proc.stderr);
+
+        if ( this.errorOnStdout(grounder_proc.stdout) )
+            throw new AspGrounderError(grounder_proc.stdout);
         
         return grounder_proc.stdout;
     }
 
     protected abstract getGrounderCommand(): string;
     protected abstract getGrounderOptions(): string;
+    protected abstract errorOnStdout( stdout: string ): boolean;
 }
 
 export class AspGrounderGringo extends ExternalAspGrounder
@@ -59,6 +63,7 @@ export class AspGrounderGringo extends ExternalAspGrounder
 
     protected getGrounderCommand(): string { return AspGrounderGringo.GRINGO_COMMAND; }
     protected getGrounderOptions(): string { return AspGrounderGringo.GRINGO_OPTIONS; }
+    protected errorOnStdout(stdout: string): boolean { return false; }
 }
 
 export class AspGrounderIdlv extends ExternalAspGrounder
@@ -68,6 +73,8 @@ export class AspGrounderIdlv extends ExternalAspGrounder
 
     protected getGrounderCommand(): string { return this.idlv_command; }
     protected getGrounderOptions(): string { return this.idlv_options; }
+    protected errorOnStdout(stdout: string): boolean { return stdout.match(/(STDIN:|-->)/) != null; }
+
     constructor(){
         super();
         this.idlv_options = '--stdin --output 0';
@@ -93,7 +100,6 @@ export class AspGrounderIdlv extends ExternalAspGrounder
 export class TheoreticalAspGrounder extends AspGrounder
 {
     private grounder: AspGrounder;
-    private stringsMap: Map<string, string>;
 
     public constructor( grnd: AspGrounder )
         { super(); this.grounder = grnd; }
@@ -113,10 +119,33 @@ export class TheoreticalAspGrounder extends AspGrounder
     
     protected rewriteFacts(input_program: string): string
     {
-        //const df_predname: string = this.getDisjFactPredName(input_program);
-        return input_program.replace(
-            /(?<=^|\.|\])(\s*[a-z\-_][a-zA-Z0-9_]*\s*(\([\sa-zA-Z0-9_,\-#\(\)\.]*?\))?\s*)\./g,
-            "$1 :- _df.") + "\n_df | -_df.";
+        // rewrite all facts from input program.
+        let facts: Set<string> = new Set<string>();
+        input_program = input_program.replace(/(?<=^|\.|\])(\s*-?[a-z_][a-zA-Z0-9_]*\s*(\([\sa-zA-Z0-9_,\-#\(\)\.]*?\))?\s*)\./g,
+            function( match, atom )
+            {
+                facts.add( atom.trim() );
+                return atom + " :- _df.";
+            });
+        
+        // rewrite all ground atoms (not facts) from input program.
+        let allmatches = input_program.matchAll(/(\s*-?[a-z_][a-zA-Z0-9_]*\s*(\([\sa-zA-Z0-9_,\-#\(\)\.]*?\))?\s*)(\.|,|\||:)/g);
+        let groundAtoms: Set<string> = new Set<string>();
+
+        for ( let match of allmatches )
+        {
+            let atom = match[1].trim();
+            if ( !atom.match(/[^_a-z0-9]([A-Z]|_[^_a-zA-Z0-9])/g) && !facts.has(atom) && atom !== '_df' && atom !== '-_df' )  // constant atom that is not a fact...
+                groundAtoms.add(atom);
+        }
+
+        for ( let atom of groundAtoms )
+            input_program += "\n" + atom + " :- _da.";
+        
+        if ( facts.size !== 0 )       input_program += "\n_df | -_df.";
+        if ( groundAtoms.size !== 0 ) input_program += "\n_da | -_da.";
+        
+        return input_program;
     }    
 
     protected nullifyFactRewritings(ground_program: string): string
@@ -128,28 +157,67 @@ export class TheoreticalAspGrounder extends AspGrounder
             let symbols:  string   = sections[1];
             
             //
-            // rewrite symbol table
+            // disjunctive facts rewritings
             //
-            const posDisjFactRegexp  : RegExp = new RegExp('^(\\d+) _df\\n' , 'gm');
-            const negDisjFactRegexp  : RegExp = new RegExp('^(\\d+) -_df\\n', 'gm');
-            const pos_disj_atom_code: string = posDisjFactRegexp.exec(symbols)[1];
-            const neg_disj_atom_code: string = negDisjFactRegexp.exec(symbols)[1];
-            symbols = symbols.replace(posDisjFactRegexp, '');
-            symbols = symbols.replace(negDisjFactRegexp, '');
+            try
+            {
+                //
+                // rewrite symbol table
+                //
+                const posDisjFactRegexp  : RegExp = new RegExp('^(\\d+) _df\\n' , 'gm');
+                const negDisjFactRegexp  : RegExp = new RegExp('^(\\d+) -_df\\n', 'gm');
+                const pos_disj_fact_code: string = posDisjFactRegexp.exec(symbols)[1];
+                const neg_disj_fact_code: string = negDisjFactRegexp.exec(symbols)[1];
+                symbols = symbols.replace(posDisjFactRegexp, '');
+                symbols = symbols.replace(negDisjFactRegexp, '');
 
+                //
+                // rewrite rules
+                //
+                const disjFactRuleRegexp  : RegExp = new RegExp('^1 (\\d+) 1 0 ' + pos_disj_fact_code + '$', 'gm');
+                const dfConstraintRuleRegexp: RegExp = 
+                    new RegExp('^1 1 2 0 (' + pos_disj_fact_code + ' ' + neg_disj_fact_code + '|'
+                                            + neg_disj_fact_code + ' ' + pos_disj_fact_code + ')\\n', 'gm');
+                const dfDisjuncRuleRegexp   : RegExp = 
+                    new RegExp('^8 2 (' + pos_disj_fact_code + ' ' + neg_disj_fact_code + '|'
+                                        + neg_disj_fact_code + ' ' + pos_disj_fact_code + ') 0 0\\n', 'gm');
+                rules = rules.replace(disjFactRuleRegexp, '1 $1 0 0');
+                rules = rules.replace(dfConstraintRuleRegexp, '');
+                rules = rules.replace(dfDisjuncRuleRegexp, '');
+            }
+            catch (err) {}
+            
             //
-            // rewrite rules
+            // disjunctive facts rewritings
             //
-            const disjFactRuleRegexp  : RegExp = new RegExp('^1 (\\d+) 1 0 ' + pos_disj_atom_code + '$', 'gm');
-            const constraintRuleRegexp: RegExp = 
-                new RegExp('^1 1 2 0 (' + pos_disj_atom_code + ' ' + neg_disj_atom_code + '|'
-                                        + neg_disj_atom_code + ' ' + pos_disj_atom_code + ')\\n', 'gm');
-            const disjuncRuleRegexp   : RegExp = 
-                new RegExp('^8 2 (' + pos_disj_atom_code + ' ' + neg_disj_atom_code + '|'
-                                    + neg_disj_atom_code + ' ' + pos_disj_atom_code + ') 0 0\\n', 'gm');
-            rules = rules.replace(disjFactRuleRegexp, '1 $1 0 0');
-            rules = rules.replace(constraintRuleRegexp, '');
-            rules = rules.replace(disjuncRuleRegexp, '');
+            try
+            {
+                //
+                // rewrite symbol table
+                //
+                const posDisjAtomRegexp  : RegExp = new RegExp('^(\\d+) _da\\n' , 'gm');
+                const negDisjAtomRegexp  : RegExp = new RegExp('^(\\d+) -_da\\n', 'gm');
+                const pos_disj_atom_code: string = posDisjAtomRegexp.exec(symbols)[1];
+                const neg_disj_atom_code: string = negDisjAtomRegexp.exec(symbols)[1];
+                symbols = symbols.replace(posDisjAtomRegexp, '');
+                symbols = symbols.replace(negDisjAtomRegexp, '');
+
+                //
+                // rewrite rules
+                //
+                const disjAtomRuleRegexp  : RegExp = new RegExp('^1 (\\d+) 1 0 ' + pos_disj_atom_code + '\n', 'gm');
+                const daConstraintRuleRegexp: RegExp = 
+                    new RegExp('^1 1 2 0 (' + pos_disj_atom_code + ' ' + neg_disj_atom_code + '|'
+                                            + neg_disj_atom_code + ' ' + pos_disj_atom_code + ')\\n', 'gm');
+                const daDisjuncRuleRegexp   : RegExp = 
+                    new RegExp('^8 2 (' + pos_disj_atom_code + ' ' + neg_disj_atom_code + '|'
+                                        + neg_disj_atom_code + ' ' + pos_disj_atom_code + ') 0 0\\n', 'gm');
+                rules = rules.replace(disjAtomRuleRegexp, '');
+                rules = rules.replace(daConstraintRuleRegexp, '');
+                rules = rules.replace(daDisjuncRuleRegexp, '');
+            }
+            catch (err) {}
+            
 
             sections[0] = rules;
             sections[1] = symbols;

@@ -24,7 +24,7 @@ describe('MUSes calculator for missing support', function()
             ['_support(1)', new Set(
                 ['_support(X) :- b(X)', 
                  '_support(X) | _a(X,Y) :- b(X), b(Y)',
-                 '1 <= \n{ _support(X) } \n<= 2 :- b(X), b(Y)',
+                 '0 <= \n{ _support(X) } \n<= 2 :- b(X), b(Y)',
                  '{ _support(X): \nb(X), b(Y); _support(3) }'])]
         ])        
         },
@@ -37,6 +37,29 @@ describe('MUSes calculator for missing support', function()
         {
         input_program: 'test/unsat/support_tests/missing_support_5.lp',
         expected_missing_support: new Map<string, Set<string>>()        
+        },
+
+        {
+        input_program: 'test/unsat/support_tests/missing_support_6.lp',
+        expected_missing_support: new Map<string, Set<string>>([
+            ['d(1)', new Set(['d(X) :- f(X,Y), a(Y)'])]
+        ])        
+        },
+
+        {
+        input_program: 'test/unsat/support_tests/missing_support_7.lp',
+        expected_missing_support: new Map<string, Set<string>>([
+            ['f',    new Set()],
+            ['p(1)', new Set(['p(1) :- f'])],
+            ['q(1)', new Set(['q(1) :- f'])]
+        ])        
+        },
+
+        {
+        input_program: 'test/unsat/support_tests/missing_support_8.lp',
+        expected_missing_support: new Map<string, Set<string>>([
+            ['q(1)', new Set(['q(1) :- k(1,2)'])]
+        ])        
         },
 
         {
@@ -67,6 +90,20 @@ describe('MUSes calculator for missing support', function()
         {
             let musesCalculator: MUSesCalculator = new MUSesCalculator();
             musesCalculator.calculateMUSes( [test_case], 1 );
+            assert.deepStrictEqual( musesCalculator.getMissingSupportRulesFromMUS(0), new Map<string, Set<string>>() );
+        });
+    });
+
+    [
+        'test/unsat/support_tests/error.lp'
+    ]
+    .forEach( function(test_case)
+    {
+        it('Throws an error in case of a not valid input program.', function()
+        {
+            let musesCalculator: MUSesCalculator = new MUSesCalculator();
+            const run_musescalc = () => musesCalculator.calculateMUSes( [test_case], 1 );
+            assert.throws(run_musescalc, Error);
             assert.deepStrictEqual( musesCalculator.getMissingSupportRulesFromMUS(0), new Map<string, Set<string>>() );
         });
     });

@@ -279,7 +279,9 @@ describe('Theoretical ASP grounder rewritings [pre-grounding]', function()
 		"_b :- _df.\n" +
 		"aBJi91ed :- _df.\n" +
 		"d :- a.\n" +
-		"_df | -_df."
+        "d :- _da.\n" +
+		"_df | -_df.\n" +
+        "_da | -_da."
         },
 
         {
@@ -293,19 +295,23 @@ describe('Theoretical ASP grounder rewritings [pre-grounding]', function()
         "_b       :- _df.\n" + 
 		"     aBJi91ed     :- _df.\n" +
 		"d :- a.\n" +
-		"_df | -_df."
+        "d :- _da.\n" +
+		"_df | -_df.\n" +
+        "_da | -_da."
         },
 
         {
         input_program:
         "a\n.     b.   c.   \n" +
 	    "   d. e.f.g.\n" +
-		"x :-\n a",
+		"x :-\n a.",
         expected:
         "a\n :- _df.     b :- _df.   c :- _df.   \n" +
         "   d :- _df. e :- _df.f :- _df.g :- _df.\n" +
-        "x :-\n a\n" +
-        "_df | -_df."
+        "x :-\n a.\n" +
+        "x :- _da.\n" +
+        "_df | -_df.\n" +
+        "_da | -_da."
         },
 
         {
@@ -314,14 +320,16 @@ describe('Theoretical ASP grounder rewritings [pre-grounding]', function()
 		"pred(b,\nc).\n" +
 		"_pRed1\n(b).\n" +
 		"_pRed1(b,f(c,g(d))).\n" +
-		"a(X) :- pred(X).",
+		"a(X) :- pred(X), not k(1,2).",
         expected:
         "pred(f(a)\n) :- _df.\n" +
 		"pred(b,\nc) :- _df.\n" +
 		"_pRed1\n(b) :- _df.\n" +
 		"_pRed1(b,f(c,g(d))) :- _df.\n" +
-		"a(X) :- pred(X).\n" +
-		"_df | -_df."
+		"a(X) :- pred(X), not k(1,2).\n" +
+        "k(1,2) :- _da.\n" +
+		"_df | -_df.\n" +
+        "_da | -_da."
         },
 
         {
@@ -345,13 +353,15 @@ describe('Theoretical ASP grounder rewritings [pre-grounding]', function()
         "  pred(a). pred(b).    pred(c).\n" +
 		" pred(d).     pred1(e).pred2(f,g).\n" +
 		"    pred2  (a,   b ).pred2(  b, d).   pred3(a,b,   c  ).\n" +
-		"a(X) :- pred(X).",
+		"a(X) :- pred(X), k(1,f(2,3,4..5)).",
         expected:
         "  pred(a) :- _df. pred(b) :- _df.    pred(c) :- _df.\n" +
 		" pred(d) :- _df.     pred1(e) :- _df.pred2(f,g) :- _df.\n" +
 		"    pred2  (a,   b ) :- _df.pred2(  b, d) :- _df.   pred3(a,b,   c  ) :- _df.\n" +
-		"a(X) :- pred(X).\n" +
-		"_df | -_df."
+		"a(X) :- pred(X), k(1,f(2,3,4..5)).\n" +
+        "k(1,f(2,3,4..5)) :- _da.\n" +
+		"_df | -_df.\n" +
+        "_da | -_da."
         },
 
         {
@@ -404,7 +414,7 @@ describe('Theoretical ASP grounder rewritings [pre-grounding]', function()
 
         { // empty program
         input_program: '',
-        expected: "\n_df | -_df."
+        expected: ""
         }
     ]
     .forEach( function(test_case)

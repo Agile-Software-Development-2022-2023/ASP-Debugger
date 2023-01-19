@@ -64,8 +64,9 @@ export class MUSesCalculator {
             
             let unsupportedAtom: string = atom.match(/\((.*)\)/)[1].trim();
             let unsupportedAtomPred: Predicate = Predicate.getFromAtom(unsupportedAtom);
-            
-            missingSupportRulesMap.set( unsupportedAtom, this.supportRuleMap.get(unsupportedAtomPred.getPredString()) );
+            let unsupportedAtomPredString: string = unsupportedAtomPred.getPredString();
+            missingSupportRulesMap.set( unsupportedAtom, this.supportRuleMap.has(unsupportedAtomPredString) 
+                ? this.supportRuleMap.get(unsupportedAtomPredString) : new Set<string>() );
         }
         return missingSupportRulesMap;
     }
