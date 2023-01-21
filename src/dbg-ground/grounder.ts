@@ -99,7 +99,11 @@ export class AspGrounderIdlv extends ExternalAspGrounder
 
 export class TheoreticalAspGrounder extends AspGrounder
 {
+    private static DEFAULT_DISJ_FACT_PREDNAME = '_df';
+    private static DEFAULT_DISJ_ATOM_PREDNAME = '_da';
     private grounder: AspGrounder;
+    private disjFactPredName: string;
+    private disjAtomPredName: string;
 
     public constructor( grnd: AspGrounder )
         { super(); this.grounder = grnd; }
@@ -109,6 +113,8 @@ export class TheoreticalAspGrounder extends AspGrounder
         let stringsMap: Map<string, string> = new Map<string, string>();
         inputProgram = freezeStrings(inputProgram, stringsMap);
         inputProgram = this.removeComments(inputProgram);
+        this.disjFactPredName = make_unique(TheoreticalAspGrounder.DEFAULT_DISJ_FACT_PREDNAME, inputProgram);
+        this.disjAtomPredName = make_unique(TheoreticalAspGrounder.DEFAULT_DISJ_ATOM_PREDNAME, inputProgram);
         inputProgram = this.rewriteFacts(inputProgram);
         inputProgram = restoreStrings(inputProgram, stringsMap);
         return this.nullifyFactRewritings( this.grounder.ground(inputProgram) );
@@ -121,11 +127,12 @@ export class TheoreticalAspGrounder extends AspGrounder
     {
         // rewrite all facts from input program.
         let facts: Set<string> = new Set<string>();
+        let __this: TheoreticalAspGrounder = this;
         input_program = input_program.replace(/(?<=^|\.|\])(\s*-?[a-z_][a-zA-Z0-9_]*\s*(\([\sa-zA-Z0-9_,\-#\(\)\.]*?\))?\s*)\./g,
             function( match, atom )
             {
                 facts.add( atom.trim() );
-                return atom + " :- _df.";
+                return atom + ` :- ${__this.disjFactPredName}.`;
             });
         
         // rewrite all ground atoms (not facts) from input program.
@@ -135,15 +142,16 @@ export class TheoreticalAspGrounder extends AspGrounder
         for ( let match of allmatches )
         {
             let atom = match[1].trim();
-            if ( !atom.match(/[^_a-z0-9]([A-Z]|_[^_a-zA-Z0-9])/g) && !facts.has(atom) && atom !== '_df' && atom !== '-_df' )  // constant atom that is not a fact...
+            if ( !atom.match(/[^_a-z0-9]([A-Z]|_[^_a-zA-Z0-9])/g) && 
+                 !facts.has(atom) && atom !== this.disjFactPredName && atom !== this.disjFactPredName )  // constant atom that is not a fact...
                 groundAtoms.add(atom);
         }
 
         for ( let atom of groundAtoms )
-            input_program += "\n" + atom + " :- _da.";
+            input_program += "\n" + atom + ` :- ${this.disjAtomPredName}.`;
         
-        if ( facts.size !== 0 )       input_program += "\n_df | -_df.";
-        if ( groundAtoms.size !== 0 ) input_program += "\n_da | -_da.";
+        if ( facts.size !== 0 )       input_program += `\n${this.disjFactPredName} | -${this.disjFactPredName}.`;
+        if ( groundAtoms.size !== 0 ) input_program += `\n${this.disjAtomPredName} | -${this.disjAtomPredName}.`;
         
         return input_program;
     }    
@@ -164,8 +172,8 @@ export class TheoreticalAspGrounder extends AspGrounder
                 //
                 // rewrite symbol table
                 //
-                const posDisjFactRegexp  : RegExp = new RegExp('^(\\d+) _df\\n' , 'gm');
-                const negDisjFactRegexp  : RegExp = new RegExp('^(\\d+) -_df\\n', 'gm');
+                const posDisjFactRegexp  : RegExp = new RegExp(`^(\\d+) ${this.disjFactPredName}\\n` , 'gm');
+                const negDisjFactRegexp  : RegExp = new RegExp(`^(\\d+) -${this.disjFactPredName}\\n`, 'gm');
                 const pos_disj_fact_code: string = posDisjFactRegexp.exec(symbols)[1];
                 const neg_disj_fact_code: string = negDisjFactRegexp.exec(symbols)[1];
                 symbols = symbols.replace(posDisjFactRegexp, '');
@@ -195,8 +203,8 @@ export class TheoreticalAspGrounder extends AspGrounder
                 //
                 // rewrite symbol table
                 //
-                const posDisjAtomRegexp  : RegExp = new RegExp('^(\\d+) _da\\n' , 'gm');
-                const negDisjAtomRegexp  : RegExp = new RegExp('^(\\d+) -_da\\n', 'gm');
+                const posDisjAtomRegexp  : RegExp = new RegExp(`^(\\d+) ${this.disjAtomPredName}\\n` , 'gm');
+                const negDisjAtomRegexp  : RegExp = new RegExp(`^(\\d+) -${this.disjAtomPredName}\\n`, 'gm');
                 const pos_disj_atom_code: string = posDisjAtomRegexp.exec(symbols)[1];
                 const neg_disj_atom_code: string = negDisjAtomRegexp.exec(symbols)[1];
                 symbols = symbols.replace(posDisjAtomRegexp, '');

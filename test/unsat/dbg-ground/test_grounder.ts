@@ -334,6 +334,24 @@ describe('Theoretical ASP grounder rewritings [pre-grounding]', function()
 
         {
         input_program:
+        "df(f(a)\n).\n" +
+        "df(b,\nc).\n" +
+        "da\n(b).\n" +
+        "da(b,f(c,g(d))).\n" +
+        "a(X) :- df(X), not k(1,2).",
+        expected:
+        "df(f(a)\n) :- _df.\n" +
+        "df(b,\nc) :- _df.\n" +
+        "da\n(b) :- _df.\n" +
+        "da(b,f(c,g(d))) :- _df.\n" +
+        "a(X) :- df(X), not k(1,2).\n" +
+        "k(1,2) :- _da.\n" +
+        "_df | -_df.\n" +
+        "_da | -_da."
+        },
+
+        {
+        input_program:
         "  pred (a ).\n" +
 		"pred(  b,c    )   .\n" +
 		"   _pRed1   (b)  .\n" +
@@ -362,6 +380,22 @@ describe('Theoretical ASP grounder rewritings [pre-grounding]', function()
         "k(1,f(2,3,4..5)) :- _da.\n" +
 		"_df | -_df.\n" +
         "_da | -_da."
+        },
+
+        {
+        input_program:
+        "  _df(a). _df(b).    _df(c).\n" +
+        " _df(d).     pred1(e).-_da(f,g).\n" +
+        "    -_da  (a,   b ).-_da(  b, d).   pred3(a,b,   c  ).\n" +
+        "a(X) :- _df(X), k(1,f(2,3,4..5)).",
+        expected:
+        "  _df(a) :- __df. _df(b) :- __df.    _df(c) :- __df.\n" +
+        " _df(d) :- __df.     pred1(e) :- __df.-_da(f,g) :- __df.\n" +
+        "    -_da  (a,   b ) :- __df.-_da(  b, d) :- __df.   pred3(a,b,   c  ) :- __df.\n" +
+        "a(X) :- _df(X), k(1,f(2,3,4..5)).\n" +
+        "k(1,f(2,3,4..5)) :- __da.\n" +
+        "__df | -__df.\n" +
+        "__da | -__da."
         },
 
         {
