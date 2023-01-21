@@ -9,24 +9,30 @@ declare abstract class ExternalAspGrounder extends AspGrounder {
     ground(inputProgram: string): string;
     protected abstract getGrounderCommand(): string;
     protected abstract getGrounderOptions(): string;
+    protected abstract errorOnStdout(stdout: string): boolean;
 }
 export declare class AspGrounderGringo extends ExternalAspGrounder {
     private static GRINGO_COMMAND;
     private static GRINGO_OPTIONS;
     protected getGrounderCommand(): string;
     protected getGrounderOptions(): string;
+    protected errorOnStdout(stdout: string): boolean;
 }
 export declare class AspGrounderIdlv extends ExternalAspGrounder {
     private idlv_command;
     private idlv_options;
     protected getGrounderCommand(): string;
     protected getGrounderOptions(): string;
+    protected errorOnStdout(stdout: string): boolean;
     constructor();
     ground(inputProgram: string): string;
 }
 export declare class TheoreticalAspGrounder extends AspGrounder {
+    private static DEFAULT_DISJ_FACT_PREDNAME;
+    private static DEFAULT_DISJ_ATOM_PREDNAME;
     private grounder;
-    private stringsMap;
+    private disjFactPredName;
+    private disjAtomPredName;
     constructor(grnd: AspGrounder);
     ground(inputProgram: string): string;
     protected removeComments(input_program: string): string;

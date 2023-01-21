@@ -41,12 +41,15 @@ class ExternalAspGrounder extends AspGrounder {
             throw new AspGrounderError('Invalid external grounder exec:\n\t' + grounder_proc.toString());
         if (grounder_proc.stderr && grounder_proc.stderr.match(/not\sfound|error/i))
             throw new AspGrounderError(grounder_proc.stderr);
+        if (this.errorOnStdout(grounder_proc.stdout))
+            throw new AspGrounderError(grounder_proc.stdout);
         return grounder_proc.stdout;
     }
 }
 class AspGrounderGringo extends ExternalAspGrounder {
     getGrounderCommand() { return AspGrounderGringo.GRINGO_COMMAND; }
     getGrounderOptions() { return AspGrounderGringo.GRINGO_OPTIONS; }
+    errorOnStdout(stdout) { return false; }
 }
 exports.AspGrounderGringo = AspGrounderGringo;
 AspGrounderGringo.GRINGO_COMMAND = 'gringo';
@@ -54,6 +57,7 @@ AspGrounderGringo.GRINGO_OPTIONS = '-o smodels';
 class AspGrounderIdlv extends ExternalAspGrounder {
     getGrounderCommand() { return this.idlv_command; }
     getGrounderOptions() { return this.idlv_options; }
+    errorOnStdout(stdout) { return stdout.match(/(STDIN:|-->)/) != null; }
     constructor() {
         super();
         this.idlv_options = '--stdin --output 0';
@@ -81,14 +85,37 @@ class TheoreticalAspGrounder extends AspGrounder {
         let stringsMap = new Map();
         inputProgram = (0, asp_utils_1.freezeStrings)(inputProgram, stringsMap);
         inputProgram = this.removeComments(inputProgram);
+        this.disjFactPredName = (0, asp_utils_1.make_unique)(TheoreticalAspGrounder.DEFAULT_DISJ_FACT_PREDNAME, inputProgram);
+        this.disjAtomPredName = (0, asp_utils_1.make_unique)(TheoreticalAspGrounder.DEFAULT_DISJ_ATOM_PREDNAME, inputProgram);
         inputProgram = this.rewriteFacts(inputProgram);
         inputProgram = (0, asp_utils_1.restoreStrings)(inputProgram, stringsMap);
         return this.nullifyFactRewritings(this.grounder.ground(inputProgram));
     }
     removeComments(input_program) { return input_program.replace(/%.*$/gm, ''); }
     rewriteFacts(input_program) {
-        //const df_predname: string = this.getDisjFactPredName(input_program);
-        return input_program.replace(/(?<=^|\.|\])(\s*[a-z\-_][a-zA-Z0-9_]*\s*(\([\sa-zA-Z0-9_,\-#\(\)\.]*?\))?\s*)\./g, "$1 :- _df.") + "\n_df | -_df.";
+        // rewrite all facts from input program.
+        let facts = new Set();
+        let __this = this;
+        input_program = input_program.replace(/(?<=^|\.|\])(\s*-?[a-z_][a-zA-Z0-9_]*\s*(\([\sa-zA-Z0-9_,\-#\(\)\.]*?\))?\s*)\./g, function (match, atom) {
+            facts.add(atom.trim());
+            return atom + ` :- ${__this.disjFactPredName}.`;
+        });
+        // rewrite all ground atoms (not facts) from input program.
+        let allmatches = input_program.matchAll(/(\s*-?[a-z_][a-zA-Z0-9_]*\s*(\([\sa-zA-Z0-9_,\-#\(\)\.]*?\))?\s*)(\.|,|\||:)/g);
+        let groundAtoms = new Set();
+        for (let match of allmatches) {
+            let atom = match[1].trim();
+            if (!atom.match(/[^_a-z0-9]([A-Z]|_[^_a-zA-Z0-9])/g) &&
+                !facts.has(atom) && atom !== this.disjFactPredName && atom !== this.disjFactPredName) // constant atom that is not a fact...
+                groundAtoms.add(atom);
+        }
+        for (let atom of groundAtoms)
+            input_program += "\n" + atom + ` :- ${this.disjAtomPredName}.`;
+        if (facts.size !== 0)
+            input_program += `\n${this.disjFactPredName} | -${this.disjFactPredName}.`;
+        if (groundAtoms.size !== 0)
+            input_program += `\n${this.disjAtomPredName} | -${this.disjAtomPredName}.`;
+        return input_program;
     }
     nullifyFactRewritings(ground_program) {
         try {
@@ -96,25 +123,57 @@ class TheoreticalAspGrounder extends AspGrounder {
             let rules = sections[0];
             let symbols = sections[1];
             //
-            // rewrite symbol table
+            // disjunctive facts rewritings
             //
-            const posDisjFactRegexp = new RegExp('^(\\d+) _df\\n', 'gm');
-            const negDisjFactRegexp = new RegExp('^(\\d+) -_df\\n', 'gm');
-            const pos_disj_atom_code = posDisjFactRegexp.exec(symbols)[1];
-            const neg_disj_atom_code = negDisjFactRegexp.exec(symbols)[1];
-            symbols = symbols.replace(posDisjFactRegexp, '');
-            symbols = symbols.replace(negDisjFactRegexp, '');
+            try {
+                //
+                // rewrite symbol table
+                //
+                const posDisjFactRegexp = new RegExp(`^(\\d+) ${this.disjFactPredName}\\n`, 'gm');
+                const negDisjFactRegexp = new RegExp(`^(\\d+) -${this.disjFactPredName}\\n`, 'gm');
+                const pos_disj_fact_code = posDisjFactRegexp.exec(symbols)[1];
+                const neg_disj_fact_code = negDisjFactRegexp.exec(symbols)[1];
+                symbols = symbols.replace(posDisjFactRegexp, '');
+                symbols = symbols.replace(negDisjFactRegexp, '');
+                //
+                // rewrite rules
+                //
+                const disjFactRuleRegexp = new RegExp('^1 (\\d+) 1 0 ' + pos_disj_fact_code + '$', 'gm');
+                const dfConstraintRuleRegexp = new RegExp('^1 1 2 0 (' + pos_disj_fact_code + ' ' + neg_disj_fact_code + '|'
+                    + neg_disj_fact_code + ' ' + pos_disj_fact_code + ')\\n', 'gm');
+                const dfDisjuncRuleRegexp = new RegExp('^8 2 (' + pos_disj_fact_code + ' ' + neg_disj_fact_code + '|'
+                    + neg_disj_fact_code + ' ' + pos_disj_fact_code + ') 0 0\\n', 'gm');
+                rules = rules.replace(disjFactRuleRegexp, '1 $1 0 0');
+                rules = rules.replace(dfConstraintRuleRegexp, '');
+                rules = rules.replace(dfDisjuncRuleRegexp, '');
+            }
+            catch (err) { }
             //
-            // rewrite rules
+            // disjunctive facts rewritings
             //
-            const disjFactRuleRegexp = new RegExp('^1 (\\d+) 1 0 ' + pos_disj_atom_code + '$', 'gm');
-            const constraintRuleRegexp = new RegExp('^1 1 2 0 (' + pos_disj_atom_code + ' ' + neg_disj_atom_code + '|'
-                + neg_disj_atom_code + ' ' + pos_disj_atom_code + ')\\n', 'gm');
-            const disjuncRuleRegexp = new RegExp('^8 2 (' + pos_disj_atom_code + ' ' + neg_disj_atom_code + '|'
-                + neg_disj_atom_code + ' ' + pos_disj_atom_code + ') 0 0\\n', 'gm');
-            rules = rules.replace(disjFactRuleRegexp, '1 $1 0 0');
-            rules = rules.replace(constraintRuleRegexp, '');
-            rules = rules.replace(disjuncRuleRegexp, '');
+            try {
+                //
+                // rewrite symbol table
+                //
+                const posDisjAtomRegexp = new RegExp(`^(\\d+) ${this.disjAtomPredName}\\n`, 'gm');
+                const negDisjAtomRegexp = new RegExp(`^(\\d+) -${this.disjAtomPredName}\\n`, 'gm');
+                const pos_disj_atom_code = posDisjAtomRegexp.exec(symbols)[1];
+                const neg_disj_atom_code = negDisjAtomRegexp.exec(symbols)[1];
+                symbols = symbols.replace(posDisjAtomRegexp, '');
+                symbols = symbols.replace(negDisjAtomRegexp, '');
+                //
+                // rewrite rules
+                //
+                const disjAtomRuleRegexp = new RegExp('^1 (\\d+) 1 0 ' + pos_disj_atom_code + '\n', 'gm');
+                const daConstraintRuleRegexp = new RegExp('^1 1 2 0 (' + pos_disj_atom_code + ' ' + neg_disj_atom_code + '|'
+                    + neg_disj_atom_code + ' ' + pos_disj_atom_code + ')\\n', 'gm');
+                const daDisjuncRuleRegexp = new RegExp('^8 2 (' + pos_disj_atom_code + ' ' + neg_disj_atom_code + '|'
+                    + neg_disj_atom_code + ' ' + pos_disj_atom_code + ') 0 0\\n', 'gm');
+                rules = rules.replace(disjAtomRuleRegexp, '');
+                rules = rules.replace(daConstraintRuleRegexp, '');
+                rules = rules.replace(daDisjuncRuleRegexp, '');
+            }
+            catch (err) { }
             sections[0] = rules;
             sections[1] = symbols;
             return sections.join("0\n");
@@ -126,6 +185,8 @@ class TheoreticalAspGrounder extends AspGrounder {
     getDisjFactPredName(input_program) { return (0, asp_utils_1.make_unique)('_df', input_program); }
 }
 exports.TheoreticalAspGrounder = TheoreticalAspGrounder;
+TheoreticalAspGrounder.DEFAULT_DISJ_FACT_PREDNAME = '_df';
+TheoreticalAspGrounder.DEFAULT_DISJ_ATOM_PREDNAME = '_da';
 class AspGrounderFactory {
     static getInstance() {
         if (AspGrounderFactory.instance == null)

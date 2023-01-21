@@ -51,7 +51,9 @@ class MUSesCalculator {
                 continue;
             let unsupportedAtom = atom.match(/\((.*)\)/)[1].trim();
             let unsupportedAtomPred = asp_core_1.Predicate.getFromAtom(unsupportedAtom);
-            missingSupportRulesMap.set(unsupportedAtom, this.supportRuleMap.get(unsupportedAtomPred.getPredString()));
+            let unsupportedAtomPredString = unsupportedAtomPred.getPredString();
+            missingSupportRulesMap.set(unsupportedAtom, this.supportRuleMap.has(unsupportedAtomPredString)
+                ? this.supportRuleMap.get(unsupportedAtomPredString) : new Set());
         }
         return missingSupportRulesMap;
     }
