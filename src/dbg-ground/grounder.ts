@@ -111,7 +111,7 @@ export class TheoreticalAspGrounder extends AspGrounder
     public ground(inputProgram: string): string
     {
         let stringsMap: Map<string, string> = new Map<string, string>();
-        inputProgram = freezeStrings(inputProgram, stringsMap);
+        inputProgram = freezeStrings(inputProgram, stringsMap).replace(new RegExp(/\r\n/gm ), '\n');
         inputProgram = this.removeComments(inputProgram);
         this.disjFactPredName = make_unique(TheoreticalAspGrounder.DEFAULT_DISJ_FACT_PREDNAME, inputProgram);
         this.disjAtomPredName = make_unique(TheoreticalAspGrounder.DEFAULT_DISJ_ATOM_PREDNAME, inputProgram);

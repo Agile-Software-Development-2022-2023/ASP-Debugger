@@ -138,6 +138,7 @@ export class RewritingBasedDebugGrounder extends DebugGrounder
     {
         let debugDirectives: DebugDirectives = DebugDirectives.getInstance();
         let input_program: string = AspGrounder.loadProgram(this.encodings);
+        input_program = input_program.replace(new RegExp(/\r\n/gm), '\n');
         input_program = debugDirectives.parseDirectives(input_program);
 
         this.support_predicate = make_unique(this.support_predicate, input_program);
@@ -168,7 +169,7 @@ export class RewritingBasedDebugGrounder extends DebugGrounder
         //
         this.adornedProgram = nongroundDebugProgBuilder.getAdornedProgram();
         let ground_prog: string = AspGrounderFactory.getInstance().getTheoretical().ground(this.adornedProgram);
-
+        ground_prog = ground_prog.replace(new RegExp(/\r\n/gm), '\n');
         //
         // adorn ground program for support
         //
