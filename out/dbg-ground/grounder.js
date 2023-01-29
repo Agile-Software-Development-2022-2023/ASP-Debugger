@@ -101,7 +101,7 @@ class TheoreticalAspGrounder extends AspGrounder {
             return atom + ` :- ${__this.disjFactPredName}.`;
         });
         // rewrite all ground atoms (not facts) from input program.
-        let allmatches = input_program.matchAll(/(\s*-?[a-z_][a-zA-Z0-9_]*\s*(\([\sa-zA-Z0-9_,\-#\(\)\.]*?\))?\s*)(\.|,|\||:)/g);
+        let allmatches = input_program.matchAll(/(\s*-?([a-z]|_+[a-z])[a-zA-Z0-9_]*\s*(\([\sa-zA-Z0-9_,\-#\(\)\.]*?\))?\s*)(\.|,|\||:)/g);
         let groundAtoms = new Set();
         for (let match of allmatches) {
             let atom = match[1].trim();

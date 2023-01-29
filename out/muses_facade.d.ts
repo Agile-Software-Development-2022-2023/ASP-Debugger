@@ -16,4 +16,5 @@ export declare class MUSesCalculator {
      * In case no rule is found, an empty set is returned.
      */
     getMissingSupportRulesFromMUS(musIndex: number): Map<string, Set<string>>;
+    getMusesCount(): number;
 }

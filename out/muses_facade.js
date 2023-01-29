@@ -57,6 +57,11 @@ class MUSesCalculator {
         }
         return missingSupportRulesMap;
     }
+    getMusesCount() {
+        if (!this.muses)
+            return 0;
+        return this.muses.length;
+    }
 }
 exports.MUSesCalculator = MUSesCalculator;
 //# sourceMappingURL=muses_facade.js.map
