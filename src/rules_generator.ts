@@ -81,7 +81,7 @@ export class RulesGenerator{
                 //get non-ground rule which will become ground after substitutions
                 let corresponding_ground_rule : string = corresponding_debug_atom.getNonGroundRule();
                 //remove aggregates from rule because they do not have to be shown in ground istances
-                let aggregates_regex = new RegExp('[^\\{.*:.*\\},]*\\{[^\\{.*:.*\\}]*?\\}[^\\{.*:.*\\},]*,?', 'g');
+                let aggregates_regex = new RegExp('[^\\{.*:.*\\},]*\\{.*:.*[^\\{\\}]*?\\}[^\\{.*:.*\\},]*,?', 'g');
                 corresponding_ground_rule = corresponding_ground_rule.replace(aggregates_regex, "");
                 //scroll all the rule and do the replace only where you are not in a string
                 let double_quotes_indexes : Array<number> = new Array<number>();
