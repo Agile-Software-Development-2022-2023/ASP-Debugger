@@ -6,6 +6,8 @@ class SupportAdorner {
     constructor(numeric_program, debug_predicate = '_debug', support_predicate = '_support') {
         this.output_program = "";
         this.numeric_program = numeric_program;
+        //since the next steps are based on \n character this transformation has always to be done
+        this.numeric_program = this.numeric_program.replace(new RegExp('\r\n', 'gm'), '\n');
         this.output_program = "";
         this.debug_predicate = debug_predicate;
         this.support_predicate = support_predicate;

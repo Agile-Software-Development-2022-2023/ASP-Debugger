@@ -102,6 +102,7 @@ class RewritingBasedDebugGrounder extends DebugGrounder {
     ground() {
         let debugDirectives = dbg_directives_1.DebugDirectives.getInstance();
         let input_program = grounder_1.AspGrounder.loadProgram(this.encodings);
+        input_program = input_program.replace(new RegExp(/\r\n/gm), '\n');
         input_program = debugDirectives.parseDirectives(input_program);
         this.support_predicate = (0, asp_utils_1.make_unique)(this.support_predicate, input_program);
         //
@@ -125,6 +126,7 @@ class RewritingBasedDebugGrounder extends DebugGrounder {
         //
         this.adornedProgram = nongroundDebugProgBuilder.getAdornedProgram();
         let ground_prog = grounder_1.AspGrounderFactory.getInstance().getTheoretical().ground(this.adornedProgram);
+        ground_prog = ground_prog.replace(new RegExp(/\r\n/gm), '\n');
         //
         // adorn ground program for support
         //

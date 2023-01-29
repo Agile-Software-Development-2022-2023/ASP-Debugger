@@ -83,7 +83,7 @@ class TheoreticalAspGrounder extends AspGrounder {
     constructor(grnd) { super(); this.grounder = grnd; }
     ground(inputProgram) {
         let stringsMap = new Map();
-        inputProgram = (0, asp_utils_1.freezeStrings)(inputProgram, stringsMap);
+        inputProgram = (0, asp_utils_1.freezeStrings)(inputProgram, stringsMap).replace(new RegExp(/\r\n/gm), '\n');
         inputProgram = this.removeComments(inputProgram);
         this.disjFactPredName = (0, asp_utils_1.make_unique)(TheoreticalAspGrounder.DEFAULT_DISJ_FACT_PREDNAME, inputProgram);
         this.disjAtomPredName = (0, asp_utils_1.make_unique)(TheoreticalAspGrounder.DEFAULT_DISJ_ATOM_PREDNAME, inputProgram);
