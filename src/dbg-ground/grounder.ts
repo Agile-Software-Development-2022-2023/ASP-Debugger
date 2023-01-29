@@ -136,7 +136,7 @@ export class TheoreticalAspGrounder extends AspGrounder
             });
         
         // rewrite all ground atoms (not facts) from input program.
-        let allmatches = input_program.matchAll(/(\s*-?[a-z_][a-zA-Z0-9_]*\s*(\([\sa-zA-Z0-9_,\-#\(\)\.]*?\))?\s*)(\.|,|\||:)/g);
+        let allmatches = input_program.matchAll(/(\s*-?([a-z]|_+[a-z])[a-zA-Z0-9_]*\s*(\([\sa-zA-Z0-9_,\-#\(\)\.]*?\))?\s*)(\.|,|\||:)/g);
         let groundAtoms: Set<string> = new Set<string>();
 
         for ( let match of allmatches )

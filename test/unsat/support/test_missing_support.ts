@@ -63,6 +63,25 @@ describe('MUSes calculator for missing support', function()
         },
 
         {
+        input_program: 'test/unsat/support_tests/missing_support_9.lp',
+        expected_missing_support: new Map<string, Set<string>>()        
+        },
+
+        {
+        input_program: 'test/unsat/support_tests/missing_support_10.lp',
+        expected_missing_support: new Map<string, Set<string>>([
+            ['p(11)',   new Set(['p(X) :- k(_,X)'])]
+        ])        
+        },
+
+        {
+        input_program: 'test/unsat/support_tests/missing_support_11.lp',
+        expected_missing_support: new Map<string, Set<string>>([
+            ['k(2,1)', new Set()]
+        ])      
+        },
+
+        {
         input_program: 'test/unsat/support_tests/empty.lp',
         expected_missing_support: new Map<string, Set<string>>()        
         }
@@ -72,7 +91,8 @@ describe('MUSes calculator for missing support', function()
         it('Returns the set of non-ground rules that could deduce a not supported atom but they do not.', function()
         {
             let musesCalculator: MUSesCalculator = new MUSesCalculator();
-            musesCalculator.calculateMUSes( [test_case.input_program], 1 );
+            musesCalculator.calculateMUSes( [test_case.input_program], 2 );
+            assert.ok( musesCalculator.getMusesCount() <= 1 );
             assert.deepStrictEqual( musesCalculator.getMissingSupportRulesFromMUS(0), test_case.expected_missing_support );
         });
     });

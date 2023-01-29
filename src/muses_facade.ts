@@ -71,4 +71,11 @@ export class MUSesCalculator {
         return missingSupportRulesMap;
     }
 
+    public getMusesCount(): number
+    {
+        if (!this.muses)
+            return 0;
+        return this.muses.length; 
+    }
+
 }
