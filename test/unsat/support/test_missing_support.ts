@@ -7,7 +7,7 @@ describe('MUSes calculator for missing support', function()
         {
         input_program: 'test/unsat/support_tests/missing_support_1.lp',
         expected_missing_support: new Map<string, Set<string>>([
-            ['a(1)', new Set(['a(X) :- b(X)'])]
+            ['a(1)', new Set(['a(X) :- b(X).'])]
         ]),
         expected_buggy_rules: new Set<string>([':- not a(1), k(X).'])        
         },
@@ -15,7 +15,7 @@ describe('MUSes calculator for missing support', function()
         {
         input_program: 'test/unsat/support_tests/missing_support_2.lp',
         expected_missing_support: new Map<string, Set<string>>([
-            ['a(1)', new Set(['a(X) :- b(X)', 'a(X) | _a(X,Y) :- b(X), b(Y)'])]
+            ['a(1)', new Set(['a(X) :- b(X).', 'a(X) | _a(X,Y) :- b(X), b(Y).'])]
         ]),
         expected_buggy_rules: new Set<string>([':- not a(1).'])        
         },
@@ -24,10 +24,10 @@ describe('MUSes calculator for missing support', function()
         input_program: 'test/unsat/support_tests/missing_support_3.lp',
         expected_missing_support: new Map<string, Set<string>>([
             ['_support(1)', new Set(
-                ['_support(X) :- b(X)', 
-                 '_support(X) | _a(X,Y) :- b(X), b(Y)',
-                 '0 <= \n{ _support(X) } \n<= 2 :- b(X), b(Y)',
-                 '{ _support(X): \nb(X), b(Y); _support(3) }'])]
+                ['_support(X) :- b(X).', 
+                 '_support(X) | _a(X,Y) :- b(X), b(Y).',
+                 '0 <= \n{ _support(X) } \n<= 2 :- b(X), b(Y).',
+                 '{ _support(X): \nb(X), b(Y); _support(3) }.'])]
         ]),
         expected_buggy_rules: new Set<string>([':- not _support(1).'])            
         },
@@ -47,7 +47,7 @@ describe('MUSes calculator for missing support', function()
         {
         input_program: 'test/unsat/support_tests/missing_support_6.lp',
         expected_missing_support: new Map<string, Set<string>>([
-            ['d(1)', new Set(['d(X) :- f(X,Y), a(Y)'])]
+            ['d(1)', new Set(['d(X) :- f(X,Y), a(Y).'])]
         ]),
         expected_buggy_rules: new Set<string>([':- c(1), not d(1).'])            
         },
@@ -56,8 +56,8 @@ describe('MUSes calculator for missing support', function()
         input_program: 'test/unsat/support_tests/missing_support_7.lp',
         expected_missing_support: new Map<string, Set<string>>([
             ['f',    new Set()],
-            ['p(1)', new Set(['p(1) :- f'])],
-            ['q(1)', new Set(['q(1) :- f'])]
+            ['p(1)', new Set(['p(1) :- f.'])],
+            ['q(1)', new Set(['q(1) :- f.'])]
         ]),
         expected_buggy_rules: new Set<string>([':- not p(1), not q(1).'])            
         },
@@ -65,7 +65,7 @@ describe('MUSes calculator for missing support', function()
         {
         input_program: 'test/unsat/support_tests/missing_support_8.lp',
         expected_missing_support: new Map<string, Set<string>>([
-            ['q(1)', new Set(['q(1) :- k(1,2)'])]
+            ['q(1)', new Set(['q(1) :- k(1,2).'])]
         ]),
         expected_buggy_rules: new Set<string>()            
         },
@@ -79,7 +79,7 @@ describe('MUSes calculator for missing support', function()
         {
         input_program: 'test/unsat/support_tests/missing_support_10.lp',
         expected_missing_support: new Map<string, Set<string>>([
-            ['p(11)',   new Set(['p(X) :- k(_,X)'])]
+            ['p(11)',   new Set(['p(X) :- k(_,X).'])]
         ]),
         expected_buggy_rules: new Set<string>(['p(X) :- k(_,X).', ':- p(1), not p(11).'])            
         },

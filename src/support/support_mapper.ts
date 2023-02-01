@@ -54,7 +54,7 @@ export class SupportRuleMapper
         let atomPredicateStr: string = atomPredicate.getPredString();
         if ( !this.supportMap.has(atomPredicateStr) )
             this.supportMap.set(atomPredicateStr, new Set<string>());
-        this.supportMap.get(atomPredicateStr).add(rule.trim());
+        this.supportMap.get(atomPredicateStr).add(rule.trim() + '.');
     }
 
     public getMap(): Map<string, Set<string>> { return this.supportMap; }
