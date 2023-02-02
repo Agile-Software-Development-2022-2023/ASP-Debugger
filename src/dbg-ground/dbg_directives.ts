@@ -40,7 +40,7 @@ export class DebugDirectives
         if ( dir_content_match == null )
             return false;
         
-        this.reset();
+        this.__resetDefaultPolicyDirective();
         
         const policy: string = dir_content_match[1];
         if      ( policy === 'facts_only' ) this.defaultAdornerPolicy = DefaultAdornerPolicy.FACTS_ONLY;
@@ -60,17 +60,27 @@ export class DebugDirectives
         if ( dir_content_match == null )
             return false;
         
-        this.reset();
+        this.__resetMissingSupport();
         this.missingSupportEnabled = false;
 
         return true;
     }
 
-    public reset()
+    private __resetDefaultPolicyDirective()
     {
         this.defaultAdornerPolicy = DefaultAdornerPolicy.RULES_ONLY;
         this.negateDefaultAdornerPolicy = false;
+    }
+
+    private __resetMissingSupport()
+    {
         this.missingSupportEnabled = true;
+    }
+
+    public reset()
+    {
+        this.__resetDefaultPolicyDirective();
+        this.__resetMissingSupport();
     }
 
     public getDefaultAdornerPolicy(): DefaultAdornerPolicy { return this.defaultAdornerPolicy; }
