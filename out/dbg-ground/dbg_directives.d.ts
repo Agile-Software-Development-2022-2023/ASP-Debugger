@@ -12,6 +12,8 @@ export declare class DebugDirectives {
     parseDirectives(input_program: string): string;
     private __parseDefaultPolicyDirective;
     private __parseMissingSupportDirective;
+    private __resetDefaultPolicyDirective;
+    private __resetMissingSupport;
     reset(): void;
     getDefaultAdornerPolicy(): DefaultAdornerPolicy;
     isNegateDefaultAdornerPolicy(): boolean;

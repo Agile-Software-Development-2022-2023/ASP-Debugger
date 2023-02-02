@@ -27,7 +27,7 @@ class DebugDirectives {
         let dir_content_match = dir_content.match(/^debug\s+default\s*=\s*(rules_only|facts_only|all|none)\s*\.\s*$/);
         if (dir_content_match == null)
             return false;
-        this.reset();
+        this.__resetDefaultPolicyDirective();
         const policy = dir_content_match[1];
         if (policy === 'facts_only')
             this.defaultAdornerPolicy = adorner_1.DefaultAdornerPolicy.FACTS_ONLY;
@@ -43,14 +43,20 @@ class DebugDirectives {
         let dir_content_match = dir_content.match(/^debug\s+support\s*=\s*none\s*\.\s*$/);
         if (dir_content_match == null)
             return false;
-        this.reset();
+        this.__resetMissingSupport();
         this.missingSupportEnabled = false;
         return true;
     }
-    reset() {
+    __resetDefaultPolicyDirective() {
         this.defaultAdornerPolicy = adorner_1.DefaultAdornerPolicy.RULES_ONLY;
         this.negateDefaultAdornerPolicy = false;
+    }
+    __resetMissingSupport() {
         this.missingSupportEnabled = true;
+    }
+    reset() {
+        this.__resetDefaultPolicyDirective();
+        this.__resetMissingSupport();
     }
     getDefaultAdornerPolicy() { return this.defaultAdornerPolicy; }
     isNegateDefaultAdornerPolicy() { return this.negateDefaultAdornerPolicy; }
